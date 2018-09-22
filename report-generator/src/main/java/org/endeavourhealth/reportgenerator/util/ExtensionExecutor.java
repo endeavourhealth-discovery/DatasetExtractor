@@ -37,7 +37,31 @@ public class ExtensionExecutor {
             case DEANONYMISE_ELGH:
                 executeDeanonymiseELGH(extension);
                 break;
+            case DEANONYMISE_EYE:
+                executeDeanonymiseEye(extension);
+                break;
         }
+    }
+
+    private void executeDeanonymiseEye(Extension extension) {
+        log.info("Running deanonymising of ELGH, running...");
+
+        repository.bootEntityManagerFactoryCore();
+
+        Integer offset = 0;
+
+        List<String> pseudoIds = repository.getPseudoIdsForEye(offset);
+
+        while (pseudoIds.size() > 0) {
+
+            repository.deanonymiseELGH(pseudoIds);
+
+            offset += 3000;
+
+            pseudoIds = repository.getPseudoIdsForELGH(offset);
+        }
+
+        log.info("...deanonymising all done");
     }
 
     private void executeDeanonymiseELGH(Extension extension) {
