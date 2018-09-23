@@ -145,6 +145,56 @@ public class JpaRepository {
         return query.getResultList();
     }
 
+    public List<Object[]> deanonymiseEYE(List<String> pseudoIds) {
+
+        EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
+
+        entityManagerCore.getTransaction().begin();
+        entityManagerCompass.getTransaction().begin();
+
+        Query query = entityManagerCore.createNativeQuery("select distinct s.pseudo_id," +
+                "DATE_SUB(p.date_of_birth, INTERVAL DAYOFMONTH(p.date_of_birth) - 1 DAY)," +
+                "p.gender," +
+                "YEAR(p.date_of_death)" +
+                " from eds.patient_search p " +
+                " join subscriber_transform_ceg_enterprise.pseudo_id_map s on p.patient_id = s.patient_id" +
+                " where s.pseudo_id in (:pseudoIds) and p.registered_practice_ods_code is not null and p.nhs_number is not null");
+
+        query.setParameter("pseudoIds", pseudoIds);
+
+        List<Object[]> rows = query.getResultList();
+
+        log.debug("Have got {} rows", rows.size());
+
+        Query update = entityManagerCompass.createNativeQuery("update cohort c set " +
+                "c.DateOfBirth = ?," +
+                "c.Gender = ?," +
+                "c.YearOfDeath = ?" +
+                " where c.pseudo_id_from_compass = ?");
+
+        for (Object[] row : rows) {
+
+            update.setParameter(1, row[1]);
+            update.setParameter(2, row[2]);
+            update.setParameter(3, row[3]);
+
+            update.setParameter(4, row[0]); //pseudo_id
+
+            update.executeUpdate();
+
+            log.trace("Updating {}", row);
+        }
+
+        entityManagerCore.getTransaction().commit();
+        entityManagerCore.close();
+
+        entityManagerCompass.getTransaction().commit();
+        entityManagerCompass.close();
+
+        return rows;
+    }
+
     public List<Object[]> deanonymiseELGH(List<String> pseudoIds) {
 
         EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
