@@ -44,7 +44,7 @@ public class ExtensionExecutor {
     }
 
     private void executeDeanonymiseEye(Extension extension) {
-        log.info("Running deanonymising of ELGH, running...");
+        log.info("Running deanonymising of Diabetes eye, running...");
 
         repository.bootEntityManagerFactoryCore();
 
@@ -54,7 +54,7 @@ public class ExtensionExecutor {
 
         while (pseudoIds.size() > 0) {
 
-            repository.deanonymiseELGH(pseudoIds);
+            repository.deanonymiseEYE(pseudoIds);
 
             offset += 3000;
 
