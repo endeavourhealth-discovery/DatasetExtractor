@@ -1,0 +1,13 @@
+.sts4-cache/
+/target
+datasetextractor.iml
+.idea
+src/main/resources/data.extractor.properties
+src/main/etc/output/*
+
+bin/
+password
+
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
