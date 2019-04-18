@@ -2,6 +2,7 @@ package org.endeavourhealth.datasetextractor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.datasetextractor.exception.DatasetExtractorException;
+import org.endeavourhealth.datasetextractor.repository.Repository;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package org.endeavourhealth.datasetextractor;
+package org.endeavourhealth.datasetextractor.repository;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import lombok.extern.slf4j.Slf4j;

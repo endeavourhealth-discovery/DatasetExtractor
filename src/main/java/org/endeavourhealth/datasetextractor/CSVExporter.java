@@ -3,6 +3,7 @@ package org.endeavourhealth.datasetextractor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.endeavourhealth.datasetextractor.repository.Repository;
 
 import java.io.BufferedWriter;
 import java.nio.file.Files;

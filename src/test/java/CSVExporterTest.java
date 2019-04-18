@@ -1,6 +1,6 @@
 import org.endeavourhealth.datasetextractor.CSVExporter;
 import org.endeavourhealth.datasetextractor.Extractor;
-import org.endeavourhealth.datasetextractor.Repository;
+import org.endeavourhealth.datasetextractor.repository.Repository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
