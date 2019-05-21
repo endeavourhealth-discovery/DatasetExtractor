@@ -2,11 +2,14 @@ import org.endeavourhealth.datasetextractor.CSVExporter;
 import org.endeavourhealth.datasetextractor.Extractor;
 import org.endeavourhealth.datasetextractor.repository.Repository;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.mockito.Mockito.*;
@@ -14,6 +17,7 @@ import static org.mockito.Mockito.*;
 public class CSVExporterTest {
 
     private CSVExporter csvExporter;
+    private Properties properties;
 
 
     @Before
@@ -21,7 +25,7 @@ public class CSVExporterTest {
 
         Repository repository = mock(Repository.class);
 
-        Properties properties = loadProperties();
+        properties = loadProperties();
 
         int noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
 
@@ -47,6 +51,7 @@ public class CSVExporterTest {
         when( repository.getHeaders() ).thenReturn( headers );
 
         csvExporter = new CSVExporter(properties, repository);
+
     }
 
 
@@ -54,12 +59,28 @@ public class CSVExporterTest {
     public void getRecords() throws Exception {
 
         csvExporter.exportCSV();
+
+        //Must flush to test otherwise file isn't written to
+        csvExporter.close();
+
+        //Test
+        String outputDirectory = properties.getProperty("outputFilepath");
+
+        String success = new String(Files.readAllBytes(Paths.get(outputDirectory + "0.csv")));
+
+        Assert.assertEquals(success, "1,2,3,4\r\n" +
+                "a,b,c,d\r\n" +
+                "a,b,c,d\r\n" +
+                "a,b,c,d\r\n" +
+                "a,b,c,d\r\n" +
+                "a,b,c,d\r\n" +
+                "a,b,c,d\r\n");
+
     }
 
     @After
     public void after() throws Exception {
 
-        csvExporter.close();
     }
 
     private static Properties loadProperties() throws IOException {
