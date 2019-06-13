@@ -37,7 +37,7 @@ public class CSVExporter implements AutoCloseable {
 
         log.info("**** Booting com.example.CSVExporter, loading property file and db repository.....");
 
-        filepath = properties.getProperty("filepath");
+        filepath = properties.getProperty("outputFilepath");
 
         noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
 

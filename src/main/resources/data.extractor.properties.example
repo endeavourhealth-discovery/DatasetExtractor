@@ -6,8 +6,8 @@ password=blah
 
 #Database table properties
 tablename=test
-orderBy=paper_id
-filepath=/home/git/endeavour/datasetextractor/src/main/etc/output
+orderBy=a
+outputFilepath=/home/git/endeavour/DatasetExtractor/src/main/etc/output
 
 # CSV Output properties
 
