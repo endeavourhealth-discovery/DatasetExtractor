@@ -52,6 +52,8 @@ public class Repository {
             }
         }
 
+        preparedStatement.close();
+
         headers = labels;
     }
 
@@ -75,6 +77,8 @@ public class Repository {
 
             result.add( row );
         }
+
+        preparedStatement.close();
 
         return result;
     }
