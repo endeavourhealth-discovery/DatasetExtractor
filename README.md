@@ -1,16 +1,16 @@
-﻿# DatasetExtractor - 
+﻿# DatasetExtractor
 
 Various applications to extract Discovery reports
 
 ## Build
 [Mvn Wrapper](https://github.com/takari/maven-wrapper)
 
-####Using maven-jar-plugin to create executable
+#### Using maven-jar-plugin to create executable
 **./mvnw install**
 
 **java -jar target/{jar.file) tableName sortColumn**
 
-####Using maven-exec-plugin to run in maven process
+#### Using maven-exec-plugin to run in maven process
 
 **./mvnw compile exec:java -Dexec.args="{tableName} {sortColumn}"**
 
