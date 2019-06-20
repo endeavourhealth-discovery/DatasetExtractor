@@ -60,7 +60,6 @@ public class CSVExporterTest {
                 "1,2,3,4,5\r\n" +
                 "1,2,3,4,5\r\n" +
                 "1,2,3,4,5\r\n", output);
-
     }
 
     @After

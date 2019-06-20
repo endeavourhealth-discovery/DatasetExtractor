@@ -69,9 +69,9 @@ public class CSVExporterTest {
         //Test
         String outputDirectory = properties.getProperty("outputFilepath");
 
-        String success = new String(Files.readAllBytes(Paths.get(outputDirectory + "0.csv")));
+        String output = new String(Files.readAllBytes(Paths.get(outputDirectory + "0.csv")));
 
-        Assert.assertEquals(success, "1,2,3,4\r\n" +
+        Assert.assertEquals(output, "1,2,3,4\r\n" +
                 "a,b,c,d\r\n" +
                 "a,b,c,d\r\n" +
                 "a,b,c,d\r\n" +
