@@ -3,6 +3,7 @@ package org.endeavourhealth.datasetextractor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.endeavourhealth.datasetextractor.exception.DatasetExtractorException;
 import org.endeavourhealth.datasetextractor.repository.Repository;
 
 import java.io.BufferedWriter;
@@ -38,6 +39,8 @@ public class CSVExporter implements AutoCloseable {
         log.info("**** Booting com.example.CSVExporter, loading property file and db repository.....");
 
         filepath = properties.getProperty("outputFilepath");
+
+        if(filepath == null) throw new DatasetExtractorException("Property outputFilepath is required");
 
         noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
 

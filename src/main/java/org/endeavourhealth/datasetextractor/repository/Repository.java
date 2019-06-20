@@ -65,8 +65,6 @@ public class Repository {
 
         List<List<String>> result = new ArrayList<>();
 
-
-
         while (rs.next()) {
 
             List<String> row = new ArrayList<>();
@@ -77,7 +75,6 @@ public class Repository {
 
             result.add( row );
         }
-
 
         return result;
     }
