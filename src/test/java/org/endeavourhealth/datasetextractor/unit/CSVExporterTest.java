@@ -20,6 +20,7 @@ import static org.mockito.Mockito.*;
 public class CSVExporterTest {
 
     private CSVExporter csvExporter;
+
     private Properties properties;
 
 
@@ -54,7 +55,6 @@ public class CSVExporterTest {
         when( repository.getHeaders() ).thenReturn( headers );
 
         csvExporter = new CSVExporter(properties, repository);
-
     }
 
 
