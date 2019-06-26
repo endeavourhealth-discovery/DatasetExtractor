@@ -36,7 +36,7 @@ public class CSVExporter implements AutoCloseable {
 
         this.repository = repository;
 
-        log.info("**** Booting com.example.CSVExporter, loading property file and db repository.....");
+        log.info("**** Booting org.endeavourhealth.datasetextractor.CSVExporter, loading property file and db repository.....");
 
         filepath = properties.getProperty("outputFilepath");
 
