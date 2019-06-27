@@ -31,9 +31,9 @@ public class ReportGenerator implements AutoCloseable {
 
     public void generate() throws Exception {
 
-        String spName = "generateReportForChildImms";
+        repository.call( "buildDatasetForChildImms" );
 
-        repository.call( spName );
+        repository.call( "generateReportForChildImms");
 
         log.info("Stored procedure finished");
     }
