@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.endeavourhealth.datasetextractor.exception.DatasetExtractorException;
+import org.endeavourhealth.datasetextractor.repository.JpaRepository;
 import org.endeavourhealth.datasetextractor.repository.Repository;
 
 import java.io.BufferedWriter;
@@ -15,98 +16,48 @@ import java.util.Properties;
 @Slf4j
 public class ReportGenerator implements AutoCloseable {
 
-    private final Repository repository;
-
-    private BufferedWriter writer;
-
-    private CSVPrinter csvPrinter;
-
-    private final String filepath;
-
-    private int fileCount = 0;
-
-    private final int noOfRowsInEachOutputFile;
-
-    private final int noOfRowsInEachDatabaseFetch;
-
-    private final int pageSize;
+    private final JpaRepository repository;
 
 
-    public ReportGenerator(Properties properties, Repository repository) throws Exception {
+
+    public ReportGenerator(Properties properties, JpaRepository repository) throws Exception {
 
         this.repository = repository;
 
-        log.info("**** Booting com.example.CSVExporter, loading property file and db repository.....");
+        log.info("**** Booting org.endeavourhealth.datasetextractor.ReportGenerator, loading property file and db repository.....");
 
-        filepath = properties.getProperty("outputFilepath");
-
-        if(filepath == null) throw new DatasetExtractorException("Property outputFilepath is required");
-
-        noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
-
-        noOfRowsInEachDatabaseFetch =  Integer.valueOf( properties.getProperty("noOfRowsInEachDatabaseFetch") );
-
-        pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
-
-        bootNewPrintWriter();
-
-        log.info("**** CSVExporter successfully booted!!");
+        log.info("**** ReportGenerator successfully booted!!");
     }
 
-    public void exportCSV() throws Exception {
+    public void generate() throws Exception {
 
-        int currentFileCount = 0, offset = 0;
+        String spName = "generateReportForChildImms";
 
-        List<List<String>> result = repository.getRows(offset, pageSize);
+        repository.call( spName );
 
-        while(result.size() > 0) {
-
-            csvPrinter.printRecords( result );
-
-            offset += result.size();
-
-            currentFileCount += result.size();
-
-            if(currentFileCount > noOfRowsInEachOutputFile) {
-
-                csvPrinter.close( true );
-
-                writer.close();
-
-                bootNewPrintWriter();
-
-                currentFileCount = 0;
-            }
-
-            result = repository.getRows(offset, pageSize);
-
-            log.info("No of rows processed {}", offset);
-        }
-
-        log.info("Finished writing csv");
+        log.info("Stored procedure finished");
     }
-
-    private void bootNewPrintWriter() throws Exception {
-
-        String filename = filepath + fileCount + ".csv";
-
-        log.info("Opening file {} for writing.....", filename);
-
-        writer = Files.newBufferedWriter(Paths.get( filename ));
-
-        fileCount++;
-
-        csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader( repository.getHeaders() ));
-    }
-
 
 
     @Override
     public void close() throws Exception {
-        csvPrinter.close( true );
-
-        writer.close();
 
         repository.close();
+    }
+
+    public void deanonymise() {
+
+        Integer offset = 0;
+
+        List<String> pseudoIds = repository.getPseudoIds( offset );
+
+        while(pseudoIds.size() > 0) {
+
+            List<Object[]> rows = repository.deanonymise( pseudoIds );
+
+            pseudoIds = repository.getPseudoIds(offset);
+
+            offset += 1000;
+        }
     }
 }
