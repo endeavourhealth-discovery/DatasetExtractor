@@ -24,7 +24,7 @@ public class ReportRunner {
 
             log.info("Starting report generator...");
 
-//            reportGenerator.generate();
+            reportGenerator.generate();
 
             reportGenerator.deanonymise();
 
