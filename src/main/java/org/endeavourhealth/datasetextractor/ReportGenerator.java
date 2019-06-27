@@ -57,6 +57,8 @@ public class ReportGenerator implements AutoCloseable {
 
             pseudoIds = repository.getPseudoIds(offset);
 
+
+
             offset += 1000;
         }
     }
