@@ -47,23 +47,21 @@ public class JpaRepository {
     public List<String> getPseudoIds(Integer offset) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        Query query = entityManager.createNativeQuery("select psuedo_id from dataset_wf");
+        Query query = entityManager.createNativeQuery("select pseudo_id from dataset_wf");
 
         query.setFirstResult(offset);
 
-    query.setMaxResults(1000);
+        query.setMaxResults(1000);
 
         return query.getResultList();
-
-
-
-
     }
 
 
     public List<Object[]> deanonymise(List<String> pseudoIds) {
 
         EntityManager entityManager = entityManagerFactoryCore.createEntityManager();
+
+        entityManager.getTransaction().begin();
 
         Query query = entityManager.createNativeQuery("select s.pseudo_id," +
                 "p.nhs_number," +
@@ -82,24 +80,39 @@ public class JpaRepository {
 
         query.setParameter("names", pseudoIds);
 
-        List rows = query.getResultList();
+        List<Object[]> rows = query.getResultList();
 
-        for(Object row : rows) {
+        Query update = entityManager.createNativeQuery("update dataset_wf d set " +
+                "d.NHSNumber = ?," +
+                "d.AddressLine1 = ?," +
+                "d.AddressLine2 = ?," +
+                "d.AddressLine3 = ?," +
+                "d.City = ?," +
+                "d.Postcode = ?," +
+                "d.Gender = ?," +
+                "d.FirstName = ?," +
+                "d.LastName = ?," +
+                "d.BirthDate = ? where d.pseudo_id = ?");
 
-            Query update = entityManager.createNativeQuery("update dataset_wf x set " +
-                    "d.NHSNumber = ?," +
-                    "d.AddressLine1 = ?," +
-                    "d.AddressLine2 = ?," +
-                    "d.AddressLine3 = ?," +
-                    "d.City = ?," +
-                    "d.Postcode = ?," +
-                    "d.Gender = ?," +
-                    "d.FirstName = ?," +
-                    "d.LastName = ?," +
-                    "d.BirthDate = ?," +
-                    "d.AddressLine1 = ?;")
+        for(Object[] row : rows) {
+
+            update.setParameter(1, row[1]);
+            update.setParameter(2, row[2]);
+            update.setParameter(3, row[3]);
+            update.setParameter(4, row[4]);
+            update.setParameter(5, row[5]);
+            update.setParameter(6, row[6]);
+            update.setParameter(7, row[7]);
+            update.setParameter(8, row[8]);
+            update.setParameter(9, row[9]);
+            update.setParameter(10, row[10]);
+
+            update.setParameter(11, row[0]);
+
+            update.executeUpdate();
         }
 
+        entityManager.getTransaction().commit();
         entityManager.close();
 
         return rows;
