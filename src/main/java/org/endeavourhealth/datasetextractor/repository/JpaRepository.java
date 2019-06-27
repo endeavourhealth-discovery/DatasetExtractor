@@ -22,9 +22,11 @@ public class JpaRepository {
 
     private void init(Properties props) {
 
-         entityManagerFactory = Persistence.createEntityManagerFactory("reportGenerator");
+        props.put("javax.persistence.jdbc.password", props.get("db.password"));
+        props.put("javax.persistence.jdbc.user", props.getProperty("db.user"));
+        entityManagerFactory = Persistence.createEntityManagerFactory("reportGenerator", props);
 
-        entityManagerFactoryCore = Persistence.createEntityManagerFactory("coreDatabase");
+        entityManagerFactoryCore = Persistence.createEntityManagerFactory("coreDatabase", props);
     }
 
 
