@@ -3,6 +3,7 @@ package org.endeavourhealth.datasetextractor;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.datasetextractor.exception.DatasetExtractorException;
 import org.endeavourhealth.datasetextractor.exception.ReportGeneratorException;
+import org.endeavourhealth.datasetextractor.repository.JpaRepository;
 import org.endeavourhealth.datasetextractor.repository.Repository;
 
 import java.io.IOException;
@@ -17,13 +18,15 @@ public class ReportRunner {
 
         Properties properties = loadProperties( args );
 
-        Repository repository = new Repository( properties );
+        JpaRepository repository = new JpaRepository( properties );
 
         try (  ReportGenerator reportGenerator = new ReportGenerator( properties, repository ) ) {
 
             log.info("Starting report generator...");
 
-            reportGenerator.generate();
+//            reportGenerator.generate();
+
+            reportGenerator.deanonymise();
 
             log.info("...all done!");
 
@@ -38,7 +41,8 @@ public class ReportRunner {
 
         Properties properties = new Properties();
 
-        InputStream inputStream = ReportRunner.class.getClassLoader().getResourceAsStream("report.generator.properties");
+        InputStream inputStream = ReportRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream2 = ReportRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
 
         properties.load( inputStream );
 
