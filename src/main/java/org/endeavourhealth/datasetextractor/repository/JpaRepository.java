@@ -84,6 +84,22 @@ public class JpaRepository {
 
         List rows = query.getResultList();
 
+        for(Object row : rows) {
+
+            Query update = entityManager.createNativeQuery("update dataset_wf x set " +
+                    "d.NHSNumber = ?," +
+                    "d.AddressLine1 = ?," +
+                    "d.AddressLine2 = ?," +
+                    "d.AddressLine3 = ?," +
+                    "d.City = ?," +
+                    "d.Postcode = ?," +
+                    "d.Gender = ?," +
+                    "d.FirstName = ?," +
+                    "d.LastName = ?," +
+                    "d.BirthDate = ?," +
+                    "d.AddressLine1 = ?;")
+        }
+
         entityManager.close();
 
         return rows;
