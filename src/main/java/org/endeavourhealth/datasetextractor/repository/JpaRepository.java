@@ -135,16 +135,19 @@ public class JpaRepository {
 
 	public void renameTable(Report report) {
 
+		log.info("Renaming table {} to {} ", report.getDatasetTable(), report.getDatasetTableYesterday());
+
+    	String sql = "RENAME TABLE " + report.getDatasetTable() + " TO " + report.getDatasetTableYesterday();
+
     	EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		entityManager.getTransaction().begin();
 
-    	Query query = entityManager.createNativeQuery("RENAME TABLE dataset_wf TO dataset_wf_old");
+    	Query query = entityManager.createNativeQuery( sql );
 
     	query.executeUpdate();
 
 		entityManager.getTransaction().commit();
 		entityManager.close();
-
 	}
 }

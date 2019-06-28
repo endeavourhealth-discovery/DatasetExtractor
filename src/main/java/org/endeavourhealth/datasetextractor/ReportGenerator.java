@@ -7,11 +7,9 @@ import org.endeavourhealth.datasetextractor.repository.JpaRepository;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
@@ -44,18 +42,11 @@ public class ReportGenerator implements AutoCloseable {
 
             generateDelta( report );
 
-            renameTable( report );
+			repository.renameTable( report );
 
             report.setSuccess( true );
         }
     }
-
-	private void renameTable(Report report) {
-
-    	log.info("Renaming table {} to {} ", report.getName(), report.getName());
-
-    	repository.renameTable( report );
-	}
 
 	private void generateDelta(Report report) {
 

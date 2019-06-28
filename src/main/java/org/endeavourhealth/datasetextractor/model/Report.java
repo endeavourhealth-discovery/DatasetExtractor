@@ -14,4 +14,9 @@ public class Report {
     private Boolean requiresDeanonymising;
     private String sftpAccount;
     private boolean success;
+
+	public String getDatasetTableYesterday() {
+
+		return datasetTable + "_yesterday";
+	}
 }
