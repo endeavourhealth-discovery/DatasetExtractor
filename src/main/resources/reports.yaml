@@ -1,0 +1,7 @@
+name: "WFChildImms"
+requiresDeanonymising: true
+storedProcedures:
+  - createCohortWF
+  - buildDatasetForChildImms
+  - generateReportForChildImms
+sftpAccount: "chilnel"
