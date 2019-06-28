@@ -44,9 +44,18 @@ public class ReportGenerator implements AutoCloseable {
 
             generateDelta( report );
 
+            renameTable( report );
+
             report.setSuccess( true );
         }
     }
+
+	private void renameTable(Report report) {
+
+    	log.info("Renaming table {} to {} ", report.getName(), report.getName());
+
+    	repository.renameTable( report );
+	}
 
 	private void generateDelta(Report report) {
 
@@ -65,8 +74,6 @@ public class ReportGenerator implements AutoCloseable {
 
         log.info("Stored procedures all called");
     }
-
-
 
 
     private void deanonymise(Report report) {

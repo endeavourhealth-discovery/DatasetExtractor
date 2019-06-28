@@ -124,12 +124,27 @@ public class JpaRepository {
     }
 
 	public List<Delta> getAlterations(Report report) {
-    	
+
     	return null;
 	}
 
 	public List<Delta> getAdditions(Report report) {
 
     	return null;
+	}
+
+	public void renameTable(Report report) {
+
+    	EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		entityManager.getTransaction().begin();
+
+    	Query query = entityManager.createNativeQuery("RENAME TABLE dataset_wf TO dataset_wf_old");
+
+    	query.executeUpdate();
+
+		entityManager.getTransaction().commit();
+		entityManager.close();
+
 	}
 }

@@ -9,6 +9,7 @@ import java.util.List;
 @ToString
 public class Report {
     private String name;
+    private String datasetTable;
     private List<String> storedProcedures;
     private Boolean requiresDeanonymising;
     private String sftpAccount;
