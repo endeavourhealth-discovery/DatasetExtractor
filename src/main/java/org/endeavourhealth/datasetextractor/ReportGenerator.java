@@ -1,16 +1,17 @@
 package org.endeavourhealth.datasetextractor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.endeavourhealth.datasetextractor.exception.DatasetExtractorException;
+import org.endeavourhealth.datasetextractor.beans.Delta;
+import org.endeavourhealth.datasetextractor.model.Report;
 import org.endeavourhealth.datasetextractor.repository.JpaRepository;
-import org.endeavourhealth.datasetextractor.repository.Repository;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.BufferedWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
@@ -18,7 +19,7 @@ public class ReportGenerator implements AutoCloseable {
 
     private final JpaRepository repository;
 
-
+    private List<Report> reports = new ArrayList<>();
 
     public ReportGenerator(Properties properties, JpaRepository repository) throws Exception {
 
@@ -26,26 +27,51 @@ public class ReportGenerator implements AutoCloseable {
 
         log.info("**** Booting org.endeavourhealth.datasetextractor.ReportGenerator, loading property file and db repository.....");
 
+        loadReports();
+
         log.info("**** ReportGenerator successfully booted!!");
     }
 
     public void generate() throws Exception {
 
-        repository.call( "buildDatasetForChildImms" );
+        for(Report report : reports) {
 
-        repository.call( "generateReportForChildImms");
+            log.info("Generating report {}", report);
 
-        log.info("Stored procedure finished");
+            callStoredProcedures( report );
+
+            deanonymise( report );
+
+            generateDelta( report );
+
+            report.setSuccess( true );
+        }
+    }
+
+	private void generateDelta(Report report) {
+
+    	List<Delta> additions = repository.getAdditions( report );
+
+    	List<Delta> alterations = repository.getAlterations( report );
+	}
+
+	private void callStoredProcedures(Report report) {
+
+        log.info("Cycling through stored procedures");
+
+        for(String storedProcedure : report.getStoredProcedures()) {
+            repository.call( storedProcedure);
+        }
+
+        log.info("Stored procedures all called");
     }
 
 
-    @Override
-    public void close() throws Exception {
 
-        repository.close();
-    }
 
-    public void deanonymise() {
+    private void deanonymise(Report report) {
+
+        if(!report.getRequiresDeanonymising()) return;
 
         Integer offset = 0;
 
@@ -57,9 +83,30 @@ public class ReportGenerator implements AutoCloseable {
 
             pseudoIds = repository.getPseudoIds(offset);
 
-
-
             offset += 1000;
         }
+    }
+
+
+    private Report loadReports() {
+
+        Yaml yaml = new Yaml(new Constructor(Report.class));
+
+        InputStream yamlInputStream = this.getClass()
+                .getClassLoader()
+                .getResourceAsStream("reports.yaml");
+
+        Report report = yaml.load(yamlInputStream);
+
+        log.info("Found report {}", report);
+
+        reports.add(report);
+
+        return report;
+    }
+
+    @Override
+    public void close() throws Exception {
+        repository.close();
     }
 }
