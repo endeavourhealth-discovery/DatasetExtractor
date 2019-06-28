@@ -1,11 +1,11 @@
 package org.endeavourhealth.datasetextractor.repository;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.datasetextractor.beans.Delta;
+import org.endeavourhealth.datasetextractor.model.Report;
 
 import javax.persistence.*;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,6 +24,7 @@ public class JpaRepository {
 
         props.put("javax.persistence.jdbc.password", props.get("db.password"));
         props.put("javax.persistence.jdbc.user", props.getProperty("db.user"));
+
         entityManagerFactory = Persistence.createEntityManagerFactory("reportGenerator", props);
 
         entityManagerFactoryCore = Persistence.createEntityManagerFactory("coreDatabase", props);
@@ -31,6 +32,8 @@ public class JpaRepository {
 
 
     public void call(String storedProceduresName) {
+
+        log.info("Calling stored procedure {}", storedProceduresName);
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -119,4 +122,14 @@ public class JpaRepository {
 
         return rows;
     }
+
+	public List<Delta> getAlterations(Report report) {
+    	
+    	return null;
+	}
+
+	public List<Delta> getAdditions(Report report) {
+
+    	return null;
+	}
 }
