@@ -5,10 +5,12 @@ import org.endeavourhealth.datasetextractor.exception.DatasetExtractorException;
 import org.endeavourhealth.datasetextractor.exception.ReportGeneratorException;
 import org.endeavourhealth.datasetextractor.repository.JpaRepository;
 import org.endeavourhealth.datasetextractor.repository.Repository;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
@@ -26,8 +28,6 @@ public class ReportRunner {
 
             reportGenerator.generate();
 
-            reportGenerator.deanonymise();
-
             log.info("...all done!");
 
         } catch (Exception e) {
@@ -37,12 +37,9 @@ public class ReportRunner {
 
     private static Properties loadProperties(String[] args) throws IOException {
 
-//        if(args.length == 0) throw new ReportGeneratorException("Required args is absent [tablename]");
-
         Properties properties = new Properties();
 
-        InputStream inputStream = ReportRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
-        InputStream inputStream2 = ReportRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream = ReportRunner.class.getClassLoader().getResourceAsStream("report.generator.properties");
 
         properties.load( inputStream );
 
