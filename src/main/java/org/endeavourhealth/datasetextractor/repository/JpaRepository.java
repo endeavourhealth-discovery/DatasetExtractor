@@ -24,6 +24,7 @@ public class JpaRepository {
 
         props.put("javax.persistence.jdbc.password", props.get("db.password"));
         props.put("javax.persistence.jdbc.user", props.getProperty("db.user"));
+		props.put("javax.persistence.jdbc.url", props.getProperty("db.url"));
 
         entityManagerFactory = Persistence.createEntityManagerFactory("reportGenerator", props);
 
@@ -130,7 +131,17 @@ public class JpaRepository {
 
 	public List<Delta> getAdditions(Report report) {
 
-    	return null;
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		String sql = "select * from " + report.getDatasetTable() + " t left join " + report.getDatasetTableYesterday() + " y " +
+		"on t.id = y.id " +
+		"where y.id is null";
+
+		Query query = entityManager.createNativeQuery( sql );
+
+		List rows = query.getResultList();
+
+    	return rows;
 	}
 
 	public void renameTable(Report report) {
