@@ -50,9 +50,9 @@ public class ReportGenerator implements AutoCloseable {
 
 	private void generateDelta(Report report) {
 
-    	List<Delta> additions = repository.getAdditions( report );
+//    	List<Delta> additions = repository.getAdditions( report );
 
-    	List<Delta> alterations = repository.getAlterations( report );
+//    	List<Delta> alterations = repository.getAlterations( report );
 	}
 
 	private void callStoredProcedures(Report report) {
