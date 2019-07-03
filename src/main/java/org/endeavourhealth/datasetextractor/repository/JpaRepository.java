@@ -2,10 +2,13 @@ package org.endeavourhealth.datasetextractor.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.datasetextractor.beans.Delta;
+import org.endeavourhealth.datasetextractor.beans.DeltaType;
 import org.endeavourhealth.datasetextractor.model.Report;
 
 import javax.persistence.*;
+import javax.xml.soap.Detail;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -131,17 +134,26 @@ public class JpaRepository {
 
 	public List<Delta> getAdditions(Report report) {
 
+        List<Delta> deltas = new ArrayList<>();
+
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		String sql = "select * from " + report.getDatasetTable() + " t left join " + report.getDatasetTableYesterday() + " y " +
-		"on t.id = y.id " +
+		String sql = "select t.* from " + report.getDatasetTable() + " t left join " + report.getDatasetTableYesterday() + " y " +
+		"on t.id = y.id and t.hash = y.hash " +
 		"where y.id is null";
 
 		Query query = entityManager.createNativeQuery( sql );
 
-		List rows = query.getResultList();
+		List<Object[]> rows = query.getResultList();
 
-    	return rows;
+		for(Object[] data : rows) {
+		    Delta delta = new Delta();
+		    delta.populateRow(data);
+		    delta.setType(DeltaType.ADDITION);
+
+            deltas.add(delta);
+        }
+    	return deltas;
 	}
 
 	public void renameTable(Report report) {
