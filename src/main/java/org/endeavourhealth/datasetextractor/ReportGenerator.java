@@ -45,20 +45,24 @@ public class ReportGenerator implements AutoCloseable {
 
         for(Report report : reports) {
 
-            log.info("Generating report {}", report);
-
-            callStoredProcedures( report );
-
-            deanonymise( report );
-
-            List<Delta> deltas = generateDelta( report );
-
-//			repository.renameTable( report );
-
-            csvDeltaExporter.exportCsv( deltas );
-
-            report.setSuccess( true );
+            executeReport( report );
         }
+    }
+
+    private void executeReport(Report report) throws IOException {
+        log.info("Generating report {}", report);
+
+        callStoredProcedures( report );
+
+        deanonymise( report );
+
+        List<Delta> deltas = generateDelta( report );
+
+//		repository.renameTable( report );
+
+        csvDeltaExporter.exportCsv( deltas );
+
+        report.setSuccess( true );
     }
 
 
@@ -128,5 +132,6 @@ public class ReportGenerator implements AutoCloseable {
     @Override
     public void close() throws Exception {
         repository.close();
+        csvDeltaExporter.close();
     }
 }
