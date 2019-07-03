@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.endeavourhealth.datasetextractor.beans.Delta;
+import org.endeavourhealth.datasetextractor.csv.CSVDeltaExporter;
 import org.endeavourhealth.datasetextractor.model.Report;
 import org.endeavourhealth.datasetextractor.repository.JpaRepository;
 import org.yaml.snakeyaml.Yaml;
@@ -25,9 +26,13 @@ public class ReportGenerator implements AutoCloseable {
 
     private List<Report> reports = new ArrayList<>();
 
+    private CSVDeltaExporter csvDeltaExporter;
+
     public ReportGenerator(Properties properties, JpaRepository repository) throws Exception {
 
         this.repository = repository;
+
+        this.csvDeltaExporter = new CSVDeltaExporter( properties );
 
         log.info("**** Booting org.endeavourhealth.datasetextractor.ReportGenerator, loading property file and db repository.....");
 
@@ -50,36 +55,12 @@ public class ReportGenerator implements AutoCloseable {
 
 //			repository.renameTable( report );
 
-            exportCsv( deltas );
+            csvDeltaExporter.exportCsv( deltas );
 
             report.setSuccess( true );
         }
     }
 
-    private void exportCsv(List<Delta> deltas) throws IOException {
-
-        String filename = "/home/hal/test.csv";
-
-        log.info("Opening file {} for writing.....", filename);
-
-        BufferedWriter writer = Files.newBufferedWriter(Paths.get( filename ));
-
-//        fileCount++;
-
-        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
-
-        for(Delta delta : deltas) {
-            csvPrinter.print( delta.getType() );
-            for(String s : delta.getRow()) {
-                csvPrinter.print( s );
-            }
-            csvPrinter.println();
-        }
-
-        csvPrinter.close( true );
-        writer.close();
-
-    }
 
     private List<Delta> generateDelta(Report report) {
 
