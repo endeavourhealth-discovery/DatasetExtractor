@@ -19,7 +19,13 @@ public class Delta {
         List<String> row = new ArrayList<>();
 
         for(Object o : data) {
-            if(o == null) row.add(""); else row.add(o.toString());
+            if(o == null) row.add("");
+            else {
+                if(o instanceof byte[]) continue;
+                row.add(o.toString());
+            }
         }
+
+        this.row = row;
     }
 }
