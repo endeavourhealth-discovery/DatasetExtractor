@@ -42,7 +42,7 @@ public class ReportGenerator implements AutoCloseable {
 
             generateDelta( report );
 
-			repository.renameTable( report );
+//			repository.renameTable( report );
 
             report.setSuccess( true );
         }
@@ -50,7 +50,7 @@ public class ReportGenerator implements AutoCloseable {
 
 	private void generateDelta(Report report) {
 
-//    	List<Delta> additions = repository.getAdditions( report );
+    	List<Delta> additions = repository.getAdditions( report );
 
 //    	List<Delta> alterations = repository.getAlterations( report );
 	}
