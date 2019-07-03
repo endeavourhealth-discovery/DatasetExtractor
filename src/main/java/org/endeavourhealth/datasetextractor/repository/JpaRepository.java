@@ -199,13 +199,15 @@ public class JpaRepository {
 
 		log.info("Renaming table {} to {} ", report.getDatasetTable(), report.getDatasetTableYesterday());
 
-    	String sql = "RENAME TABLE " + report.getDatasetTable() + " TO " + report.getDatasetTableYesterday();
-
     	EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		entityManager.getTransaction().begin();
 
-    	Query query = entityManager.createNativeQuery( sql );
+        Query query = entityManager.createNativeQuery( "drop table if exists " + report.getDatasetTableYesterday() );
+
+        query.executeUpdate();
+
+    	query = entityManager.createNativeQuery( "RENAME TABLE " + report.getDatasetTable() + " TO " + report.getDatasetTableYesterday() );
 
     	query.executeUpdate();
 
