@@ -127,9 +127,48 @@ public class JpaRepository {
         return rows;
     }
 
-	public List<Delta> getAlterations(Report report) {
+    public List<Delta> getDeletions(Report report) {
+        List<Delta> deltas = new ArrayList<>();
 
-    	return null;
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        String sql = "select y.* from " + report.getDatasetTable() + " t right join " + report.getDatasetTableYesterday() + " y " +
+                "on t.id = y.id where t.id is null";
+
+        Query query = entityManager.createNativeQuery( sql );
+
+        List<Object[]> rows = query.getResultList();
+
+        for(Object[] data : rows) {
+            Delta delta = new Delta();
+            delta.populateRow(data);
+            delta.setType(DeltaType.DELETION);
+
+            deltas.add(delta);
+        }
+        return deltas;
+    }
+
+	public List<Delta> getAlterations(Report report) {
+        List<Delta> deltas = new ArrayList<>();
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        String sql = "select t.* from " + report.getDatasetTable() + " t join " + report.getDatasetTableYesterday() + " y " +
+                "on t.id = y.id and t.hash != y.hash ";
+
+        Query query = entityManager.createNativeQuery( sql );
+
+        List<Object[]> rows = query.getResultList();
+
+        for(Object[] data : rows) {
+            Delta delta = new Delta();
+            delta.populateRow(data);
+            delta.setType(DeltaType.ALTERATION);
+
+            deltas.add(delta);
+        }
+        return deltas;
 	}
 
 	public List<Delta> getAdditions(Report report) {
@@ -139,7 +178,7 @@ public class JpaRepository {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		String sql = "select t.* from " + report.getDatasetTable() + " t left join " + report.getDatasetTableYesterday() + " y " +
-		"on t.id = y.id and t.hash = y.hash " +
+		"on t.id = y.id " +
 		"where y.id is null";
 
 		Query query = entityManager.createNativeQuery( sql );
