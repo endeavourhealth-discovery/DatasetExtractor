@@ -125,7 +125,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
                             <mainClass>
-                                org.endeavourhealth.datasetextractor.ExtractorRunner
+                                org.endeavourhealth.datasetextractor.ReportRunner
                             </mainClass>
                         </manifest>
                     </archive>
