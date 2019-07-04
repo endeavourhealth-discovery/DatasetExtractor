@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 @Slf4j
-public class Extractor {
+public class ExtractorRunner {
 
     public static void main(String... args) throws IOException, SQLException {
 
@@ -37,7 +37,7 @@ public class Extractor {
 
         Properties properties = new Properties();
 
-        InputStream inputStream = Extractor.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream = ExtractorRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
 
         properties.load( inputStream );
 
