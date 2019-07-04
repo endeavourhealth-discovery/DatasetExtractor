@@ -1,6 +1,4 @@
-.sts4-cache/
 /target
-datasetextractor.iml
 .idea
 src/main/resources/data.extractor.properties
 src/main/resources/report.generator.properties
@@ -8,7 +6,6 @@ src/main/etc/output/*
 src/test/etc/output/*
 bin/
 password
-
-target/
+*.iml
 !.mvn/wrapper/maven-wrapper.jar
 
