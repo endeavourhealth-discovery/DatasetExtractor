@@ -1,7 +1,7 @@
 package org.endeavourhealth.datasetextractor.unit;
 
 import org.endeavourhealth.datasetextractor.CSVExporter;
-import org.endeavourhealth.datasetextractor.Extractor;
+import org.endeavourhealth.datasetextractor.ExtractorRunner;
 import org.endeavourhealth.datasetextractor.repository.Repository;
 
 import org.junit.After;
@@ -89,7 +89,7 @@ public class CSVExporterTest {
     private static Properties loadProperties() throws IOException {
         Properties properties = new Properties();
 
-        InputStream inputStream = Extractor.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream = ExtractorRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
 
         properties.load( inputStream );
 

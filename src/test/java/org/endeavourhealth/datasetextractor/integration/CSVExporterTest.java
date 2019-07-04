@@ -1,7 +1,7 @@
 package org.endeavourhealth.datasetextractor.integration;
 
 import org.endeavourhealth.datasetextractor.CSVExporter;
-import org.endeavourhealth.datasetextractor.Extractor;
+import org.endeavourhealth.datasetextractor.ExtractorRunner;
 import org.endeavourhealth.datasetextractor.repository.Repository;
 import org.junit.*;
 import org.testcontainers.containers.MySQLContainer;
@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CSVExporterTest {
 
@@ -70,7 +69,7 @@ public class CSVExporterTest {
     private static Properties loadProperties() throws IOException {
         Properties properties = new Properties();
 
-        InputStream inputStream = Extractor.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream = ExtractorRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
 
         properties.load( inputStream );
 
