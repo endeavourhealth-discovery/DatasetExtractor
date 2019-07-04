@@ -41,9 +41,10 @@ public class CSVDeltaExporter {
             csvPrinter.println();
         }
 
-        csvPrinter.close(true);
-        writer.close();
-
     }
 
+    public void close() throws IOException {
+        csvPrinter.close(true);
+        writer.close();
+    }
 }
