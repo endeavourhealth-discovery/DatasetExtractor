@@ -44,7 +44,7 @@ public class CSVDeltaExporter {
     }
 
     public void close() throws IOException {
-        csvPrinter.close(true);
-        writer.close();
+        if(csvPrinter != null) csvPrinter.close(true);
+        if(writer != null) writer.close();
     }
 }
