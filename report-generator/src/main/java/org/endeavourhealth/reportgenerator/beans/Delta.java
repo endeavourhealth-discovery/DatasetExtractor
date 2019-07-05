@@ -1,4 +1,4 @@
-package org.endeavourhealth.datasetextractor.beans;
+package org.endeavourhealth.reportgenerator.beans;
 
 import lombok.Data;
 import lombok.ToString;

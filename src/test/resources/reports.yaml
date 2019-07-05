@@ -1,8 +1,0 @@
-name: "WFChildImms"
-datasetTable: "dataset_wf"
-requiresDeanonymising: true
-storedProcedures:
-  - createCohortWF
-  - buildDatasetForChildImms
-  - generateReportForChildImms
-sftpAccount: "sftpAccount"
