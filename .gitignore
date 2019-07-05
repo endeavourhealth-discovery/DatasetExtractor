@@ -2,8 +2,8 @@
 csv-exporter/target/
 report-generator/target/
 .idea
-src/main/resources/data.extractor.properties
-src/main/resources/report.generator.properties
+csv-exporter/src/main/resources/data.extractor.properties
+report-generator/src/main/resources/report.generator.properties
 src/main/etc/output/*
 src/test/etc/output/*
 bin/
