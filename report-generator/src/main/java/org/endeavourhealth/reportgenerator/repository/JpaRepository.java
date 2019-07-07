@@ -24,11 +24,15 @@ public class JpaRepository {
 
     private void init(Properties props) {
 
-        props.put("javax.persistence.jdbc.password", props.get("db.password"));
-        props.put("javax.persistence.jdbc.user", props.getProperty("db.user"));
-		props.put("javax.persistence.jdbc.url", props.getProperty("db.url"));
+        props.put("javax.persistence.jdbc.password", props.get("db.compass.password"));
+        props.put("javax.persistence.jdbc.user", props.getProperty("db.compass.user"));
+		props.put("javax.persistence.jdbc.url", props.getProperty("db.compass.url"));
 
-        entityManagerFactory = Persistence.createEntityManagerFactory("reportGenerator", props);
+        entityManagerFactory = Persistence.createEntityManagerFactory("compassDatabase", props);
+
+        props.put("javax.persistence.jdbc.password", props.get("db.core.password"));
+        props.put("javax.persistence.jdbc.user", props.getProperty("db.core.user"));
+        props.put("javax.persistence.jdbc.url", props.getProperty("db.core.url"));
 
         entityManagerFactoryCore = Persistence.createEntityManagerFactory("coreDatabase", props);
     }
