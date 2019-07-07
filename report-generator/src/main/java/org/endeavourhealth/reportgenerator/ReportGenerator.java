@@ -72,6 +72,8 @@ public class ReportGenerator implements AutoCloseable {
         additions.addAll(alterations);
         additions.addAll(deletions);
 
+        log.debug("Have found {} deltas", additions.size());
+
         return additions;
 
 	}
