@@ -19,4 +19,16 @@ public class Report {
 
 		return datasetTable + "_yesterday";
 	}
+
+	public String getUsername() {
+	    return "user";
+    }
+
+    public String getHostname() {
+	    return "blah";
+    }
+
+    public int getPort() {
+	    return 22;
+    }
 }
