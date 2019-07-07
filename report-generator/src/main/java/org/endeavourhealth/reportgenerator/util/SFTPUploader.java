@@ -1,15 +1,22 @@
 package org.endeavourhealth.reportgenerator.util;
 
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.bouncycastle.cms.*;
+import org.bouncycastle.cms.jcajce.JceCMSContentEncryptorBuilder;
+import org.bouncycastle.cms.jcajce.JceKeyTransRecipientInfoGenerator;
+import org.bouncycastle.operator.OutputEncryptor;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.NoSuchProviderException;
 import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
@@ -28,45 +35,34 @@ import java.security.cert.X509Certificate;
 @Slf4j
 public class SFTPUploader {
 
-    public void upload(Report report) {
+    public void upload(Report report) throws Exception {
         
         cleanStagingDirectory( report );
 
-        zipDirectory(source_dir, staging_dir);
+        File zipFile = zipDirectory(report);
+
+        encryptFile(zipFile);
 
         sftp( report );
     }
 
-    private void sftp(Report report) {
-        JSch jSch;
-        String prvKey = getConnectionDetails().getClientPrivateKey().trim();
-        String pw = getConnectionDetails().getClientPrivateKeyPassword().trim();
-        if (!Strings.isNullOrEmpty(prvKey)) {
-            jSch.addIdentity("client-private-key", prvKey.getBytes(), null, pw.getBytes());
-        }
+    private void sftp(Report report) throws JSchException, IOException {
+        JSch jSch = new JSch();
 
-        //NOTE: To find the public host key, use SSH sftp to connect to the server and then copy the
-        //record from the ~/.ssh/known_hosts file. It's easier to work out the correct record if the known_hosts
-        //is first backed up, then emptied, then you know exactly which record is for the new server
-        String hostPublicKey = getConnectionDetails().getHostPublicKey();
-        if (StringUtils.isNotBlank(hostPublicKey)) {
-            String knownHosts = getConnectionDetails().getKnownHostsString();
-            jSch.setKnownHosts(new ByteArrayInputStream(knownHosts.getBytes()));
-            this.session = jSch.getSession(getConnectionDetails().getUsername(), getConnectionDetails().getHostname(), getConnectionDetails().getPort());
-        } else {
-            this.session = jSch.getSession(getConnectionDetails().getUsername(), getConnectionDetails().getHostname(), getConnectionDetails().getPort());
-            this.session.setConfig("StrictHostKeyChecking", "no");
-        }
+       String prvKey = FileUtils.readFileToString(new File("prvKey"), (String) null);
+       String pw = "";
 
-        // no private key supplied and using standard password authentication
-        if (Strings.isNullOrEmpty(prvKey) && !Strings.isNullOrEmpty(pw)) {
-            session.setPassword(pw);
-        }
 
-        this.session.connect();
+       jSch.addIdentity("client-private-key", prvKey.getBytes(), null, pw.getBytes());
 
-        this.channel = (ChannelSftp)session.openChannel("sftp");
-        this.channel.connect();
+        Session session = jSch.getSession(report.getUsername(), report.getHostname(), report.getPort());
+        session.setConfig("StrictHostKeyChecking", "no");
+
+
+        session.connect();
+
+        ChannelSftp channel = (ChannelSftp)session.openChannel("sftp");
+        channel.connect();
     }
 
     private void cleanStagingDirectory(Report report) throws IOException {
@@ -110,87 +106,89 @@ public class SFTPUploader {
             log.info("");
 
 
-            ConnectionDetails con = new ConnectionDetails();
-            con.setHostname(args[2]);
-            con.setPort(Integer.valueOf(args[3]));
-            con.setUsername(args[4]);
-            try {
-                con.setClientPrivateKey(FileUtils.readFileToString(new File(args[6]), (String) null));
-                con.setClientPrivateKeyPassword("");
-            } catch (IOException e) {
-                log.info("");
-                log.error("Unable to read client private key file." + e.getMessage());
-                log.info("");
-                System.exit(-1);
-            }
-
-            SftpConnection sftp = new SftpConnection(con);
-            try {
-                sftp.open();
-                log.info("");
-                log.info("SFTP connection established");
-                log.info("");
-                sftp.close();
-            } catch (Exception e) {
-                log.info("");
-                log.error("Unable to connect to the SFTP server. " + e.getMessage());
-                log.info("");
-                System.exit(-1);
-            }
-
-            try {
-                ZipEncryptUpload.zipDirectory(source_dir, staging_dir);
-
-            } catch (Exception e) {
-                log.info("");
-                log.error("Unable to create the zip file/s." + e.getMessage());
-                log.info("");
-                System.exit(-1);
-            }
-
-            try {
-                File zipFile = new File(staging_dir.getAbsolutePath() +
-                        File.separator +
-                        source_dir.getName() +
-                        ".zip");
-                if (!ZipEncryptUpload.encryptFile(zipFile)) {
-                    log.info("");
-                    log.error("Unable to encrypt the zip file/s. ");
-                    log.info("");
-                    System.exit(-1);
-                }
-            } catch (Exception e) {
-                log.info("");
-                log.error("Unable to encrypt the zip file/s. " + e.getMessage());
-                log.info("");
-                System.exit(-1);
-            }
-
-            try {
-                sftp.open();
-                String location = args[5];
-                File[] files = staging_dir.listFiles();
-                log.info("");
-                log.info("Starting file/s upload.");
-                for (File file : files) {
-                    log.info("Uploading file:" + file.getName());
-                    sftp.put(file.getAbsolutePath(), location);
-                }
-                log.info("");
-                sftp.close();
-            } catch (Exception e) {
-                log.info("");
-                log.error("Unable to do SFTP operation. " + e.getMessage());
-                log.info("");
-                System.exit(-1);
-            }
-            log.info("");
-            log.info("Process completed.");
-            log.info("");
-            System.exit(0);
+//            ConnectionDetails con = new ConnectionDetails();
+//            con.setHostname(args[2]);
+//            con.setPort(Integer.valueOf(args[3]));
+//            con.setUsername(args[4]);
+//            try {
+//                con.setClientPrivateKey(FileUtils.readFileToString(new File(args[6]), (String) null));
+//                con.setClientPrivateKeyPassword("");
+//            } catch (IOException e) {
+//                log.info("");
+//                log.error("Unable to read client private key file." + e.getMessage());
+//                log.info("");
+//                System.exit(-1);
+//            }
+//
+//            SftpConnection sftp = new SftpConnection(con);
+//            try {
+//                sftp.open();
+//                log.info("");
+//                log.info("SFTP connection established");
+//                log.info("");
+//                sftp.close();
+//            } catch (Exception e) {
+//                log.info("");
+//                log.error("Unable to connect to the SFTP server. " + e.getMessage());
+//                log.info("");
+//                System.exit(-1);
+//            }
+//
+//            try {
+//                ZipEncryptUpload.zipDirectory(source_dir, staging_dir);
+//
+//            } catch (Exception e) {
+//                log.info("");
+//                log.error("Unable to create the zip file/s." + e.getMessage());
+//                log.info("");
+//                System.exit(-1);
+//            }
+//
+//            try {
+//                File zipFile = new File(staging_dir.getAbsolutePath() +
+//                        File.separator +
+//                        source_dir.getName() +
+//                        ".zip");
+//                if (!ZipEncryptUpload.encryptFile(zipFile)) {
+//                    log.info("");
+//                    log.error("Unable to encrypt the zip file/s. ");
+//                    log.info("");
+//                    System.exit(-1);
+//                }
+//            } catch (Exception e) {
+//                log.info("");
+//                log.error("Unable to encrypt the zip file/s. " + e.getMessage());
+//                log.info("");
+//                System.exit(-1);
+//            }
+//
+//            try {
+//                sftp.open();
+//                String location = args[5];
+//                File[] files = staging_dir.listFiles();
+//                log.info("");
+//                log.info("Starting file/s upload.");
+//                for (File file : files) {
+//                    log.info("Uploading file:" + file.getName());
+//                    sftp.put(file.getAbsolutePath(), location);
+//                }
+//                log.info("");
+//                sftp.close();
+//            } catch (Exception e) {
+//                log.info("");
+//                log.error("Unable to do SFTP operation. " + e.getMessage());
+//                log.info("");
+//                System.exit(-1);
+//            }
+//            log.info("");
+//            log.info("Process completed.");
+//            log.info("");
+//            System.exit(0);
         }
 
-        private void zipDirectory(File source, File staging) throws Exception {
+        private File zipDirectory(Report report) throws Exception {
+
+        String source = "/hal/media";
 
             log.info("Compressing contents of: " + source.getAbsolutePath());
 
@@ -207,9 +205,16 @@ public class SFTPUploader {
             zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
 
             log.info(staging.listFiles().length + " File/s successfully created.");
+
+            File zipFile = new File(staging_dir.getAbsolutePath() +
+                    File.separator +
+                    source_dir.getName() +
+                    ".zip");
+            
+            return zipFile;
         }
 
-        public static boolean encryptFile(File file) throws Exception {
+        private boolean encryptFile(File file) throws Exception {
 
             X509Certificate certificate = null;
             try {
@@ -227,7 +232,52 @@ public class SFTPUploader {
             }
 
             log.info("Encrypting the file: " + file.getAbsolutePath());
-            return PgpEncryptDecrypt.encryptFile(file, certificate, "BC");
+            return encryptFile(file, certificate, "BC");
         }
+
+    private boolean encryptFile(File file,
+                                      X509Certificate encryptionCertificate,
+                                      String provider) {
+
+        FileOutputStream output = null;
+        try {
+            byte[] data = IOUtils.toByteArray(new FileInputStream(file));
+            if (data != null && encryptionCertificate != null) {
+
+                CMSEnvelopedDataGenerator cmsEnvelopedDataGenerator = new CMSEnvelopedDataGenerator();
+                JceKeyTransRecipientInfoGenerator jceKey = new JceKeyTransRecipientInfoGenerator(encryptionCertificate);
+                cmsEnvelopedDataGenerator.addRecipientInfoGenerator(jceKey);
+                CMSTypedData msg = new CMSProcessableByteArray(data);
+                OutputEncryptor encrypt =
+                        new JceCMSContentEncryptorBuilder(CMSAlgorithm.AES128_CBC).setProvider(provider).build();
+                CMSEnvelopedData cmsEnvelopedData = cmsEnvelopedDataGenerator.generate(msg, encrypt);
+
+                output = new FileOutputStream(file);
+                output.write(cmsEnvelopedData.getEncoded());
+                output.flush();
+
+                log.info("File encryption was successful.");
+                return true;
+            }
+        } catch (IOException e) {
+            log.error("Error encountered in file handling. " + e.getMessage());
+        } catch (CertificateEncodingException e) {
+            log.error("Error encountered in certificate handling. " + e.getMessage());
+        } catch (CMSException e) {
+            log.error("Error encountered in encryption handling. " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Unknown error encountered in encryption handling. " + e.getMessage());
+        } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        log.info("File encryption failed.");
+        return false;
+    }
     }
 
