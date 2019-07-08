@@ -195,6 +195,9 @@ public class JpaRepository {
 
             deltas.add(delta);
         }
+
+        log.debug("Have found {} addition rows", deltas.size());
+
     	return deltas;
 	}
 
