@@ -37,7 +37,7 @@ public class CSVExporterRunner {
 
         Properties properties = new Properties();
 
-        InputStream inputStream = CSVExporterRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream = CSVExporterRunner.class.getClassLoader().getResourceAsStream("csv.exporter.properties");
 
         properties.load( inputStream );
 
