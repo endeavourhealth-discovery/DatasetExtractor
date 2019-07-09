@@ -5,4 +5,7 @@ storedProcedures:
   - createCohortWF
   - buildDatasetForChildImms
   - generateReportForChildImms
-sftpAccount: "chilnel"
+sftpUsername: "chilnel"
+sftpPrivateKeyFile: "/home/hal/chisnel.ppk"
+sftpPort: 22
+sftpHostname: "

@@ -19,13 +19,13 @@ public class CSVDeltaExporter {
 
     private CSVPrinter csvPrinter;
 
-    public CSVDeltaExporter(Properties properties) {
+    private final String filename;
 
+    public CSVDeltaExporter(Properties properties) {
+        filename = properties.getProperty("csv.output.directory");
     }
 
     public void exportCsv(List<Delta> deltas) throws IOException {
-
-        String filename = "/home/hal/test.csv";
 
         log.info("Opening file {} for writing.....", filename);
 
@@ -41,10 +41,11 @@ public class CSVDeltaExporter {
             csvPrinter.println();
         }
 
+        csvPrinter.close(true);
+
     }
 
     public void close() throws IOException {
         if(csvPrinter != null) csvPrinter.close(true);
-        if(writer != null) writer.close();
     }
 }

@@ -12,8 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.mockito.Mockito.mock;
-
 public class CSVExporterTest {
 
     @ClassRule
@@ -69,7 +67,7 @@ public class CSVExporterTest {
     private static Properties loadProperties() throws IOException {
         Properties properties = new Properties();
 
-        InputStream inputStream = CSVExporterRunner.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream = CSVExporterRunner.class.getClassLoader().getResourceAsStream("csv.exporter.properties");
 
         properties.load( inputStream );
 

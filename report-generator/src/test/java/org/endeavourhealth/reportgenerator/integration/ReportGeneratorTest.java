@@ -31,9 +31,12 @@ public class ReportGeneratorTest {
         Integer port = mysql.getFirstMappedPort();
 
         properties = loadProperties();
-        properties.put("db.url", "jdbc:mysql://localhost:" + port + "/data_extracts" );
-        properties.put("db.user",  "root" );
-        properties.put("db.password",  "admin" );
+        properties.put("db.core.url", "jdbc:mysql://localhost:" + port + "/data_extracts" );
+        properties.put("db.core.user",  "root" );
+        properties.put("db.core.password",  "admin" );
+        properties.put("db.compass.url", "jdbc:mysql://localhost:" + port + "/data_extracts" );
+        properties.put("db.compass.user",  "root" );
+        properties.put("db.compass.password",  "admin" );
 
         JpaRepository jpaRepository = new JpaRepository(properties);
 
@@ -55,7 +58,7 @@ public class ReportGeneratorTest {
     private static Properties loadProperties() throws IOException {
         Properties properties = new Properties();
 
-        InputStream inputStream = ReportGeneratorTest.class.getClassLoader().getResourceAsStream("data.extractor.properties");
+        InputStream inputStream = ReportGeneratorTest.class.getClassLoader().getResourceAsStream("report.generator.properties");
 
         properties.load( inputStream );
 

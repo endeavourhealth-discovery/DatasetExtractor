@@ -9,26 +9,22 @@ import java.util.List;
 @ToString
 public class Report {
     private String name;
+
     private String datasetTable;
+
     private List<String> storedProcedures;
+
     private Boolean requiresDeanonymising;
-    private String sftpAccount;
+
+    private String sftpPrivateKeyFile;
+    private String sftpHostname;
+    private String sftpUsername;
+    private Integer sftpPort;
+
     private boolean success;
 
 	public String getDatasetTableYesterday() {
 
 		return datasetTable + "_yesterday";
 	}
-
-	public String getUsername() {
-	    return "user";
-    }
-
-    public String getHostname() {
-	    return "blah";
-    }
-
-    public int getPort() {
-	    return 22;
-    }
 }

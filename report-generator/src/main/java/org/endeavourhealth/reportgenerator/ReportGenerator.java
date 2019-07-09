@@ -5,6 +5,7 @@ import org.endeavourhealth.reportgenerator.beans.Delta;
 import org.endeavourhealth.reportgenerator.csv.CSVDeltaExporter;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
+import org.endeavourhealth.reportgenerator.util.SFTPUploader;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -23,11 +24,15 @@ public class ReportGenerator implements AutoCloseable {
 
     private CSVDeltaExporter csvDeltaExporter;
 
+    private final SFTPUploader sftpUploader;
+
     public ReportGenerator(Properties properties, JpaRepository repository) throws Exception {
 
         this.repository = repository;
 
         this.csvDeltaExporter = new CSVDeltaExporter( properties );
+
+        this.sftpUploader = new SFTPUploader();
 
         log.info("**** Booting org.endeavourhealth.reportgenerator.ReportGenerator, loading property file and db repository.....");
 
@@ -44,18 +49,20 @@ public class ReportGenerator implements AutoCloseable {
         }
     }
 
-    private void executeReport(Report report) throws IOException {
+    private void executeReport(Report report) throws Exception {
         log.info("Generating report {}", report);
 
-        callStoredProcedures( report );
+        // callStoredProcedures( report );
 
-        deanonymise( report );
+//        deanonymise( report );
 
-        List<Delta> deltas = generateDelta( report );
+        // List<Delta> deltas = generateDelta( report );
 
-//		repository.renameTable( report );
+		    // repository.renameTable( report );
 
-        csvDeltaExporter.exportCsv( deltas );
+        // csvDeltaExporter.exportCsv( deltas );
+
+        sftpUploader.upload(report);
 
         report.setSuccess( true );
     }
@@ -71,6 +78,8 @@ public class ReportGenerator implements AutoCloseable {
 
         additions.addAll(alterations);
         additions.addAll(deletions);
+
+        log.debug("Have found {} deltas", additions.size());
 
         return additions;
 
@@ -100,12 +109,11 @@ public class ReportGenerator implements AutoCloseable {
 
             List<Object[]> rows = repository.deanonymise( pseudoIds );
 
-            pseudoIds = repository.getPseudoIds(offset);
-
             offset += 1000;
+
+            pseudoIds = repository.getPseudoIds(offset);
         }
     }
-
 
     private Report loadReports() {
 
