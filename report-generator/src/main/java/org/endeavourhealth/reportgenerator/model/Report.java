@@ -24,7 +24,6 @@ public class Report {
     private boolean success;
 
 	public String getDatasetTableYesterday() {
-
 		return datasetTable + "_yesterday";
 	}
 }
