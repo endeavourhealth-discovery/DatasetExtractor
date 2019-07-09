@@ -9,7 +9,6 @@ import org.endeavourhealth.reportgenerator.util.SFTPUploader;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +29,9 @@ public class ReportGenerator implements AutoCloseable {
 
         this.repository = repository;
 
-        this.csvDeltaExporter = new CSVDeltaExporter( properties );
+        this.csvDeltaExporter = new CSVDeltaExporter(properties);
 
-        this.sftpUploader = new SFTPUploader();
+        this.sftpUploader = new SFTPUploader(properties);
 
         log.info("**** Booting org.endeavourhealth.reportgenerator.ReportGenerator, loading property file and db repository.....");
 
@@ -43,38 +42,38 @@ public class ReportGenerator implements AutoCloseable {
 
     public void generate() throws Exception {
 
-        for(Report report : reports) {
+        for (Report report : reports) {
 
-            executeReport( report );
+            executeReport(report);
         }
     }
 
     private void executeReport(Report report) throws Exception {
         log.info("Generating report {}", report);
 
-        // callStoredProcedures( report );
+        callStoredProcedures(report);
 
-//        deanonymise( report );
+        deanonymise(report);
 
-        // List<Delta> deltas = generateDelta( report );
+        List<Delta> deltas = generateDelta(report);
 
-		    // repository.renameTable( report );
+        repository.renameTable(report);
 
-        // csvDeltaExporter.exportCsv( deltas );
+        csvDeltaExporter.exportCsv(report, deltas);
 
         sftpUploader.upload(report);
 
-        report.setSuccess( true );
+        report.setSuccess(true);
     }
 
 
     private List<Delta> generateDelta(Report report) {
 
-    	List<Delta> additions = repository.getAdditions( report );
+        List<Delta> additions = repository.getAdditions(report);
 
-    	List<Delta> alterations = repository.getAlterations( report );
+        List<Delta> alterations = repository.getAlterations(report);
 
-        List<Delta> deletions = repository.getDeletions( report );
+        List<Delta> deletions = repository.getDeletions(report);
 
         additions.addAll(alterations);
         additions.addAll(deletions);
@@ -83,14 +82,14 @@ public class ReportGenerator implements AutoCloseable {
 
         return additions;
 
-	}
+    }
 
-	private void callStoredProcedures(Report report) {
+    private void callStoredProcedures(Report report) {
 
         log.info("Cycling through stored procedures");
 
-        for(String storedProcedure : report.getStoredProcedures()) {
-            repository.call( storedProcedure);
+        for (String storedProcedure : report.getStoredProcedures()) {
+            repository.call(storedProcedure);
         }
 
         log.info("Stored procedures all called");
@@ -99,15 +98,15 @@ public class ReportGenerator implements AutoCloseable {
 
     private void deanonymise(Report report) {
 
-        if(!report.getRequiresDeanonymising()) return;
+        if (!report.getRequiresDeanonymising()) return;
 
         Integer offset = 0;
 
-        List<String> pseudoIds = repository.getPseudoIds( offset );
+        List<String> pseudoIds = repository.getPseudoIds(offset);
 
-        while(pseudoIds.size() > 0) {
+        while (pseudoIds.size() > 0) {
 
-            List<Object[]> rows = repository.deanonymise( pseudoIds );
+            List<Object[]> rows = repository.deanonymise(pseudoIds);
 
             offset += 1000;
 
