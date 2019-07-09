@@ -4,8 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.endeavourhealth.reportgenerator.beans.Delta;
+import org.endeavourhealth.reportgenerator.model.Report;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,13 +21,15 @@ public class CSVDeltaExporter {
 
     private CSVPrinter csvPrinter;
 
-    private final String filename;
+    private final String outputDirectory;
 
     public CSVDeltaExporter(Properties properties) {
-        filename = properties.getProperty("csv.output.directory");
+        outputDirectory = properties.getProperty("output.directory");
     }
 
-    public void exportCsv(List<Delta> deltas) throws IOException {
+    public void exportCsv(Report report, List<Delta> deltas) throws IOException {
+
+        String filename = outputDirectory + File.separator + report.getName();
 
         log.info("Opening file {} for writing.....", filename);
 
