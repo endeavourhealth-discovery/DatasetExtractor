@@ -59,7 +59,7 @@ public class SFTPUploader {
 
         String pw = "";
 
-        jSch.addIdentity("client-private-key", prvKey.getBytes(), null, pw.getBytes());
+        jSch.addIdentity( report.getSftpPrivateKeyFile() );
 
         Session session = jSch.getSession(report.getSftpUsername(), report.getSftpHostname(), report.getSftpPort());
         session.setConfig("StrictHostKeyChecking", "no");
