@@ -8,30 +8,27 @@ import org.bouncycastle.cms.jcajce.JceCMSContentEncryptorBuilder;
 import org.bouncycastle.cms.jcajce.JceKeyTransRecipientInfoGenerator;
 import org.bouncycastle.operator.OutputEncryptor;
 import org.endeavourhealth.reportgenerator.model.Report;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.security.NoSuchProviderException;
 import java.security.Security;
-import java.security.cert.*;
 
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.NoSuchProviderException;
-import java.security.Security;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Vector;
+import java.util.Properties;
 
 @Slf4j
 public class SFTPUploader {
+
+    private final String outputDirectory;
+
+    public SFTPUploader(Properties properties) {
+        outputDirectory = properties.getProperty("output.directory");
+    }
 
     public void upload(Report report) throws Exception {
 
@@ -39,7 +36,7 @@ public class SFTPUploader {
 
 //        File zipFile = zipDirectory(report);
 
-        String path = "/home/hal/test.csv";
+        String path = outputDirectory + File.separator + report.getName();
 
         File file = new File( path);
 
@@ -67,10 +64,6 @@ public class SFTPUploader {
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
         channel.connect();
 
-        Vector v = channel.ls("/");
-
-        log.info(v.toString());
-
         channel.put(file.getAbsolutePath(), "/ftp/test.csv");
     }
 
@@ -96,104 +89,6 @@ public class SFTPUploader {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-
-        if (args == null || args.length != 7) {
-            log.error("Invalid parameters.");
-            System.exit(-1);
-        }
-
-        log.info("");
-        log.info("Running Zip, Encrypt and Upload process with the following parameters:");
-        log.info("Source Directory  : " + args[0]);
-        log.info("Staging Directory : " + args[1]);
-        log.info("Hostname          : " + args[2]);
-        log.info("Port              : " + args[3]);
-        log.info("Username          : " + args[4]);
-        log.info("SFTP Location     : " + args[5]);
-        log.info("Key File          : " + args[6]);
-        log.info("");
-
-
-//            ConnectionDetails con = new ConnectionDetails();
-//            con.setHostname(args[2]);
-//            con.setPort(Integer.valueOf(args[3]));
-//            con.setUsername(args[4]);
-//            try {
-//                con.setClientPrivateKey(FileUtils.readFileToString(new File(args[6]), (String) null));
-//                con.setClientPrivateKeyPassword("");
-//            } catch (IOException e) {
-//                log.info("");
-//                log.error("Unable to read client private key file." + e.getMessage());
-//                log.info("");
-//                System.exit(-1);
-//            }
-//
-//            SftpConnection sftp = new SftpConnection(con);
-//            try {
-//                sftp.open();
-//                log.info("");
-//                log.info("SFTP connection established");
-//                log.info("");
-//                sftp.close();
-//            } catch (Exception e) {
-//                log.info("");
-//                log.error("Unable to connect to the SFTP server. " + e.getMessage());
-//                log.info("");
-//                System.exit(-1);
-//            }
-//
-//            try {
-//                ZipEncryptUpload.zipDirectory(source_dir, staging_dir);
-//
-//            } catch (Exception e) {
-//                log.info("");
-//                log.error("Unable to create the zip file/s." + e.getMessage());
-//                log.info("");
-//                System.exit(-1);
-//            }
-//
-//            try {
-//                File zipFile = new File(staging_dir.getAbsolutePath() +
-//                        File.separator +
-//                        source_dir.getName() +
-//                        ".zip");
-//                if (!ZipEncryptUpload.encryptFile(zipFile)) {
-//                    log.info("");
-//                    log.error("Unable to encrypt the zip file/s. ");
-//                    log.info("");
-//                    System.exit(-1);
-//                }
-//            } catch (Exception e) {
-//                log.info("");
-//                log.error("Unable to encrypt the zip file/s. " + e.getMessage());
-//                log.info("");
-//                System.exit(-1);
-//            }
-//
-//            try {
-//                sftp.open();
-//                String location = args[5];
-//                File[] files = staging_dir.listFiles();
-//                log.info("");
-//                log.info("Starting file/s upload.");
-//                for (File file : files) {
-//                    log.info("Uploading file:" + file.getName());
-//                    sftp.put(file.getAbsolutePath(), location);
-//                }
-//                log.info("");
-//                sftp.close();
-//            } catch (Exception e) {
-//                log.info("");
-//                log.error("Unable to do SFTP operation. " + e.getMessage());
-//                log.info("");
-//                System.exit(-1);
-//            }
-//            log.info("");
-//            log.info("Process completed.");
-//            log.info("");
-//            System.exit(0);
-    }
 
 //    private File zipDirectory(Report report) throws Exception {
 //
