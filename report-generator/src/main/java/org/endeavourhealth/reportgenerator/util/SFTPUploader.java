@@ -1,9 +1,6 @@
 package org.endeavourhealth.reportgenerator.util;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.cms.*;
@@ -31,6 +28,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Vector;
 
 @Slf4j
 public class SFTPUploader {
@@ -47,10 +45,10 @@ public class SFTPUploader {
 
         encryptFile(file);
 
-        sftp(report);
+        sftp(report, file);
     }
 
-    private void sftp(Report report) throws JSchException, IOException {
+    private void sftp(Report report, File file) throws JSchException, IOException, SftpException {
         JSch jSch = new JSch();
 
         File prvKeyFile = new File(report.getSftpPrivateKeyFile());
@@ -68,6 +66,12 @@ public class SFTPUploader {
 
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
         channel.connect();
+
+        Vector v = channel.ls("/");
+
+        log.info(v.toString());
+
+        channel.put(file.getAbsolutePath(), "/ftp/test.csv");
     }
 
     private void cleanStagingDirectory(Report report) throws IOException {
