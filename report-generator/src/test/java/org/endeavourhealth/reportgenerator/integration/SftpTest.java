@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
@@ -17,9 +18,14 @@ import java.util.Properties;
 public class SftpTest {
 
     @ClassRule
-    public static GenericContainer sftp = new GenericContainer<>("de-sftp")
+    public static GenericContainer sftp = new GenericContainer<>("atmoz/sftp")
             .withExposedPorts(22)
-//            .withVolumesFrom()
+//            .withClasspathResourceMapping("/docker/ssh_host_rsa_key",
+//                    "/etc/ssh/ssh_host_rsa_key",
+//                    BindMode.READ_ONLY)
+            .withClasspathResourceMapping("/docker/ssh_host_rsa_key.pub",
+                    "/home/foo/.ssh/keys/id_rsa.pub",
+                    BindMode.READ_ONLY)
             .withCommand("foo::1001");
 
     private SFTPUploader sftpUploader;
