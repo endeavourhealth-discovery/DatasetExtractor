@@ -16,6 +16,8 @@ public class Report {
 
     private Boolean requiresDeanonymising;
 
+    private Boolean active;
+
     private String sftpPrivateKeyFile;
     private String sftpHostname;
     private String sftpUsername;
