@@ -11,8 +11,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class SftpUploaderTest {
@@ -27,12 +26,14 @@ public class SftpUploaderTest {
     private SFTPUploader sftpUploader;
 
 
+    private Properties properties;
+
     @Before
     public void init() throws Exception {
 
         sftp.start();
 
-        Properties properties = loadProperties();
+        properties = loadProperties();
 
         sftpUploader = new SFTPUploader( properties );
     }
@@ -45,18 +46,18 @@ public class SftpUploaderTest {
         sftpUploader.upload(report);
     }
 
-    private Report getReport() {
+    private Report getReport() throws FileNotFoundException {
 
         String address = sftp.getContainerIpAddress();
         Integer port = sftp.getMappedPort(22);
 
         Yaml yaml = new Yaml(new Constructor(Report.class));
 
-        InputStream yamlInputStream = this.getClass()
-                .getClassLoader()
-                .getResourceAsStream("src/main/etc/reports.yaml");
+        File yamlfile = new File(properties.getProperty("report.yaml.file"));
 
-        Report report = yaml.load(yamlInputStream);
+        Reader yamlReader = new FileReader(yamlfile);
+
+        Report report = yaml.load(yamlReader);
 
         report.setSftpHostname(address);
         report.setSftpPort(port);
