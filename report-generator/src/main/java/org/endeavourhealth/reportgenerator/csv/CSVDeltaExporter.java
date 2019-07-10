@@ -31,7 +31,7 @@ public class CSVDeltaExporter {
 
         String filename = outputDirectory + File.separator + report.getName();
 
-        log.info("Opening file {} for writing.....", filename);
+        log.info("Opening file {} for writing, outputing deltas.....", filename);
 
         BufferedWriter writer = Files.newBufferedWriter(Paths.get(filename));
 
@@ -46,7 +46,6 @@ public class CSVDeltaExporter {
         }
 
         csvPrinter.close(true);
-
     }
 
     public void close() throws IOException {

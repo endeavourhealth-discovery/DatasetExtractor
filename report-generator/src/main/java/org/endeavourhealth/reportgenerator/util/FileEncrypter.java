@@ -42,7 +42,7 @@ public class FileEncrypter {
 
         X509Certificate certificate = getCertificate();
 
-        byte[] data = IOUtils.toByteArray(new FileInputStream(file));
+        byte[] data = IOUtils.toByteArray(new FileInputStream(file + ".enc"));
 
         CMSEnvelopedDataGenerator cmsEnvelopedDataGenerator = new CMSEnvelopedDataGenerator();
 

@@ -7,6 +7,9 @@ import org.endeavourhealth.reportgenerator.model.Report;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Properties;
 
 @Slf4j
@@ -20,7 +23,7 @@ public class SFTPUploader {
 
     public void upload(Report report) throws Exception {
 
-        String path = outputDirectory + File.separator + report.getName();
+        String path = outputDirectory + File.separator + report.getName() + ".enc";
 
         File file = new File( path );
 
@@ -46,7 +49,20 @@ public class SFTPUploader {
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
         channel.connect();
 
-        channel.put(file.getAbsolutePath(), "/ftp/" + file.getAbsolutePath());
+        String sftpFilename = getSFTPFileName();
+
+        channel.put(file.getAbsolutePath(), "/ftp/" + sftpFilename);
+    }
+
+    private String getSFTPFileName() {
+
+        LocalDate localDate = LocalDate.now();
+
+        String sftpFilename = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd") ) + ".csv";
+
+        log.debug("SftpFilename : {}", sftpFilename);
+
+        return sftpFilename;
     }
 }
 
