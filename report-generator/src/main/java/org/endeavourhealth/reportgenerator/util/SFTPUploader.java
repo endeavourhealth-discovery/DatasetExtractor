@@ -48,35 +48,5 @@ public class SFTPUploader {
 
         channel.put(file.getAbsolutePath(), "/ftp/" + file.getAbsolutePath());
     }
-
-
-//    private File zipDirectory(Report report) throws Exception {
-//
-//        String source = "/hal/media";
-//
-//        log.info("Compressing contents of: " + source.getAbsolutePath());
-//
-//        ZipFile zipFile = new ZipFile(staging + File.separator + source.getName() + ".zip");
-//
-//        log.debug("Creating file: " + zipFile.getFile().getAbsolutePath());
-//
-//        ZipParameters parameters = new ZipParameters();
-//
-//        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-//        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-//        parameters.setIncludeRootFolder(false);
-//
-//        zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
-//
-//        log.info(staging.listFiles().length + " File/s successfully created.");
-//
-//        File zipFile = new File(staging_dir.getAbsolutePath() +
-//                File.separator +
-//                source_dir.getName() +
-//                ".zip");
-//
-//        return zipFile;
-//    }
-
 }
 
