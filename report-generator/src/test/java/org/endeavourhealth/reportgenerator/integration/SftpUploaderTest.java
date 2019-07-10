@@ -54,7 +54,7 @@ public class SftpUploaderTest {
 
         InputStream yamlInputStream = this.getClass()
                 .getClassLoader()
-                .getResourceAsStream("reports.yaml");
+                .getResourceAsStream("src/main/etc/reports.yaml");
 
         Report report = yaml.load(yamlInputStream);
 
