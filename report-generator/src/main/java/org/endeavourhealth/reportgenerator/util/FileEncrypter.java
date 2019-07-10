@@ -57,7 +57,7 @@ public class FileEncrypter {
 
         CMSEnvelopedData cmsEnvelopedData = cmsEnvelopedDataGenerator.generate(cmsTypedData, outputEncryptor);
 
-        try (FileOutputStream output = new FileOutputStream(file + ".enc")) {
+        try (FileOutputStream output = new FileOutputStream(file)) {
             output.write(cmsEnvelopedData.getEncoded());
             output.flush();
         }
