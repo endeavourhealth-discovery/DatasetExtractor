@@ -1,6 +1,6 @@
 FROM atmoz/sftp
 
-COPY /sftp /home/foo/
+COPY /sftp /home/foo/ftp/
 COPY ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
 COPY ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
 
