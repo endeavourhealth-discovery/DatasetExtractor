@@ -5,10 +5,14 @@ import org.endeavourhealth.reportgenerator.beans.Delta;
 import org.endeavourhealth.reportgenerator.csv.CSVDeltaExporter;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
+import org.endeavourhealth.reportgenerator.util.FileEncrypter;
 import org.endeavourhealth.reportgenerator.util.SFTPUploader;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +29,8 @@ public class ReportGenerator implements AutoCloseable {
 
     private final SFTPUploader sftpUploader;
 
+    private final FileEncrypter fileEncrypter;
+
     public ReportGenerator(Properties properties, JpaRepository repository) throws Exception {
 
         this.repository = repository;
@@ -33,9 +39,11 @@ public class ReportGenerator implements AutoCloseable {
 
         this.sftpUploader = new SFTPUploader(properties);
 
+        this.fileEncrypter = new FileEncrypter(properties);
+
         log.info("**** Booting org.endeavourhealth.reportgenerator.ReportGenerator, loading property file and db repository.....");
 
-        loadReports();
+        loadReports( properties );
 
         log.info("**** ReportGenerator successfully booted!!");
     }
@@ -43,6 +51,8 @@ public class ReportGenerator implements AutoCloseable {
     public void generate() throws Exception {
 
         for (Report report : reports) {
+
+            if(!report.getActive()) continue;
 
             executeReport(report);
         }
@@ -57,11 +67,13 @@ public class ReportGenerator implements AutoCloseable {
 
         List<Delta> deltas = generateDelta(report);
 
-        repository.renameTable(report);
-
         csvDeltaExporter.exportCsv(report, deltas);
 
-        sftpUploader.upload(report);
+        fileEncrypter.encryptFile( report );
+
+        sftpUploader.upload( report );
+
+        repository.renameTable(report);
 
         report.setSuccess(true);
     }
@@ -114,15 +126,13 @@ public class ReportGenerator implements AutoCloseable {
         }
     }
 
-    private Report loadReports() {
+    private Report loadReports(Properties properties) throws FileNotFoundException {
 
         Yaml yaml = new Yaml(new Constructor(Report.class));
 
-        InputStream yamlInputStream = this.getClass()
-                .getClassLoader()
-                .getResourceAsStream("reports.yaml");
+        FileReader fileReader = new FileReader( new File(properties.getProperty("report.yaml.file")) );
 
-        Report report = yaml.load(yamlInputStream);
+        Report report = yaml.load(fileReader);
 
         log.info("Found report {}", report);
 
