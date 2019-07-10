@@ -1,3 +1,4 @@
+report-generator/src/test/resources/report.generator.properties
 report-generator/src/main/resources/discovery.cer
 /target
 csv-exporter/target/
