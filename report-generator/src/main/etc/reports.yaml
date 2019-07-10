@@ -1,3 +1,5 @@
+# This is an example report file that should be referenced from report.generator.properties
+# Place in src/main/resources
 name: "name"
 datasetTable: "table"
 requiresDeanonymising: true
