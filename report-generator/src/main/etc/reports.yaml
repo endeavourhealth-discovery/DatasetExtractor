@@ -1,0 +1,12 @@
+name: "name"
+datasetTable: "table"
+requiresDeanonymising: true
+active: true
+storedProcedures:
+  - sp1
+  - sp2
+  - sp3
+sftpUsername: "foo"
+sftpPrivateKeyFile: "/home/rsa_key"
+sftpPort: 22
+sftpHostname: "localhost"
