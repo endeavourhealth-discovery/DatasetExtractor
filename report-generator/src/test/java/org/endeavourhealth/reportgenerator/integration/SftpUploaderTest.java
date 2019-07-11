@@ -14,11 +14,12 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import java.io.*;
 import java.util.Properties;
 
-public class SftpUploaderTest {
+public class SftpUploaderTest extends AbstractTest {
 
     @ClassRule
     public static GenericContainer sftp = new GenericContainer<>("atmoz/sftp")
             .withExposedPorts(22)
+            .withClasspathResourceMapping("/docker/ssh_host_rsa_key", "/etc/ssh/ssh_host_rsa_key", BindMode.READ_ONLY)
             .withClasspathResourceMapping("/docker/ssh_host_rsa_key.pub", "/home/foo/.ssh/keys/id_rsa.pub", BindMode.READ_ONLY)
             .withClasspathResourceMapping("/docker/sftp", "/home/foo/ftp/", BindMode.READ_WRITE)
             .withCommand("foo::1000");
@@ -63,20 +64,5 @@ public class SftpUploaderTest {
         report.setSftpPort(port);
 
         return report;
-    }
-
-    @After
-    public void after() throws Exception {
-
-    }
-
-    private static Properties loadProperties() throws IOException {
-        Properties properties = new Properties();
-
-        InputStream inputStream = SftpUploaderTest.class.getClassLoader().getResourceAsStream("report.generator.properties");
-
-        properties.load(inputStream);
-
-        return properties;
     }
 }
