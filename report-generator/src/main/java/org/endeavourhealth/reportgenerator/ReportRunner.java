@@ -1,7 +1,6 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,9 +14,7 @@ public class ReportRunner {
 
         Properties properties = loadProperties( args );
 
-        JpaRepository repository = new JpaRepository( properties );
-
-        try (  ReportGenerator reportGenerator = new ReportGenerator( properties, repository ) ) {
+        try (  ReportGenerator reportGenerator = new ReportGenerator( properties ) ) {
 
             log.info("Starting report generator...");
 
