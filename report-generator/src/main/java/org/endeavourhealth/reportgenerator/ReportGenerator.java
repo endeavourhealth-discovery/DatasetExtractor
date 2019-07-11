@@ -27,13 +27,13 @@ public class ReportGenerator implements AutoCloseable {
 
     private CSVDeltaExporter csvDeltaExporter;
 
-    private final SFTPUploader sftpUploader;
+    private SFTPUploader sftpUploader;
 
     private final FileEncrypter fileEncrypter;
 
-    public ReportGenerator(Properties properties, JpaRepository repository) throws Exception {
+    public ReportGenerator(Properties properties) throws Exception {
 
-        this.repository = repository;
+        this.repository = new JpaRepository( properties );
 
         this.csvDeltaExporter = new CSVDeltaExporter(properties);
 
@@ -46,6 +46,11 @@ public class ReportGenerator implements AutoCloseable {
         loadReports( properties );
 
         log.info("**** ReportGenerator successfully booted!!");
+    }
+
+    public ReportGenerator(Properties properties, SFTPUploader sftpUploader) throws Exception {
+        this(properties);
+        this.sftpUploader = sftpUploader;
     }
 
     public void generate() throws Exception {
