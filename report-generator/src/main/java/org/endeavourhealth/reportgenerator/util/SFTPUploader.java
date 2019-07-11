@@ -27,31 +27,28 @@ public class SFTPUploader {
 
         File file = new File( path );
 
-        sftp(report, file);
+        ChannelSftp channel = getChannel(report);
+
+        channel.put(file.getAbsolutePath(), "/ftp/" + getSFTPFileName());
     }
 
-    private void sftp(Report report, File file) throws JSchException, IOException, SftpException {
+    private ChannelSftp getChannel(Report report) throws IOException, JSchException {
         JSch jSch = new JSch();
 
-        File prvKeyFile = new File(report.getSftpPrivateKeyFile());
-
-        String prvKey = FileUtils.readFileToString( prvKeyFile, (String) null);
-
-        String pw = "";
-
         jSch.addIdentity( report.getSftpPrivateKeyFile() );
+//        jSch.setKnownHosts("/home/hal/known_hosts");
 
         Session session = jSch.getSession(report.getSftpUsername(), report.getSftpHostname(), report.getSftpPort());
+// d2:dd:0f:44:d8:a2:85:a8:d1:6a:41:c9:55:91:38:72
         session.setConfig("StrictHostKeyChecking", "no");
 
         session.connect();
 
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
+
         channel.connect();
 
-        String sftpFilename = getSFTPFileName();
-
-        channel.put(file.getAbsolutePath(), "/ftp/" + sftpFilename);
+        return channel;
     }
 
     private String getSFTPFileName() {
