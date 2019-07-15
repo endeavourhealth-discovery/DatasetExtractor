@@ -68,11 +68,14 @@ public class ReportGenerator implements AutoCloseable {
 
         callStoredProcedures(report);
 
-        deanonymise(report);
+        if (report.getRequiresDeanonymising()) {
+            deanonymise(report);
+        }
 
-        List<Delta> deltas = generateDelta(report);
-
-        csvDeltaExporter.exportCsv(report, deltas);
+        if(report.getIsDaily()) {
+            List<Delta> deltas = generateDelta(report);
+            csvDeltaExporter.exportCsv(report, deltas);
+        }
 
         fileEncrypter.encryptFile( report );
 
@@ -115,7 +118,7 @@ public class ReportGenerator implements AutoCloseable {
 
     private void deanonymise(Report report) {
 
-        if (!report.getRequiresDeanonymising()) return;
+        log.info("Report required deanonymising, running...");
 
         Integer offset = 0;
 
@@ -129,6 +132,8 @@ public class ReportGenerator implements AutoCloseable {
 
             pseudoIds = repository.getPseudoIds(offset);
         }
+
+        log.info("...deanonymising all done");
     }
 
     private void loadReports(Properties properties) throws FileNotFoundException {
