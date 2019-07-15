@@ -10,20 +10,24 @@ import java.util.List;
 public class Report {
     private String name;
 
+    //Database
     private String datasetTable;
-
     private List<String> storedProcedures;
 
     private Boolean requiresDeanonymising;
+    private Boolean active = false;
+    private boolean success;
+    private Boolean isDaily = false;
 
-    private Boolean active;
+    //CSV export
+    private List<String> csvTablesToExport;
+    private String csvOutputDirectory;
 
+    //SFTP upload
     private String sftpPrivateKeyFile;
     private String sftpHostname;
     private String sftpUsername;
     private Integer sftpPort;
-
-    private boolean success;
 
 	public String getDatasetTableYesterday() {
 		return datasetTable + "_yesterday";
