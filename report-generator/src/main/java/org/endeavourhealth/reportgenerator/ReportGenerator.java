@@ -131,19 +131,18 @@ public class ReportGenerator implements AutoCloseable {
         }
     }
 
-    private Report loadReports(Properties properties) throws FileNotFoundException {
+    private void loadReports(Properties properties) throws FileNotFoundException {
 
         Yaml yaml = new Yaml(new Constructor(Report.class));
 
         FileReader fileReader = new FileReader( new File(properties.getProperty("report.yaml.file")) );
 
-        Report report = yaml.load(fileReader);
+        for(Object o : yaml.loadAll(fileReader)) {
 
-        log.info("Found report {}", report);
-
-        reports.add(report);
-
-        return report;
+            Report report = (Report) o;
+            log.info("Found report {}", report);
+            reports.add( report );
+        }
     }
 
     @Override
