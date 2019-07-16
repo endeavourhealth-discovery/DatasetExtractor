@@ -68,6 +68,13 @@
 
 
         <dependency>
+            <groupId>org.endeavour.tools</groupId>
+            <artifactId>CSVExporter</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.24</version>
