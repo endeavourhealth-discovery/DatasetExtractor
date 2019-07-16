@@ -1,6 +1,7 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.beans.Delta;
 import org.endeavourhealth.reportgenerator.csv.CSVDeltaExporter;
 import org.endeavourhealth.reportgenerator.model.Report;
@@ -31,7 +32,11 @@ public class ReportGenerator implements AutoCloseable {
 
     private final FileEncrypter fileEncrypter;
 
+    private final Properties properties;
+
     public ReportGenerator(Properties properties) throws Exception {
+
+        this.properties = properties;
 
         this.repository = new JpaRepository( properties );
 
@@ -66,7 +71,7 @@ public class ReportGenerator implements AutoCloseable {
     private void executeReport(Report report) throws Exception {
         log.info("Generating report {}", report);
 
-        callStoredProcedures(report);
+//        callStoredProcedures(report);
 
         if (report.getRequiresDeanonymising()) {
             deanonymise(report);
@@ -75,15 +80,33 @@ public class ReportGenerator implements AutoCloseable {
         if(report.getIsDaily()) {
             List<Delta> deltas = generateDelta(report);
             csvDeltaExporter.exportCsv(report, deltas);
+            fileEncrypter.encryptFile( report );
+            sftpUploader.upload( report );
+            repository.renameTable(report);
         }
 
-        fileEncrypter.encryptFile( report );
-
-        sftpUploader.upload( report );
-
-        repository.renameTable(report);
+        if(!report.getCsvTablesToExport().isEmpty()) {
+            for(String tableName : report.getCsvTablesToExport()) {
+                CSVExporter csvExporter = new CSVExporter(getCSVExporterProperties(report, tableName));
+                csvExporter.exportCSV();
+            }
+        }
 
         report.setSuccess(true);
+    }
+
+    private Properties getCSVExporterProperties(Report report, String tableName) {
+
+        Properties p = new Properties();
+        p.put("outputFilepath", report.getCsvOutputDirectory());
+        p.put("noOfRowsInEachOutputFile", 50000);
+        p.put("noOfRowsInEachDatabaseFetch", 1000);
+        p.put("url", properties.getProperty("db.compass.url") );
+        p.put("user", properties.getProperty("db.compass.user") );
+        p.put("password", properties.getProperty("db.compass.password") );
+        p.put("tablename", tableName );
+
+        return p;
     }
 
 
