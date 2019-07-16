@@ -110,7 +110,7 @@ public class Repository {
 
         this.tableName = whitelist(tableName);
 
-        this.sql =  "select * from " + tableName + " order by " + orderBy;
+        this.sql = "select * from " + tableName + " order by " + orderBy;
 
         log.info("Sanitised table name {}", this.tableName);
     }

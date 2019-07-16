@@ -31,6 +31,27 @@ public class CSVExporter implements AutoCloseable {
 
     private final int pageSize;
 
+    public CSVExporter(Properties properties) throws Exception {
+
+        log.info("**** Booting CSVExporter, loading property file and db repository.....");
+
+        this.repository =  new Repository( properties );
+
+        filepath = properties.getProperty("outputFilepath");
+
+        if(filepath == null) throw new CSVExporterException("Property outputFilepath is required");
+
+        noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
+
+        noOfRowsInEachDatabaseFetch =  Integer.valueOf( properties.getProperty("noOfRowsInEachDatabaseFetch") );
+
+        pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
+
+        bootNewPrintWriter();
+
+        log.info("**** CSVExporter successfully booted!!");
+    }
+
 
     public CSVExporter(Properties properties, Repository repository) throws Exception {
 
