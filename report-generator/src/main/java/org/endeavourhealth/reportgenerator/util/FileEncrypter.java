@@ -7,7 +7,6 @@ import org.bouncycastle.cms.jcajce.JceCMSContentEncryptorBuilder;
 import org.bouncycastle.cms.jcajce.JceKeyTransRecipientInfoGenerator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OutputEncryptor;
-import org.endeavourhealth.reportgenerator.model.Report;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,34 +14,16 @@ import java.io.FileOutputStream;
 import java.security.Security;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Properties;
 
 @Slf4j
 public class FileEncrypter {
 
-    private final String outputDirectory;
 
-    public FileEncrypter(Properties properties) {
-
-        outputDirectory = properties.getProperty("output.directory");
-    }
-
-    public void encryptFile(Report report) throws Exception {
-
-        String path = outputDirectory + File.separator + report.getName();
-
-        File file = new File(path);
-
-        log.info("Encrypting the file {}", file.getAbsolutePath());
-
-        encryptFile( file );
-    }
-
-    private void encryptFile(File file) throws Exception {
+    public void encryptFile(File file) throws Exception {
 
         X509Certificate certificate = getCertificate();
 
-        byte[] data = IOUtils.toByteArray(new FileInputStream(file + ".enc"));
+        byte[] data = IOUtils.toByteArray(new FileInputStream(file));
 
         CMSEnvelopedDataGenerator cmsEnvelopedDataGenerator = new CMSEnvelopedDataGenerator();
 
