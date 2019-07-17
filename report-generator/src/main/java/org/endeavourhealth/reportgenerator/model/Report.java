@@ -30,6 +30,8 @@ public class Report {
     private String sftpHostname;
     private String sftpUsername;
     private Integer sftpPort;
+    private String sftpFilename;
+    private Boolean uploadSftp;
 
 	public String getDatasetTableYesterday() {
 		return datasetTable + "_yesterday";

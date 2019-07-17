@@ -82,6 +82,11 @@ public class ReportGenerator implements AutoCloseable {
     }
 
     private void uploadToSFTP(Report report) throws Exception {
+
+        if(!report.getUploadSftp()) {
+            log.debug("Upload to sftp switched off");
+        }
+
         String filenameToSftp = zipDirectory(report);
 
         File fileToSftp = new File( filenameToSftp );
@@ -104,7 +109,10 @@ public class ReportGenerator implements AutoCloseable {
             for(Table table : report.getCsvTablesToExport()) {
                 csvExporter.exportCSV( table.getName(), table.getFileName() );
             }
+
+            csvExporter.close();
         }
+
     }
 
     public String zipDirectory(Report report) throws Exception {
@@ -124,8 +132,6 @@ public class ReportGenerator implements AutoCloseable {
         parameters.setIncludeRootFolder(false);
 
         zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
-
-        log.debug("File/s successfully created.");
 
         return zipFile.getFile().getAbsolutePath();
     }

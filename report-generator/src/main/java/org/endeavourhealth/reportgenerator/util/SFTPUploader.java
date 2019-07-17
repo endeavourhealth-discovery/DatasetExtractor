@@ -15,15 +15,22 @@ public class SFTPUploader {
 
     public void upload(Report report, File file) throws Exception {
 
+        String filename = getSFTPFileName( report );
+
         ChannelSftp channel = getChannel(report);
 
-        channel.put(file.getAbsolutePath(), "/ftp/" + getSFTPFileName());
+        channel.put(file.getAbsolutePath(),  filename);
+
+        log.info("Successfully uploaded file {} to {}", filename, report.getSftpHostname());
     }
 
     private ChannelSftp getChannel(Report report) throws IOException, JSchException {
         JSch jSch = new JSch();
 
         jSch.addIdentity( report.getSftpPrivateKeyFile() );
+
+        log.debug("Opening sftp channel {} {}", report.getSftpHostname(), report.getSftpUsername());
+
 //        jSch.setKnownHosts("/home/hal/known_hosts");
 
         Session session = jSch.getSession(report.getSftpUsername(), report.getSftpHostname(), report.getSftpPort());
@@ -36,16 +43,27 @@ public class SFTPUploader {
 
         channel.connect();
 
+        log.debug("Successfully connected to sftp");
+
         return channel;
     }
 
-    private String getSFTPFileName() {
+    private String getSFTPFileName(Report report) {
 
-        LocalDate localDate = LocalDate.now();
+        String sftpFilename = report.getSftpFilename();
 
-        String sftpFilename = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd") ) + ".csv";
+        if(sftpFilename.contains("{today}")) {
 
-        log.debug("SftpFilename : {}", sftpFilename);
+            LocalDate localDate = LocalDate.now();
+
+            String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".csv";
+
+            sftpFilename = sftpFilename.replace("{today}", today);
+        }
+
+        sftpFilename = "/ftp/" + sftpFilename;
+
+        log.info("Uploading file to sftp filename {}", sftpFilename);
 
         return sftpFilename;
     }
