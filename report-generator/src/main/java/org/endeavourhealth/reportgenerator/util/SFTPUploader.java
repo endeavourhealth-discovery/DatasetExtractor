@@ -2,30 +2,18 @@ package org.endeavourhealth.reportgenerator.util;
 
 import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.reportgenerator.model.Report;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Properties;
 
 @Slf4j
 public class SFTPUploader {
 
-    private final String outputDirectory;
 
-    public SFTPUploader(Properties properties) {
-        outputDirectory = properties.getProperty("output.directory");
-    }
-
-    public void upload(Report report) throws Exception {
-
-        String path = outputDirectory + File.separator + report.getName() + ".enc";
-
-        File file = new File( path );
+    public void upload(Report report, File file) throws Exception {
 
         ChannelSftp channel = getChannel(report);
 
