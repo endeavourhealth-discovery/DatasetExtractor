@@ -1,20 +1,19 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.beans.Delta;
 import org.endeavourhealth.reportgenerator.csv.CSVDeltaExporter;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.Table;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.FileEncrypter;
 import org.endeavourhealth.reportgenerator.util.SFTPUploader;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -70,41 +69,67 @@ public class ReportGenerator implements AutoCloseable {
 
     private void executeReport(Report report) throws Exception {
         log.info("Generating report {}", report);
+        
+        cleanOutputDirectory( report );
 
-//        callStoredProcedures(report);
+        callStoredProcedures(report.getPreStoredProcedures());
 
         if (report.getRequiresDeanonymising()) {
             deanonymise(report);
         }
 
-        if(report.getIsDaily()) {
-            List<Delta> deltas = generateDelta(report);
-            csvDeltaExporter.exportCsv(report, deltas);
-            fileEncrypter.encryptFile( report );
-            sftpUploader.upload( report );
-            repository.renameTable(report);
-        }
+        callStoredProcedures(report.getPostStoredProcedures());
 
-        if(!report.getCsvTablesToExport().isEmpty()) {
-            for(String tableName : report.getCsvTablesToExport()) {
-                CSVExporter csvExporter = new CSVExporter(getCSVExporterProperties(report, tableName));
-                csvExporter.exportCSV();
-            }
-        }
+        exportToCSVFile( report );
+        
+        uploadToSFTP( report );
 
         report.setSuccess(true);
     }
 
-    private Properties getCSVExporterProperties(Report report, String tableName) {
+    private void uploadToSFTP(Report report) {
+    }
+
+    private void exportToCSVFile(Report report) throws Exception {
+
+        if(!report.getCsvTablesToExport().isEmpty()) {
+
+            Properties properties = getCSVExporterProperties( report );
+
+            CSVExporter csvExporter = new CSVExporter( properties );
+
+            for(Table table : report.getCsvTablesToExport()) {
+                csvExporter.exportCSV( table.getName(), table.getFileName() );
+            }
+        }
+    }
+    
+
+    private void cleanOutputDirectory(Report report) throws IOException {
+
+        File outputDirectory = new File( report.getCsvOutputDirectory() );
+
+        for(File file : outputDirectory.listFiles()) {
+            if (file.isFile()) {
+                log.debug("Deleting the file: " + file.getName());
+                file.delete();
+            }
+            if (file.isDirectory()) {
+                log.debug("Deleting the directory: " + file.getName());
+                FileUtils.deleteDirectory(file);
+            }
+        }
+    }
+
+    private Properties getCSVExporterProperties(Report report) {
 
         Properties p = new Properties();
-        p.put("outputFilepath", report.getCsvOutputDirectory());
-        p.put("noOfRowsInEachOutputFile", 50000);
-        p.put("noOfRowsInEachDatabaseFetch", 1000);
+        p.put("outputDirectory", report.getCsvOutputDirectory());
+        p.put("noOfRowsInEachOutputFile", "50000");
+        p.put("noOfRowsInEachDatabaseFetch", "1000");
         p.put("url", properties.getProperty("db.compass.url") );
         p.put("user", properties.getProperty("db.compass.user") );
         p.put("password", properties.getProperty("db.compass.password") );
-        p.put("tablename", tableName );
 
         return p;
     }
@@ -127,11 +152,11 @@ public class ReportGenerator implements AutoCloseable {
 
     }
 
-    private void callStoredProcedures(Report report) {
+    private void callStoredProcedures(List<String> storedProcedures) {
 
         log.info("Cycling through stored procedures");
 
-        for (String storedProcedure : report.getStoredProcedures()) {
+        for (String storedProcedure : storedProcedures) {
             repository.call(storedProcedure);
         }
 

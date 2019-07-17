@@ -12,7 +12,8 @@ public class Report {
 
     //Database
     private String datasetTable;
-    private List<String> storedProcedures;
+    private List<String> preStoredProcedures;
+    private List<String> postStoredProcedures;
 
     private Boolean requiresDeanonymising;
     private Boolean active = false;
@@ -20,7 +21,7 @@ public class Report {
     private Boolean isDaily = false;
 
     //CSV export
-    private List<String> csvTablesToExport;
+    private List<Table> csvTablesToExport;
     private String csvOutputDirectory;
 
     //SFTP upload
@@ -33,3 +34,4 @@ public class Report {
 		return datasetTable + "_yesterday";
 	}
 }
+
