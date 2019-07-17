@@ -15,7 +15,7 @@ public class Report {
     private List<String> preStoredProcedures;
     private List<String> postStoredProcedures;
 
-    private Boolean requiresDeanonymising;
+    private Boolean requiresDeanonymising  = false;
     private Boolean active = false;
     private boolean success;
     private Boolean isDaily = false;

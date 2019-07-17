@@ -118,7 +118,7 @@ public class ReportGenerator implements AutoCloseable {
     public String zipDirectory(Report report) throws Exception {
 
         File source = new File( report.getCsvOutputDirectory() );
-        File staging = new File( report.getCsvStagingDirectory() );
+        File staging = new File( properties.getProperty("csv.staging.directory") );
 
         log.debug("Compressing contents of: " + source.getAbsolutePath());
 
