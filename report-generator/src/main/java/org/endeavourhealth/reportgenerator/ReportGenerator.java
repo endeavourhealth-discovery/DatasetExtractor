@@ -1,10 +1,12 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.beans.Delta;
-import org.endeavourhealth.reportgenerator.csv.CSVDeltaExporter;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.Table;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
@@ -25,11 +27,7 @@ public class ReportGenerator implements AutoCloseable {
 
     private List<Report> reports = new ArrayList<>();
 
-    private CSVDeltaExporter csvDeltaExporter;
-
     private SFTPUploader sftpUploader;
-
-    private final FileEncrypter fileEncrypter;
 
     private final Properties properties;
 
@@ -39,11 +37,7 @@ public class ReportGenerator implements AutoCloseable {
 
         this.repository = new JpaRepository( properties );
 
-        this.csvDeltaExporter = new CSVDeltaExporter(properties);
-
-        this.sftpUploader = new SFTPUploader(properties);
-
-        this.fileEncrypter = new FileEncrypter(properties);
+        this.sftpUploader = new SFTPUploader();
 
         log.info("**** Booting org.endeavourhealth.reportgenerator.ReportGenerator, loading property file and db repository.....");
 
@@ -87,7 +81,16 @@ public class ReportGenerator implements AutoCloseable {
         report.setSuccess(true);
     }
 
-    private void uploadToSFTP(Report report) {
+    private void uploadToSFTP(Report report) throws Exception {
+        String filenameToSftp = zipDirectory(report);
+
+        File fileToSftp = new File( filenameToSftp );
+
+        FileEncrypter fileEncrypter = new FileEncrypter();
+
+        fileEncrypter.encryptFile( fileToSftp );
+
+        sftpUploader.upload( report, fileToSftp );
     }
 
     private void exportToCSVFile(Report report) throws Exception {
@@ -103,13 +106,42 @@ public class ReportGenerator implements AutoCloseable {
             }
         }
     }
+
+    public String zipDirectory(Report report) throws Exception {
+
+        File source = new File( report.getCsvOutputDirectory() );
+        File staging = new File( report.getCsvStagingDirectory() );
+
+        log.debug("Compressing contents of: " + source.getAbsolutePath());
+
+        ZipFile zipFile = new ZipFile(staging + File.separator + source.getName() + ".zip");
+
+        log.info("Creating file: " + zipFile.getFile().getAbsolutePath());
+
+        ZipParameters parameters = new ZipParameters();
+        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+        parameters.setIncludeRootFolder(false);
+
+        zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
+
+        log.debug("File/s successfully created.");
+
+        return zipFile.getFile().getAbsolutePath();
+    }
     
 
     private void cleanOutputDirectory(Report report) throws IOException {
 
         File outputDirectory = new File( report.getCsvOutputDirectory() );
+        File stagingDirectory = new File( report.getCsvStagingDirectory() );
 
-        for(File file : outputDirectory.listFiles()) {
+        cleanOutputDirectory( outputDirectory );
+        cleanOutputDirectory( stagingDirectory );
+    }
+
+    private void cleanOutputDirectory(File directory) throws IOException {
+        for(File file : directory.listFiles()) {
             if (file.isFile()) {
                 log.debug("Deleting the file: " + file.getName());
                 file.delete();
@@ -201,6 +233,5 @@ public class ReportGenerator implements AutoCloseable {
     @Override
     public void close() throws Exception {
         repository.close();
-        csvDeltaExporter.close();
     }
 }
