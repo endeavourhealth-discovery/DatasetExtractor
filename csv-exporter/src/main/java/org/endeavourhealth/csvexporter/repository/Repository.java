@@ -16,25 +16,28 @@ public class Repository {
     private Connection connection;
 
     private String tableName;
+    private String orderBy;
 
     private String[] headers;
     private int columnCount;
-    private String sql;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
-
-        initTableHeaders();
     }
-
 
     public String[] getHeaders() throws SQLException {
         return headers;
     }
 
+    public void setTableName(String tableName) throws SQLException {
+        log.info("Setting tableName {}", tableName);
+        this.tableName = tableName;
+        initTableHeaders();
+    }
+
     private void initTableHeaders() throws SQLException {
 
-        String preparedSql = sql + " limit 1";
+        String preparedSql = getSql() + " limit 1";
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
 
@@ -59,7 +62,7 @@ public class Repository {
 
     public List<List<String>> getRows(int offset, int pageSize) throws SQLException {
 
-        String preparedSql = sql + " limit " + offset + ", " + pageSize;
+        String preparedSql = getSql() + " limit " + offset + ", " + pageSize;
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
 
@@ -101,22 +104,13 @@ public class Repository {
         connection = dataSource.getConnection();
 
         connection.setReadOnly( true );
+    }
 
-        String tableName = props.getProperty( "tablename" );
-        String orderBy = props.getProperty( "orderBy" );
-
-        log.info("Using table name {}", tableName);
-        log.info("Using order by {}", orderBy);
-
-        this.tableName = whitelist(tableName);
-
-        this.sql = "select * from " + tableName + " order by " + orderBy;
-
-        log.info("Sanitised table name {}", this.tableName);
+    private String getSql() {
+        return "select * from " + tableName + " order by " + orderBy;
     }
 
     public void close() throws SQLException {
-
         connection.close();
     }
 }
