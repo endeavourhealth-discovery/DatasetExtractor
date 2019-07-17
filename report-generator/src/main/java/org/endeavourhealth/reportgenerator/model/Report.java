@@ -23,6 +23,7 @@ public class Report {
     //CSV export
     private List<Table> csvTablesToExport;
     private String csvOutputDirectory;
+    private String csvStagingDirectory;
 
     //SFTP upload
     private String sftpPrivateKeyFile;
