@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.endeavourhealth.csvexporter.repository.Repository;
-import org.endeavourhealth.csvexporter.exception.CSVExporterException;
 
 import java.io.BufferedWriter;
 import java.nio.file.Files;
@@ -21,7 +20,7 @@ public class CSVExporter implements AutoCloseable {
 
     private CSVPrinter csvPrinter;
 
-    private final String filepath;
+    private final String outputDirectory;
 
     private int fileCount = 0;
 
@@ -31,37 +30,19 @@ public class CSVExporter implements AutoCloseable {
 
     private final int pageSize;
 
+    private String tableName;
+
     public CSVExporter(Properties properties) throws Exception {
-
-        log.info("**** Booting CSVExporter, loading property file and db repository.....");
-
-        this.repository =  new Repository( properties );
-
-        filepath = properties.getProperty("outputFilepath");
-
-        if(filepath == null) throw new CSVExporterException("Property outputFilepath is required");
-
-        noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
-
-        noOfRowsInEachDatabaseFetch =  Integer.valueOf( properties.getProperty("noOfRowsInEachDatabaseFetch") );
-
-        pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
-
-        bootNewPrintWriter();
-
-        log.info("**** CSVExporter successfully booted!!");
+        this(properties, new Repository(properties));
     }
 
-
-    public CSVExporter(Properties properties, Repository repository) throws Exception {
+    public CSVExporter(Properties properties, Repository repository) {
 
         this.repository = repository;
 
         log.info("**** Booting CSVExporter, loading property file and db repository.....");
 
-        filepath = properties.getProperty("outputFilepath");
-
-        if(filepath == null) throw new CSVExporterException("Property outputFilepath is required");
+        outputDirectory = properties.getProperty("outputDirectory");
 
         noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
 
@@ -69,14 +50,20 @@ public class CSVExporter implements AutoCloseable {
 
         pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
 
-        bootNewPrintWriter();
-
         log.info("**** CSVExporter successfully booted!!");
     }
 
-    public void exportCSV() throws Exception {
+    public void exportCSV(String tableName, String fileName) throws Exception {
+
+        this.tableName = tableName;
+
+        fileCount = 0;
+
+        bootNewPrintWriter( fileName );
 
         int currentFileCount = 0, offset = 0;
+
+        repository.setTableName(tableName);
 
         List<List<String>> result = repository.getRows(offset, pageSize);
 
@@ -94,7 +81,7 @@ public class CSVExporter implements AutoCloseable {
 
                 writer.close();
 
-                bootNewPrintWriter();
+                bootNewPrintWriter( fileName );
 
                 currentFileCount = 0;
             }
@@ -107,13 +94,13 @@ public class CSVExporter implements AutoCloseable {
         log.info("Finished writing csv");
     }
 
-    private void bootNewPrintWriter() throws Exception {
+    private void bootNewPrintWriter(String filename) throws Exception {
 
-        String filename = filepath + fileCount + ".csv";
+        String outputFileName = fileCount == 0 ?  outputDirectory + filename + ".csv" : outputDirectory  + filename + fileCount + ".csv";
 
-        log.info("Opening file {} for writing.....", filename);
+        log.info("Opening file {} for writing.....", outputFileName);
 
-        writer = Files.newBufferedWriter(Paths.get( filename ));
+        writer = Files.newBufferedWriter(Paths.get( outputFileName ));
 
         fileCount++;
 
@@ -129,5 +116,9 @@ public class CSVExporter implements AutoCloseable {
         writer.close();
 
         repository.close();
+    }
+
+    public void exportCSV(String tableName) throws Exception {
+        exportCSV(tableName, tableName);
     }
 }
