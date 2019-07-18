@@ -112,7 +112,6 @@ public class ReportGenerator implements AutoCloseable {
 
             csvExporter.close();
         }
-
     }
 
     public String zipDirectory(Report report) throws Exception {

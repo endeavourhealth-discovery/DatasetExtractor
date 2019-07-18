@@ -11,27 +11,25 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class SFTPUploader {
 
+    private Session session;
+
+    private ChannelSftp channelSftp;
+
 
     public void upload(Report report, File file) throws Exception {
 
         String removeFilename = getRemoteFilename( report );
 
-        Session session = getSession( report );
+        initSession( report );
 
-        ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
+        channelSftp.put(file.getAbsolutePath(),  removeFilename);
 
-        sftpChannel.connect();
-
-        sftpChannel.put(file.getAbsolutePath(),  removeFilename);
-
-        sftpChannel.exit();
-
-        session.disconnect();
+        close();
 
         log.info("Successfully uploaded file {} to {}", removeFilename, report.getSftpHostname());
     }
 
-    private Session getSession(Report report) throws JSchException {
+    private void initSession(Report report) throws JSchException {
         JSch jSch = new JSch();
 
         jSch.addIdentity( report.getSftpPrivateKeyFile() );
@@ -41,12 +39,14 @@ public class SFTPUploader {
 //        jSch.setKnownHosts("/home/hal/known_hosts");
 
         Session session = jSch.getSession(report.getSftpUsername(), report.getSftpHostname(), report.getSftpPort());
-// d2:dd:0f:44:d8:a2:85:a8:d1:6a:41:c9:55:91:38:72
+
         session.setConfig("StrictHostKeyChecking", "no");
 
         session.connect();
 
-        return session;
+        channelSftp = (ChannelSftp) session.openChannel("sftp");
+
+        channelSftp.connect();
     }
 
     private String getRemoteFilename(Report report) {
@@ -67,6 +67,11 @@ public class SFTPUploader {
         log.info("Uploading file to sftp remote filename {}", remoteFilename);
 
         return remoteFilename;
+    }
+
+    private void close() {
+        channelSftp.exit();
+        session.disconnect();
     }
 }
 
