@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Report;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -15,16 +14,24 @@ public class SFTPUploader {
 
     public void upload(Report report, File file) throws Exception {
 
-        String filename = getSFTPFileName( report );
+        String removeFilename = getRemoteFilename( report );
 
-        ChannelSftp channel = getChannel(report);
+        Session session = getSession( report );
 
-        channel.put(file.getAbsolutePath(),  filename);
+        ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
 
-        log.info("Successfully uploaded file {} to {}", filename, report.getSftpHostname());
+        sftpChannel.connect();
+
+        sftpChannel.put(file.getAbsolutePath(),  removeFilename);
+
+        sftpChannel.exit();
+
+        session.disconnect();
+
+        log.info("Successfully uploaded file {} to {}", removeFilename, report.getSftpHostname());
     }
 
-    private ChannelSftp getChannel(Report report) throws IOException, JSchException {
+    private Session getSession(Report report) throws JSchException {
         JSch jSch = new JSch();
 
         jSch.addIdentity( report.getSftpPrivateKeyFile() );
@@ -39,33 +46,27 @@ public class SFTPUploader {
 
         session.connect();
 
-        ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
-
-        channel.connect();
-
-        log.debug("Successfully connected to sftp");
-
-        return channel;
+        return session;
     }
 
-    private String getSFTPFileName(Report report) {
+    private String getRemoteFilename(Report report) {
 
-        String sftpFilename = report.getSftpFilename();
+        String remoteFilename = report.getSftpFilename();
 
-        if(sftpFilename.contains("{today}")) {
+        if(remoteFilename.contains("{today}")) {
 
             LocalDate localDate = LocalDate.now();
 
             String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".csv";
 
-            sftpFilename = sftpFilename.replace("{today}", today);
+            remoteFilename = remoteFilename.replace("{today}", today);
         }
 
-        sftpFilename = "/ftp/" + sftpFilename;
+        remoteFilename = "/ftp/" + remoteFilename;
 
-        log.info("Uploading file to sftp filename {}", sftpFilename);
+        log.info("Uploading file to sftp remote filename {}", remoteFilename);
 
-        return sftpFilename;
+        return remoteFilename;
     }
 }
 
