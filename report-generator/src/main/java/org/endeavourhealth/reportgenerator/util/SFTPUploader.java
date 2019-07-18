@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
-public class SFTPUploader {
+public class SFTPUploader implements AutoCloseable {
 
     private Session session;
 
@@ -18,15 +18,15 @@ public class SFTPUploader {
 
     public void upload(Report report, File file) throws Exception {
 
-        String removeFilename = getRemoteFilename( report );
+        String remoteFilename = getRemoteFilename( report );
 
         initSession( report );
 
-        channelSftp.put(file.getAbsolutePath(),  removeFilename);
+        channelSftp.put(file.getAbsolutePath(),  remoteFilename);
 
         close();
 
-        log.info("Successfully uploaded file {} to {}", removeFilename, report.getSftpHostname());
+        log.info("Successfully uploaded file {} to {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
     }
 
     private void initSession(Report report) throws JSchException {
@@ -38,7 +38,7 @@ public class SFTPUploader {
 
 //        jSch.setKnownHosts("/home/hal/known_hosts");
 
-        Session session = jSch.getSession(report.getSftpUsername(), report.getSftpHostname(), report.getSftpPort());
+        session = jSch.getSession(report.getSftpUsername(), report.getSftpHostname(), report.getSftpPort());
 
         session.setConfig("StrictHostKeyChecking", "no");
 
@@ -64,12 +64,10 @@ public class SFTPUploader {
 
         remoteFilename = "/ftp/" + remoteFilename;
 
-        log.info("Uploading file to sftp remote filename {}", remoteFilename);
-
         return remoteFilename;
     }
 
-    private void close() {
+    public void close() {
         channelSftp.exit();
         session.disconnect();
     }
