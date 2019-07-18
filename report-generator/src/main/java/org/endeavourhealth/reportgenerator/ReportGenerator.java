@@ -63,7 +63,7 @@ public class ReportGenerator implements AutoCloseable {
 
     private void executeReport(Report report) throws Exception {
         log.info("Generating report {}", report);
-        
+
         cleanOutputDirectory( report );
 
         callStoredProcedures(report.getPreStoredProcedures());
@@ -75,7 +75,7 @@ public class ReportGenerator implements AutoCloseable {
         callStoredProcedures(report.getPostStoredProcedures());
 
         exportToCSVFile( report );
-        
+
         uploadToSFTP( report );
 
         report.setSuccess(true);
@@ -135,12 +135,12 @@ public class ReportGenerator implements AutoCloseable {
 
         return zipFile.getFile().getAbsolutePath();
     }
-    
+
 
     private void cleanOutputDirectory(Report report) throws IOException {
 
         File outputDirectory = new File( report.getCsvOutputDirectory() );
-        File stagingDirectory = new File( report.getCsvStagingDirectory() );
+        File stagingDirectory = new File( properties.getProperty("csv.staging.directory") );
 
         cleanOutputDirectory( outputDirectory );
         cleanOutputDirectory( stagingDirectory );
@@ -229,9 +229,10 @@ public class ReportGenerator implements AutoCloseable {
         FileReader fileReader = new FileReader( new File(properties.getProperty("report.yaml.file")) );
 
         for(Object o : yaml.loadAll(fileReader)) {
-
             Report report = (Report) o;
-            log.info("Found report {}", report);
+
+            log.info("Loaded report from yaml : {}", report);
+
             reports.add( report );
         }
     }
