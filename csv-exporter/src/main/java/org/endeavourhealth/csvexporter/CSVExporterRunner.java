@@ -22,7 +22,7 @@ public class CSVExporterRunner {
 
             log.info("Starting csv exporter...");
 
-            csvExporter.exportCSV( args[0]);
+            csvExporter.exportCSV();
 
             log.info("...all done!");
 
@@ -40,6 +40,9 @@ public class CSVExporterRunner {
         InputStream inputStream = CSVExporterRunner.class.getClassLoader().getResourceAsStream("csv.exporter.properties");
 
         properties.load( inputStream );
+
+        properties.put("dbTableName", args[0]);
+        properties.put("csvFilename", args[0]);
 
         if(args.length > 1) properties.put("orderBy", args[1]);
 
