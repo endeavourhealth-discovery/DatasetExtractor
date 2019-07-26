@@ -30,7 +30,9 @@ public class CSVExporter implements AutoCloseable {
 
     private final int pageSize;
 
-    private String tableName;
+    private final String dbTableName;
+
+    private final String csvFilename;
 
     public CSVExporter(Properties properties) throws Exception {
         this(properties, new Repository(properties));
@@ -44,26 +46,26 @@ public class CSVExporter implements AutoCloseable {
 
         outputDirectory = properties.getProperty("outputDirectory");
 
+        csvFilename = properties.getProperty("csvFilename");
+
+        dbTableName = properties.getProperty("dbTableName");
+
         noOfRowsInEachOutputFile = Integer.valueOf( properties.getProperty("noOfRowsInEachOutputFile") );
 
         noOfRowsInEachDatabaseFetch =  Integer.valueOf( properties.getProperty("noOfRowsInEachDatabaseFetch") );
 
         pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
 
-        log.info("**** CSVExporter successfully booted!!");
+        log.info("**** CSVExporter successfully booted!! Exporting db table {} to file {}", dbTableName, csvFilename);
     }
 
-    public void exportCSV(String tableName, String fileName) throws Exception {
-
-        this.tableName = tableName;
+    public void exportCSV() throws Exception {
 
         fileCount = 0;
 
-        bootNewPrintWriter( fileName );
+        bootNewPrintWriter();
 
         int currentFileCount = 0, offset = 0;
-
-        repository.setTableName(tableName);
 
         List<List<String>> result = repository.getRows(offset, pageSize);
 
@@ -81,7 +83,7 @@ public class CSVExporter implements AutoCloseable {
 
                 writer.close();
 
-                bootNewPrintWriter( fileName );
+                bootNewPrintWriter();
 
                 currentFileCount = 0;
             }
@@ -94,18 +96,21 @@ public class CSVExporter implements AutoCloseable {
         log.info("Finished writing csv");
     }
 
-    private void bootNewPrintWriter(String filename) throws Exception {
+    private void bootNewPrintWriter() throws Exception {
 
-        String outputFileName = fileCount == 0 ?  outputDirectory + filename + ".csv" : outputDirectory  + filename + fileCount + ".csv";
+        String outputFileName = fileCount == 0 ?  outputDirectory + csvFilename + ".csv" : outputDirectory  + csvFilename + fileCount + ".csv";
 
         log.info("Opening file {} for writing.....", outputFileName);
-        log.debug("With headers {}", repository.getHeaders());
+
+        String[] headers = repository.getHeaders();
+
+        log.debug("With headers {}", headers);
 
         writer = Files.newBufferedWriter(Paths.get( outputFileName ));
 
         fileCount++;
 
-        csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader( repository.getHeaders() ));
+        csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader( headers ));
     }
 
 
@@ -117,9 +122,5 @@ public class CSVExporter implements AutoCloseable {
         writer.close();
 
         repository.close();
-    }
-
-    public void exportCSV(String tableName) throws Exception {
-        exportCSV(tableName, tableName);
     }
 }
