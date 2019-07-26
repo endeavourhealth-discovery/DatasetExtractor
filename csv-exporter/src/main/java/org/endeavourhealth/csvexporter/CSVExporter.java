@@ -99,6 +99,7 @@ public class CSVExporter implements AutoCloseable {
         String outputFileName = fileCount == 0 ?  outputDirectory + filename + ".csv" : outputDirectory  + filename + fileCount + ".csv";
 
         log.info("Opening file {} for writing.....", outputFileName);
+        log.debug("With headers {}", repository.getHeaders());
 
         writer = Files.newBufferedWriter(Paths.get( outputFileName ));
 
