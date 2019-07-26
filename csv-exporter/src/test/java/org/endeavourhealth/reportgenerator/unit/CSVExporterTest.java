@@ -61,7 +61,7 @@ public class CSVExporterTest {
     @Test
     public void getRecords() throws Exception {
 
-        csvExporter.exportCSV( "test" );
+        csvExporter.exportCSV();
 
         //Must flush to test otherwise file isn't written to
         csvExporter.close();
