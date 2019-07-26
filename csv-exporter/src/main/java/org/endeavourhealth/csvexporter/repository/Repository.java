@@ -29,12 +29,6 @@ public class Repository {
         return headers;
     }
 
-    public void setTableName(String tableName) throws SQLException {
-        log.info("Setting tableName {}", tableName);
-        this.tableName = tableName;
-        initTableHeaders();
-    }
-
     private void initTableHeaders() throws SQLException {
 
         String preparedSql = getSql() + " limit 1";
@@ -103,7 +97,11 @@ public class Repository {
 
         connection = dataSource.getConnection();
 
+        tableName = props.getProperty("dbTableName");
+
         connection.setReadOnly( true );
+
+        initTableHeaders();
     }
 
     private String getSql() {
