@@ -84,7 +84,7 @@ public class ReportGenerator implements AutoCloseable {
     private void uploadToSFTP(Report report) throws Exception {
 
         if(!report.getUploadSftp()) {
-            log.debug("Upload to sftp switched off");
+            log.info("Upload to sftp switched off");
         }
 
         String filenameToSftp = zipDirectory(report);
@@ -102,15 +102,15 @@ public class ReportGenerator implements AutoCloseable {
 
         if(!report.getCsvTablesToExport().isEmpty()) {
 
-            Properties properties = getCSVExporterProperties( report );
-
-            CSVExporter csvExporter = new CSVExporter( properties );
-
             for(Table table : report.getCsvTablesToExport()) {
-                csvExporter.exportCSV( table.getName(), table.getFileName() );
-            }
 
-            csvExporter.close();
+
+                Properties properties = getCSVExporterProperties( report, table );
+
+                try( CSVExporter csvExporter = new CSVExporter( properties ) ) {
+                    csvExporter.exportCSV();
+                }
+            }
         }
     }
 
@@ -158,7 +158,7 @@ public class ReportGenerator implements AutoCloseable {
         }
     }
 
-    private Properties getCSVExporterProperties(Report report) {
+    private Properties getCSVExporterProperties(Report report, Table table) {
 
         Properties p = new Properties();
         p.put("outputDirectory", report.getCsvOutputDirectory());
@@ -167,6 +167,9 @@ public class ReportGenerator implements AutoCloseable {
         p.put("url", properties.getProperty("db.compass.url") );
         p.put("user", properties.getProperty("db.compass.user") );
         p.put("password", properties.getProperty("db.compass.password") );
+
+        p.put("dbTable", table.getName());
+        p.put("csvFilename", table.getFileName());
 
         return p;
     }
@@ -186,7 +189,6 @@ public class ReportGenerator implements AutoCloseable {
         log.debug("Have found {} deltas", additions.size());
 
         return additions;
-
     }
 
     private void callStoredProcedures(List<String> storedProcedures) {
