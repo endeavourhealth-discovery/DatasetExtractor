@@ -104,7 +104,6 @@ public class ReportGenerator implements AutoCloseable {
 
             for(Table table : report.getCsvTablesToExport()) {
 
-
                 Properties properties = getCSVExporterProperties( report, table );
 
                 try( CSVExporter csvExporter = new CSVExporter( properties ) ) {
@@ -168,7 +167,7 @@ public class ReportGenerator implements AutoCloseable {
         p.put("user", properties.getProperty("db.compass.user") );
         p.put("password", properties.getProperty("db.compass.password") );
 
-        p.put("dbTable", table.getName());
+        p.put("dbTableName", table.getName());
         p.put("csvFilename", table.getFileName());
 
         return p;
