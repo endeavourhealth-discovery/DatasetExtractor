@@ -56,7 +56,9 @@ public class CSVExporter implements AutoCloseable {
 
         pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
 
-        log.info("**** CSVExporter successfully booted!! Exporting db table {} to file {}", dbTableName, csvFilename);
+        log.info("Exporting db table {} to file {}", dbTableName, csvFilename);
+        log.info("Export directory {}", outputDirectory);
+        log.info("**** CSVExporter successfully booted!!");
     }
 
     public void exportCSV() throws Exception {
