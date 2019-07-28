@@ -85,6 +85,7 @@ public class ReportGenerator implements AutoCloseable {
 
         if(!report.getUploadSftp()) {
             log.info("Upload to sftp switched off");
+            return;
         }
 
         String filenameToSftp = zipDirectory(report);
