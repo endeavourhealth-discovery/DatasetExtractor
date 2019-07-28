@@ -101,15 +101,17 @@ public class ReportGenerator implements AutoCloseable {
 
     private void exportToCSVFile(Report report) throws Exception {
 
-        if(!report.getCsvTablesToExport().isEmpty()) {
+        if(report.getCsvTablesToExport().isEmpty()) {
+          log.info("No csv tables to export");
+          return;
+        }
 
-            for(Table table : report.getCsvTablesToExport()) {
+        for(Table table : report.getCsvTablesToExport()) {
 
-                Properties properties = getCSVExporterProperties( report, table );
+            Properties properties = getCSVExporterProperties( report, table );
 
-                try( CSVExporter csvExporter = new CSVExporter( properties ) ) {
-                    csvExporter.exportCSV();
-                }
+            try( CSVExporter csvExporter = new CSVExporter( properties ) ) {
+                csvExporter.exportCSV();
             }
         }
     }
