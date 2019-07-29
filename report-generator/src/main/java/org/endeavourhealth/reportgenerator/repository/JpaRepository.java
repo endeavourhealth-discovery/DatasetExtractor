@@ -137,24 +137,4 @@ public class JpaRepository {
 
         return rows;
     }
-
-	public void renameTable(Report report) {
-
-		log.info("Renaming table {} to {} ", report.getDatasetTable(), report.getDatasetTableYesterday());
-
-    	EntityManager entityManager = entityManagerFactoryCompass.createEntityManager();
-
-		entityManager.getTransaction().begin();
-
-        Query query = entityManager.createNativeQuery( "drop table if exists " + report.getDatasetTableYesterday() );
-
-        query.executeUpdate();
-
-    	query = entityManager.createNativeQuery( "RENAME TABLE " + report.getDatasetTable() + " TO " + report.getDatasetTableYesterday() );
-
-    	query.executeUpdate();
-
-		entityManager.getTransaction().commit();
-		entityManager.close();
-	}
 }
