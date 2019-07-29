@@ -176,23 +176,6 @@ public class ReportGenerator implements AutoCloseable {
         return p;
     }
 
-
-    private List<Delta> generateDelta(Report report) {
-
-        List<Delta> additions = repository.getAdditions(report);
-
-        List<Delta> alterations = repository.getAlterations(report);
-
-        List<Delta> deletions = repository.getDeletions(report);
-
-        additions.addAll(alterations);
-        additions.addAll(deletions);
-
-        log.debug("Have found {} deltas", additions.size());
-
-        return additions;
-    }
-
     private void callStoredProcedures(List<String> storedProcedures) {
 
       if(storedProcedures == null) {
