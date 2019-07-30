@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Arrays;
 import java.util.Properties;
 
 @Slf4j
@@ -106,7 +107,7 @@ public class CSVExporter implements AutoCloseable {
 
         String[] headers = repository.getHeaders();
 
-        log.debug("With headers {}", headers);
+        log.debug("With headers {}", Arrays.toString( headers ));
 
         writer = Files.newBufferedWriter(Paths.get( outputFileName ));
 
