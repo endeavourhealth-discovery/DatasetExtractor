@@ -6,7 +6,6 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
-import org.endeavourhealth.reportgenerator.beans.Delta;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.Table;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
@@ -66,13 +65,13 @@ public class ReportGenerator implements AutoCloseable {
 
         cleanOutputDirectory( report );
 
-        callStoredProcedures(report.getPreStoredProcedures());
+        callStoredProcedures(report.getPreStoredProcedures(), report);
 
         if (report.getRequiresDeanonymising()) {
             deanonymise(report);
         }
 
-        callStoredProcedures(report.getPostStoredProcedures());
+        callStoredProcedures(report.getPostStoredProcedures(), report);
 
         exportToCSVFile( report );
 
@@ -176,7 +175,7 @@ public class ReportGenerator implements AutoCloseable {
         return p;
     }
 
-    private void callStoredProcedures(List<String> storedProcedures) {
+    private void callStoredProcedures(List<String> storedProcedures, Report report) {
 
       if(storedProcedures == null) {
         log.info("No stored procedures in report definition");
@@ -186,7 +185,7 @@ public class ReportGenerator implements AutoCloseable {
         log.info("Cycling through stored procedures");
 
         for (String storedProcedure : storedProcedures) {
-            repository.call(storedProcedure);
+            repository.call(storedProcedure, report);
         }
 
         log.info("Stored procedures all called");
