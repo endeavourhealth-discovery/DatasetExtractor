@@ -38,7 +38,7 @@ public class JpaRepository {
     }
 
 
-    public void call(String storedProceduresName) {
+    public void call(String storedProceduresName, Report report) {
 
         log.info("Calling stored procedure {}", storedProceduresName);
 
