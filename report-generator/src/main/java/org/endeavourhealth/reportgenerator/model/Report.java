@@ -14,16 +14,22 @@ public class Report {
     private String datasetTable;
     private List<String> preStoredProcedures;
     private List<String> postStoredProcedures;
+    private String storedProcedureDatabase = "compass";
 
     private Boolean requiresDeanonymising  = false;
     private Boolean active = false;
     private boolean success;
+
+    //Schedule
     private Boolean isDaily = false;
+    private String dayOfMonth;
+    private String dayOfWeek;
 
     //CSV export
     private List<Table> csvTablesToExport;
     private String csvOutputDirectory;
     private String csvStagingDirectory;
+    private String csvExportDatabase = "compass";
 
     //SFTP upload
     private String sftpPrivateKeyFile;

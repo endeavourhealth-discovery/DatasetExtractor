@@ -38,11 +38,17 @@ public class JpaRepository {
     }
 
 
-    public void call(String storedProceduresName) {
+    public void call(String storedProceduresName, Report report) {
 
         log.info("Calling stored procedure {}", storedProceduresName);
 
-        EntityManager entityManager = entityManagerFactoryCompass.createEntityManager();
+        EntityManager entityManager = null;
+
+        if(report.getStoredProcedureDatabase().equals("compass")) {
+            entityManager = entityManagerFactoryCompass.createEntityManager();
+        } else {
+            entityManager = entityManagerFactoryCore.createEntityManager();
+        }
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery(storedProceduresName);
 
