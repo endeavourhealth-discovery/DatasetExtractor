@@ -40,7 +40,7 @@ public class JpaRepository {
 
     public void call(String storedProceduresName, Report report) {
 
-        log.info("Calling stored procedure {}", storedProceduresName);
+        log.info("Calling stored procedure {} with database {}", storedProceduresName, report.getStoredProcedureDatabase());
 
         EntityManager entityManager = null;
 
