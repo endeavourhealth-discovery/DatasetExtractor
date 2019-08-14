@@ -13,4 +13,4 @@ src/test/etc/output/*
 bin/
 *.iml
 !.mvn/wrapper/maven-wrapper.jar
-
+out
