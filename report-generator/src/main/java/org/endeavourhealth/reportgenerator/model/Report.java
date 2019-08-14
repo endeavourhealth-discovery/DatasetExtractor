@@ -25,6 +25,7 @@ public class Report {
     private List<Table> csvTablesToExport;
     private String csvOutputDirectory;
     private String csvStagingDirectory;
+    private String csvExportDatabase = "compass";
 
     //SFTP upload
     private String sftpPrivateKeyFile;
