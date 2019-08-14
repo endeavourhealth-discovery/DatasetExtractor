@@ -42,5 +42,9 @@ public class Report {
 	public String getDatasetTableYesterday() {
 		return datasetTable + "_yesterday";
 	}
+
+    public boolean isCompassDatabase() {
+	    return storedProcedureDatabase.equals("compass") ? true : false;
+    }
 }
 
