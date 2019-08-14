@@ -42,7 +42,13 @@ public class JpaRepository {
 
         log.info("Calling stored procedure {}", storedProceduresName);
 
-        EntityManager entityManager = entityManagerFactoryCompass.createEntityManager();
+        EntityManager entityManager = null;
+
+        if(report.getStoredProcedureDataset().equals("compass")) {
+            entityManager = entityManagerFactoryCompass.createEntityManager();
+        } else {
+            entityManager = entityManagerFactoryCore.createEntityManager();
+        }
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery(storedProceduresName);
 
