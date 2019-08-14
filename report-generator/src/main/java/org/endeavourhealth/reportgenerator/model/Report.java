@@ -19,7 +19,11 @@ public class Report {
     private Boolean requiresDeanonymising  = false;
     private Boolean active = false;
     private boolean success;
+
+    //Schedule
     private Boolean isDaily = false;
+    private String dayOfMonth;
+    private String dayOfWeek;
 
     //CSV export
     private List<Table> csvTablesToExport;
