@@ -44,7 +44,7 @@ public class JpaRepository {
 
         EntityManager entityManager = null;
 
-        if(report.getStoredProcedureDataset().equals("compass")) {
+        if(report.getStoredProcedureDatabase().equals("compass")) {
             entityManager = entityManagerFactoryCompass.createEntityManager();
         } else {
             entityManager = entityManagerFactoryCore.createEntityManager();

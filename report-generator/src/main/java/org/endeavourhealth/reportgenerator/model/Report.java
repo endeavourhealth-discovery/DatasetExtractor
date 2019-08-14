@@ -14,7 +14,7 @@ public class Report {
     private String datasetTable;
     private List<String> preStoredProcedures;
     private List<String> postStoredProcedures;
-    private String storedProcedureDataset = "compass";
+    private String storedProcedureDatabase = "compass";
 
     private Boolean requiresDeanonymising  = false;
     private Boolean active = false;
