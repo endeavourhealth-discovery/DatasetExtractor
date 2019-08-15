@@ -16,7 +16,8 @@ import java.util.Properties;
 public class JpaRepository {
 
     private EntityManagerFactory entityManagerFactoryCompass;
-    private EntityManagerFactory entityManagerFactoryCore;
+
+    private final Properties properties;
 
     public JpaRepository(Properties properties, Database storedProcedureDatabase) throws SQLException {
 
@@ -38,6 +39,8 @@ public class JpaRepository {
                 break;
         }
 
+        this.properties = properties;
+
         entityManagerFactoryCompass = Persistence.createEntityManagerFactory("compassDatabase", properties);
     }
 
@@ -58,7 +61,7 @@ public class JpaRepository {
     public void close() throws SQLException {
 
         entityManagerFactoryCompass.close();
-        entityManagerFactoryCore.close();
+
     }
 
     public List<String> getPseudoIds(Integer offset) {
@@ -74,6 +77,8 @@ public class JpaRepository {
 
 
     public List<Object[]> deanonymise(List<String> pseudoIds) {
+
+        EntityManagerFactory entityManagerFactoryCore = getEntityManagerFactoryCore();
 
         EntityManager entityManagerCore = entityManagerFactoryCore.createEntityManager();
         EntityManager entityManagerCompass = entityManagerFactoryCompass.createEntityManager();
@@ -140,6 +145,18 @@ public class JpaRepository {
         entityManagerCompass.getTransaction().commit();
         entityManagerCompass.close();
 
+        entityManagerFactoryCore.close();
+
         return rows;
+    }
+
+    private EntityManagerFactory getEntityManagerFactoryCore() {
+        properties.put("javax.persistence.jdbc.password", properties.get("db.core.password"));
+        properties.put("javax.persistence.jdbc.user", properties.getProperty("db.core.user"));
+        properties.put("javax.persistence.jdbc.url", properties.getProperty("db.core.url"));
+
+        EntityManagerFactory entityManagerFactoryCore = Persistence.createEntityManagerFactory("coreDatabase", properties);
+
+        return entityManagerFactoryCore;
     }
 }
