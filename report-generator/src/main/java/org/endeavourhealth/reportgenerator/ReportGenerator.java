@@ -170,7 +170,6 @@ public class ReportGenerator implements AutoCloseable {
 
         Properties p = new Properties();
         p.put("outputDirectory", report.getCsvOutputDirectory());
-        p.put("noOfRowsInEachOutputFile", "50000");
         p.put("noOfRowsInEachDatabaseFetch", "1000");
 
         switch (report.getStoredProcedureDatabase()) {
@@ -193,7 +192,7 @@ public class ReportGenerator implements AutoCloseable {
 
         p.put("dbTableName", table.getName());
         p.put("csvFilename", table.getFileName());
-        p.put("noOfRowsInEachOutputFile",properties.getProperty("maxNoOfRowsInEachFile"));
+        p.put("noOfRowsInEachOutputFile", report.getMaxNoOfRowsInEachFile().toString());
 
         return p;
     }
