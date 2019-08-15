@@ -80,7 +80,8 @@ public class CSVExporter implements AutoCloseable {
 
             currentFileCount += result.size();
 
-            if(currentFileCount > noOfRowsInEachOutputFile) {
+            //noOfRowsInEachOutputFile == 0 or smaller, no limit
+            if(currentFileCount > noOfRowsInEachOutputFile && noOfRowsInEachOutputFile > 0) {
 
                 csvPrinter.close( true );
 
