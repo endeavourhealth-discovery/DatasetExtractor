@@ -3,6 +3,7 @@ package org.endeavourhealth.reportgenerator.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.beans.Delta;
 import org.endeavourhealth.reportgenerator.beans.DeltaType;
+import org.endeavourhealth.reportgenerator.model.Database;
 import org.endeavourhealth.reportgenerator.model.Report;
 
 import javax.persistence.*;
@@ -17,24 +18,27 @@ public class JpaRepository {
     private EntityManagerFactory entityManagerFactoryCompass;
     private EntityManagerFactory entityManagerFactoryCore;
 
-    public JpaRepository(Properties properties) throws SQLException {
+    public JpaRepository(Properties properties, Database storedProcedureDatabase) throws SQLException {
 
-        init( properties );
-    }
+        switch (storedProcedureDatabase) {
+            case COMPASS:
+                properties.put("javax.persistence.jdbc.password", properties.get("db.compass.password"));
+                properties.put("javax.persistence.jdbc.user", properties.getProperty("db.compass.user"));
+                properties.put("javax.persistence.jdbc.url", properties.getProperty("db.compass.url"));
+                break;
+            case CORE:
+                properties.put("javax.persistence.jdbc.password", properties.get("db.core.password"));
+                properties.put("javax.persistence.jdbc.user", properties.getProperty("db.core.user"));
+                properties.put("javax.persistence.jdbc.url", properties.getProperty("db.core.url"));
+                break;
+            case PCR:
+                properties.put("javax.persistence.jdbc.password", properties.get("db.pcr.password"));
+                properties.put("javax.persistence.jdbc.user", properties.getProperty("db.pcr.user"));
+                properties.put("javax.persistence.jdbc.url", properties.getProperty("db.pcr.url"));
+                break;
+        }
 
-    private void init(Properties props) {
-
-        props.put("javax.persistence.jdbc.password", props.get("db.compass.password"));
-        props.put("javax.persistence.jdbc.user", props.getProperty("db.compass.user"));
-        props.put("javax.persistence.jdbc.url", props.getProperty("db.compass.url"));
-
-        entityManagerFactoryCompass = Persistence.createEntityManagerFactory("compassDatabase", props);
-
-        props.put("javax.persistence.jdbc.password", props.get("db.core.password"));
-        props.put("javax.persistence.jdbc.user", props.getProperty("db.core.user"));
-        props.put("javax.persistence.jdbc.url", props.getProperty("db.core.url"));
-
-        entityManagerFactoryCore = Persistence.createEntityManagerFactory("coreDatabase", props);
+        entityManagerFactoryCompass = Persistence.createEntityManagerFactory("compassDatabase", properties);
     }
 
 
@@ -42,13 +46,7 @@ public class JpaRepository {
 
         log.info("Calling stored procedure {} with database {}", storedProceduresName, report.getStoredProcedureDatabase());
 
-        EntityManager entityManager = null;
-
-        if(report.runStoredProceduresInCompassDatabase()) {
-            entityManager = entityManagerFactoryCompass.createEntityManager();
-        } else {
-            entityManager = entityManagerFactoryCore.createEntityManager();
-        }
+        EntityManager entityManager = entityManagerFactoryCompass.createEntityManager();
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery(storedProceduresName);
 
@@ -69,7 +67,8 @@ public class JpaRepository {
         String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 1000";
         Query query = entityManager.createNativeQuery(sql);
 
-        log.debug("Sql {}", sql);
+        log.trace("Sql {}", sql);
+
         return query.getResultList();
     }
 
