@@ -15,6 +15,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -22,7 +23,7 @@ import java.util.Properties;
 @Slf4j
 public class ReportGenerator implements AutoCloseable {
 
-    private final JpaRepository repository;
+    private JpaRepository repository;
 
     private List<Report> reports = new ArrayList<>();
 
@@ -33,8 +34,6 @@ public class ReportGenerator implements AutoCloseable {
     public ReportGenerator(Properties properties) throws Exception {
 
         this.properties = properties;
-
-        this.repository = new JpaRepository(properties);
 
         this.sftpUploader = new SFTPUploader();
 
@@ -63,6 +62,8 @@ public class ReportGenerator implements AutoCloseable {
     private void executeReport(Report report) throws Exception {
         log.info("Generating report {}", report);
 
+        bootRepository(report);
+
         cleanOutputDirectory(report);
 
         callStoredProcedures(report.getPreStoredProcedures(), report);
@@ -78,6 +79,12 @@ public class ReportGenerator implements AutoCloseable {
         uploadToSFTP(report);
 
         report.setSuccess(true);
+
+        repository.close();
+    }
+
+    private void bootRepository(Report report) throws SQLException {
+        this.repository = new JpaRepository(properties, report.getStoredProcedureDatabase());
     }
 
     private void uploadToSFTP(Report report) throws Exception {
@@ -166,18 +173,27 @@ public class ReportGenerator implements AutoCloseable {
         p.put("noOfRowsInEachOutputFile", "50000");
         p.put("noOfRowsInEachDatabaseFetch", "1000");
 
-        if(report.exportCSVFromCompassDatabase()) {
-            p.put("url", properties.getProperty("db.compass.url"));
-            p.put("user", properties.getProperty("db.compass.user"));
-            p.put("password", properties.getProperty("db.compass.password"));
-        } else {
-            p.put("url", properties.getProperty("db.core.url"));
-            p.put("user", properties.getProperty("db.core.user"));
-            p.put("password", properties.getProperty("db.core.password"));
+        switch (report.getStoredProcedureDatabase()) {
+            case COMPASS:
+                p.put("url", properties.getProperty("db.compass.url"));
+                p.put("user", properties.getProperty("db.compass.user"));
+                p.put("password", properties.getProperty("db.compass.password"));
+                break;
+            case CORE:
+                p.put("url", properties.getProperty("db.core.url"));
+                p.put("user", properties.getProperty("db.core.user"));
+                p.put("password", properties.getProperty("db.core.password"));
+                break;
+            case PCR:
+                p.put("url", properties.getProperty("db.pcr.url"));
+                p.put("user", properties.getProperty("db.pcr.user"));
+                p.put("password", properties.getProperty("db.pce.password"));
+                break;
         }
 
         p.put("dbTableName", table.getName());
         p.put("csvFilename", table.getFileName());
+        p.put("noOfRowsInEachOutputFile",properties.getProperty("maxNoOfRowsInEachFile"));
 
         return p;
     }
