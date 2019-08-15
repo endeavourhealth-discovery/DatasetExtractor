@@ -1,4 +1,5 @@
 package org.endeavourhealth.reportgenerator.model;
 
-public class Database {
+public enum Database {
+    COMPASS, CORE, PCR;
 }
