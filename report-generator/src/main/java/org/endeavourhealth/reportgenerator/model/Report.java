@@ -43,8 +43,12 @@ public class Report {
 		return datasetTable + "_yesterday";
 	}
 
-    public boolean isCompassDatabase() {
+    public boolean runStoredProceduresInCompassDatabase() {
 	    return storedProcedureDatabase.equals("compass") ? true : false;
+    }
+
+    public boolean exportCSVFromCompassDatabase() {
+        return csvExportDatabase.equals("compass") ? true : false;
     }
 }
 
