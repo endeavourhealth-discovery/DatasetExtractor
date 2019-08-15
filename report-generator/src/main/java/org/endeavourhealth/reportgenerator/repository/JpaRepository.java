@@ -26,7 +26,7 @@ public class JpaRepository {
 
         props.put("javax.persistence.jdbc.password", props.get("db.compass.password"));
         props.put("javax.persistence.jdbc.user", props.getProperty("db.compass.user"));
-		    props.put("javax.persistence.jdbc.url", props.getProperty("db.compass.url"));
+        props.put("javax.persistence.jdbc.url", props.getProperty("db.compass.url"));
 
         entityManagerFactoryCompass = Persistence.createEntityManagerFactory("compassDatabase", props);
 
@@ -44,7 +44,7 @@ public class JpaRepository {
 
         EntityManager entityManager = null;
 
-        if(report.getStoredProcedureDatabase().equals("compass")) {
+        if(report.runStoredProceduresInCompassDatabase()) {
             entityManager = entityManagerFactoryCompass.createEntityManager();
         } else {
             entityManager = entityManagerFactoryCore.createEntityManager();
