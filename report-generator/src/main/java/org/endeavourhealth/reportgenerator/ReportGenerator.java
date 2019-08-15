@@ -165,9 +165,16 @@ public class ReportGenerator implements AutoCloseable {
         p.put("outputDirectory", report.getCsvOutputDirectory());
         p.put("noOfRowsInEachOutputFile", "50000");
         p.put("noOfRowsInEachDatabaseFetch", "1000");
-        p.put("url", properties.getProperty("db.compass.url"));
-        p.put("user", properties.getProperty("db.compass.user"));
-        p.put("password", properties.getProperty("db.compass.password"));
+
+        if(report.exportCSVFromCompassDatabase()) {
+            p.put("url", properties.getProperty("db.compass.url"));
+            p.put("user", properties.getProperty("db.compass.user"));
+            p.put("password", properties.getProperty("db.compass.password"));
+        } else {
+            p.put("url", properties.getProperty("db.core.url"));
+            p.put("user", properties.getProperty("db.core.user"));
+            p.put("password", properties.getProperty("db.core.password"));
+        }
 
         p.put("dbTableName", table.getName());
         p.put("csvFilename", table.getFileName());
