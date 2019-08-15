@@ -14,7 +14,7 @@ public class Report {
     private String datasetTable;
     private List<String> preStoredProcedures;
     private List<String> postStoredProcedures;
-    private String storedProcedureDatabase = "compass";
+    private Database storedProcedureDatabase = Database.COMPASS;
 
     private Boolean requiresDeanonymising  = false;
     private Boolean active = false;
@@ -29,7 +29,7 @@ public class Report {
     private List<Table> csvTablesToExport;
     private String csvOutputDirectory;
     private String csvStagingDirectory;
-    private String csvExportDatabase = "compass";
+    private Database csvExportDatabase = Database.COMPASS;
     private Integer maxNoOfRowsInEachFile = 0; //0 is no limit
 
     //SFTP upload
