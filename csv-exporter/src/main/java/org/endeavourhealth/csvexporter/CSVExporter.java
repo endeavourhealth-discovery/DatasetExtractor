@@ -55,13 +55,17 @@ public class CSVExporter implements AutoCloseable {
 
         noOfRowsInEachDatabaseFetch =  Integer.valueOf( properties.getProperty("noOfRowsInEachDatabaseFetch") );
 
-        pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
+        if(noOfRowsInEachOutputFile > 0) {
+          pageSize = noOfRowsInEachOutputFile < noOfRowsInEachDatabaseFetch ? noOfRowsInEachOutputFile : noOfRowsInEachDatabaseFetch;
+        } else {
+          pageSize = noOfRowsInEachDatabaseFetch;
+        }
 
-        log.info("Exporting db table {} to file {}", dbTableName, csvFilename);
+        log.info("Exporting db table {} to file {} to directory", dbTableName, csvFilename, outputDirectory);
+
         log.info("noOfRowsInEachDatabaseFetch = {}", noOfRowsInEachDatabaseFetch);
         log.info("noOfRowsInEachOutputFile = {}", noOfRowsInEachOutputFile);
-        log.info("pageSize = {}", pageSize);
-        log.info("Export directory {}", outputDirectory);
+
         log.info("**** CSVExporter successfully booted!!");
     }
 
