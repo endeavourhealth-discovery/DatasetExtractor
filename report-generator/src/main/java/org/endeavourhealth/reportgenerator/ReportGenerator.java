@@ -204,6 +204,11 @@ public class ReportGenerator implements AutoCloseable {
             return;
         }
 
+        if(!report.getExecuteStoredProcedures()) {
+            log.info("Stored procedure execution is turned off");
+            return;
+        }
+
         log.info("Cycling through stored procedures");
 
         for (String storedProcedure : storedProcedures) {
