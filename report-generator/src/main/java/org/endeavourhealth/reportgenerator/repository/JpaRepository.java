@@ -1,21 +1,18 @@
 package org.endeavourhealth.reportgenerator.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.reportgenerator.beans.Delta;
-import org.endeavourhealth.reportgenerator.beans.DeltaType;
 import org.endeavourhealth.reportgenerator.model.Database;
 import org.endeavourhealth.reportgenerator.model.Report;
 
 import javax.persistence.*;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 @Slf4j
 public class JpaRepository {
 
-    private EntityManagerFactory entityManagerFactoryCompass;
+    private EntityManagerFactory entityManagerFactory;
 
     private final Properties properties;
 
@@ -41,7 +38,7 @@ public class JpaRepository {
 
         this.properties = properties;
 
-        entityManagerFactoryCompass = Persistence.createEntityManagerFactory("compassDatabase", properties);
+        entityManagerFactory = Persistence.createEntityManagerFactory("databaseUno", properties);
     }
 
 
@@ -49,7 +46,7 @@ public class JpaRepository {
 
         log.info("Calling stored procedure {} with database {}", storedProceduresName, report.getStoredProcedureDatabase());
 
-        EntityManager entityManager = entityManagerFactoryCompass.createEntityManager();
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery(storedProceduresName);
 
@@ -60,12 +57,12 @@ public class JpaRepository {
 
     public void close() throws SQLException {
 
-        entityManagerFactoryCompass.close();
+        entityManagerFactory.close();
 
     }
 
     public List<String> getPseudoIds(Integer offset) {
-        EntityManager entityManager = entityManagerFactoryCompass.createEntityManager();
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 1000";
         Query query = entityManager.createNativeQuery(sql);
@@ -81,7 +78,7 @@ public class JpaRepository {
         EntityManagerFactory entityManagerFactoryCore = getEntityManagerFactoryCore();
 
         EntityManager entityManagerCore = entityManagerFactoryCore.createEntityManager();
-        EntityManager entityManagerCompass = entityManagerFactoryCompass.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactory.createEntityManager();
 
         entityManagerCore.getTransaction().begin();
         entityManagerCompass.getTransaction().begin();
