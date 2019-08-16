@@ -186,7 +186,7 @@ public class ReportGenerator implements AutoCloseable {
             case PCR:
                 p.put("url", properties.getProperty("db.pcr.url"));
                 p.put("user", properties.getProperty("db.pcr.user"));
-                p.put("password", properties.getProperty("db.pce.password"));
+                p.put("password", properties.getProperty("db.pcr.password"));
                 break;
         }
 
