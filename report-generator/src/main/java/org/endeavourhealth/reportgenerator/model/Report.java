@@ -15,6 +15,7 @@ public class Report {
     private List<String> preStoredProcedures;
     private List<String> postStoredProcedures;
     private Database storedProcedureDatabase = Database.COMPASS;
+    private Boolean executeStoredProcedures = true;
 
     private Boolean requiresDeanonymising  = false;
     private Boolean active = false;
