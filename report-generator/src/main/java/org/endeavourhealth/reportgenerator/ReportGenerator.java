@@ -170,7 +170,7 @@ public class ReportGenerator implements AutoCloseable {
 
         Properties p = new Properties();
         p.put("outputDirectory", report.getCsvOutputDirectory());
-        p.put("noOfRowsInEachDatabaseFetch", "1000");
+        p.put("noOfRowsInEachDatabaseFetch", "50000");
 
         switch (report.getStoredProcedureDatabase()) {
             case COMPASS:
