@@ -76,7 +76,7 @@ public class CSVExporter implements AutoCloseable {
 
             LocalDate localDate = LocalDate.now();
 
-            String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".csv";
+            String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
             return  csvFilename.replace("{today}", today);
         }
