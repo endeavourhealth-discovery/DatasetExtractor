@@ -8,6 +8,8 @@ import org.endeavourhealth.csvexporter.repository.Repository;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Properties;
@@ -47,7 +49,7 @@ public class CSVExporter implements AutoCloseable {
 
         outputDirectory = properties.getProperty("outputDirectory");
 
-        csvFilename = properties.getProperty("csvFilename");
+        csvFilename = buildCsvFilename( properties.getProperty("csvFilename") );
 
         dbTableName = properties.getProperty("dbTableName");
 
@@ -67,6 +69,19 @@ public class CSVExporter implements AutoCloseable {
         log.info("noOfRowsInEachOutputFile = {}", noOfRowsInEachOutputFile);
 
         log.info("**** CSVExporter successfully booted!!");
+    }
+
+    private String buildCsvFilename(String csvFilename) {
+        if(csvFilename.contains("{today}")) {
+
+            LocalDate localDate = LocalDate.now();
+
+            String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".csv";
+
+            return  csvFilename.replace("{today}", today);
+        }
+
+        return csvFilename;
     }
 
     public void exportCSV() throws Exception {
