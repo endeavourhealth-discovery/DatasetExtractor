@@ -50,15 +50,15 @@ public class SFTPUploader implements AutoCloseable {
         channelSftp.connect();
     }
 
-    public void deleteFiles(String remotePath) throws SftpException {
+    public void deleteFiles(String directory) throws SftpException {
 
-        channelSftp.cd(remotePath);
+        channelSftp.cd(directory);
 
         Vector<ChannelSftp.LsEntry> fileList = channelSftp.ls(".");
 
         for (ChannelSftp.LsEntry t : fileList) {
 
-            log.debug("Deleting file {}/{}", remotePath, t.getFilename());
+            log.debug("Deleting file {}/{}", directory, t.getFilename());
 
             channelSftp.rm(t.getFilename());
         }
