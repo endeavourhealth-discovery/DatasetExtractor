@@ -199,13 +199,13 @@ public class ReportGenerator implements AutoCloseable {
 
     private void callStoredProcedures(List<String> storedProcedures, Report report) {
 
-        if (storedProcedures == null) {
-            log.info("No stored procedures in report definition");
+        if(!report.getExecuteStoredProcedures()) {
+            log.info("Stored procedure execution is turned off");
             return;
         }
 
-        if(!report.getExecuteStoredProcedures()) {
-            log.info("Stored procedure execution is turned off");
+        if (storedProcedures == null) {
+            log.info("No stored procedures in report definition");
             return;
         }
 
