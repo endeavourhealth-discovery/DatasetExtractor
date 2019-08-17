@@ -7,6 +7,7 @@ import org.endeavourhealth.reportgenerator.model.Report;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Vector;
 
 @Slf4j
 public class SFTPUploader implements AutoCloseable {
@@ -47,6 +48,20 @@ public class SFTPUploader implements AutoCloseable {
         channelSftp = (ChannelSftp) session.openChannel("sftp");
 
         channelSftp.connect();
+    }
+
+    public void deleteFiles(String remotePath) throws SftpException {
+
+        channelSftp.cd(remotePath);
+
+        Vector<ChannelSftp.LsEntry> fileList = channelSftp.ls(".");
+
+        for (ChannelSftp.LsEntry t : fileList) {
+
+            log.debug("Deleting file {}/{}", remotePath, t.getFilename());
+
+            channelSftp.rm(t.getFilename());
+        }
     }
 
     private String getRemoteFilename(Report report) {
