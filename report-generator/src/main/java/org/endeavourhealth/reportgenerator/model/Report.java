@@ -11,7 +11,6 @@ public class Report {
     private String name;
 
     //Database
-    private String datasetTable;
     private List<String> preStoredProcedures;
     private List<String> postStoredProcedures;
     private Database storedProcedureDatabase = Database.COMPASS;
@@ -41,10 +40,6 @@ public class Report {
     private String sftpFilename;
     private Boolean uploadSftp;
 
-	public String getDatasetTableYesterday() {
-		return datasetTable + "_yesterday";
-	}
-
     public boolean runStoredProceduresInCompassDatabase() {
 	    return storedProcedureDatabase.equals("compass") ? true : false;
     }
@@ -53,4 +48,3 @@ public class Report {
         return csvExportDatabase.equals("compass") ? true : false;
     }
 }
-

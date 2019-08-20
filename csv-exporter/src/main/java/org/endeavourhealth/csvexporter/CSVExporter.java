@@ -3,6 +3,7 @@ package org.endeavourhealth.csvexporter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.endeavourhealth.csvexporter.repository.Repository;
 
 import java.io.BufferedWriter;
@@ -136,7 +137,7 @@ public class CSVExporter implements AutoCloseable {
 
         fileCount++;
 
-        csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader( headers ));
+        csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader( headers ).withQuoteMode(QuoteMode.ALL_NON_NULL));
     }
 
 
