@@ -40,10 +40,6 @@ public class Report {
     private String sftpFilename;
     private Boolean uploadSftp;
 
-	public String getDatasetTableYesterday() {
-		return datasetTable + "_yesterday";
-	}
-
     public boolean runStoredProceduresInCompassDatabase() {
 	    return storedProcedureDatabase.equals("compass") ? true : false;
     }
