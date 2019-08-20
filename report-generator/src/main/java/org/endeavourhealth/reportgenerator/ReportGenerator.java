@@ -225,6 +225,8 @@ public class ReportGenerator implements AutoCloseable {
 
         log.info("Report required deanonymising, running...");
 
+        repository.bootEntityManagerFactoryCore();
+
         Integer offset = 0;
 
         List<String> pseudoIds = repository.getPseudoIds(offset);
