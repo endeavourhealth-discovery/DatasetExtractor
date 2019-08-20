@@ -13,6 +13,7 @@ import java.util.Properties;
 public class JpaRepository {
 
     private EntityManagerFactory entityManagerFactory;
+    private EntityManagerFactory entityManagerFactoryCore;
 
     private final Properties properties;
 
@@ -59,6 +60,7 @@ public class JpaRepository {
 
         entityManagerFactory.close();
 
+        if(entityManagerFactoryCore != null) entityManagerFactoryCore.close();
     }
 
     public List<String> getPseudoIds(Integer offset) {
@@ -72,10 +74,12 @@ public class JpaRepository {
         return query.getResultList();
     }
 
+    public void bootEntityManagerFactoryCore() {
+        entityManagerFactoryCore = getEntityManagerFactoryCore();
+    }
+
 
     public List<Object[]> deanonymise(List<String> pseudoIds) {
-
-        EntityManagerFactory entityManagerFactoryCore = getEntityManagerFactoryCore();
 
         EntityManager entityManagerCore = entityManagerFactoryCore.createEntityManager();
         EntityManager entityManagerCompass = entityManagerFactory.createEntityManager();
@@ -142,7 +146,7 @@ public class JpaRepository {
         entityManagerCompass.getTransaction().commit();
         entityManagerCompass.close();
 
-        entityManagerFactoryCore.close();
+
 
         return rows;
     }
