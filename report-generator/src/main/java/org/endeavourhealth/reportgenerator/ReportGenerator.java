@@ -155,13 +155,14 @@ public class ReportGenerator implements AutoCloseable {
 
     private void cleanOutputDirectory(File directory) throws IOException {
       log.info("Deleting all files from directory {}", directory);
+
         for (File file : directory.listFiles()) {
             if (file.isFile()) {
-                log.debug("Deleting the file: " + file.getName());
+                log.debug("Deleting file: " + file.getName());
                 file.delete();
             }
             if (file.isDirectory()) {
-                log.debug("Deleting the directory: " + file.getName());
+                log.debug("Deleting directory: " + file.getName());
                 FileUtils.deleteDirectory(file);
             }
         }
