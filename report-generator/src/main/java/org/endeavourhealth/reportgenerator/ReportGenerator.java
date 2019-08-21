@@ -102,7 +102,7 @@ public class ReportGenerator implements AutoCloseable {
 
         fileEncrypter.encryptFile(fileToSftp);
 
-        sftpUploader.upload(report, fileToSftp);
+        sftpUploader.uploadDirectory(report, fileToSftp);
     }
 
     private void exportToCSVFile(Report report) throws Exception {
