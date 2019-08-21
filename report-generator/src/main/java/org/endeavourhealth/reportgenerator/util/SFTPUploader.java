@@ -21,13 +21,18 @@ public class SFTPUploader implements AutoCloseable {
 
         String remoteFilename = getRemoteFilename( report );
 
+        logger.info("SFTP upload started to directory {} to {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
+
         initSession( report );
 
-        channelSftp.put(file.getAbsolutePath(),  remoteFilename);
+        for (File f : file.listFiles()) {
+            logger.info("Uploading file {}", f.getName());
+            channelSftp.put(file.getAbsolutePath(), remoteFilename);
+        }
 
         close();
 
-        log.info("Successfully uploaded file {} to {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
+        log.info("SFTP upload successful!");
     }
 
     private void initSession(Report report) throws JSchException {
