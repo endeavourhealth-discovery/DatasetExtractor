@@ -1,4 +1,4 @@
-package org.endeavourhealth.reportgenerator.util;
+remoteDirectorypackage org.endeavourhealth.reportgenerator.util;
 
 import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +19,15 @@ public class SFTPUploader implements AutoCloseable {
 
     public void uploadDirectory(Report report, File directory) throws Exception {
 
-        String remoteFilename = report.getSftpFilename();
+        String remoteDirectory = report.getSftpHostDirectory();
 
-        log.info("SFTP upload started to directory {} on host {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
+        log.info("SFTP upload started to directory {} on host {} with user {}", remoteDirectory, report.getSftpHostname(), report.getSftpUsername());
 
         initSession( report );
 
         for (File file : directory.listFiles()) {
             log.info("Uploading file {}", file.getName());
-            channelSftp.put( file.getAbsolutePath(), remoteFilename + file.getAbsolutePath() );
+            channelSftp.put( file.getAbsolutePath(), remoteDirectory + file.getName() );
         }
 
         close();
@@ -71,20 +71,20 @@ public class SFTPUploader implements AutoCloseable {
 
     private String getRemoteFilename(Report report) {
 
-        String remoteFilename = report.getSftpFilename();
+        String remoteDirectory = report.getSftpHostDirectory();
 
-        if(remoteFilename.contains("{today}")) {
+        if(remoteDirectory.contains("{today}")) {
 
             LocalDate localDate = LocalDate.now();
 
             String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".csv";
 
-            remoteFilename = remoteFilename.replace("{today}", today);
+            remoteDirectory = remoteDirectory.replace("{today}", today);
         }
 
-        remoteFilename = "/ftp/" + remoteFilename;
+        remoteDirectory = "/ftp/" + remoteDirectory;
 
-        return remoteFilename;
+        return remoteDirectory;
     }
 
     public void close() {
