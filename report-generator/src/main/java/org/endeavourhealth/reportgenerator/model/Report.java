@@ -14,7 +14,7 @@ public class Report {
     private List<String> preStoredProcedures;
     private List<String> postStoredProcedures;
     private Database storedProcedureDatabase = Database.COMPASS;
-    private Boolean executeStoredProcedures = true;
+    private Boolean storedProceduresSwitchedOn = true;
 
     private Boolean requiresDeanonymising  = false;
     private Boolean active = false;
@@ -31,6 +31,7 @@ public class Report {
     private String csvStagingDirectory;
     private Database csvExportDatabase = Database.COMPASS;
     private Integer csvMaxNumOfRowsInEachOutputFile = 0; //0 is no limit
+    private Boolean csvExportSwitchedOn = true;
 
     //SFTP upload
     private String sftpPrivateKeyFile;
@@ -38,7 +39,7 @@ public class Report {
     private String sftpUsername;
     private Integer sftpPort;
     private String sftpHostDirectory;
-    private Boolean uploadSftp;
+    private Boolean sftpSwitchedOn = true;
 
     public boolean runStoredProceduresInCompassDatabase() {
 	    return storedProcedureDatabase.equals("compass") ? true : false;

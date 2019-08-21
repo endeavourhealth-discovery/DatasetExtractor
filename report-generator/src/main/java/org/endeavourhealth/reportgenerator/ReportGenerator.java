@@ -89,7 +89,7 @@ public class ReportGenerator implements AutoCloseable {
 
     private void uploadToSFTP(Report report) throws Exception {
 
-        if (!report.getUploadSftp()) {
+        if (!report.getSftpSwitchedOn()) {
             log.info("Upload to sftp switched off");
             return;
         }
@@ -204,7 +204,7 @@ public class ReportGenerator implements AutoCloseable {
 
     private void callStoredProcedures(List<String> storedProcedures, Report report) {
 
-        if(!report.getExecuteStoredProcedures()) {
+        if(!report.getStoredProceduresSwitchedOn()) {
             log.info("Stored procedure execution is turned off");
             return;
         }
