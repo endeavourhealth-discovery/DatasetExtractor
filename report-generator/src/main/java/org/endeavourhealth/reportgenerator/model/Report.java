@@ -37,7 +37,7 @@ public class Report {
     private String sftpHostname;
     private String sftpUsername;
     private Integer sftpPort;
-    private String sftpFilename;
+    private String sftpHostDirectory;
     private Boolean uploadSftp;
 
     public boolean runStoredProceduresInCompassDatabase() {

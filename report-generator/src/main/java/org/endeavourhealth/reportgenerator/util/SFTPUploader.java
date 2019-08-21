@@ -1,4 +1,4 @@
-remoteDirectorypackage org.endeavourhealth.reportgenerator.util;
+package org.endeavourhealth.reportgenerator.util;
 
 import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,6 @@ public class SFTPUploader implements AutoCloseable {
     private Session session;
 
     private ChannelSftp channelSftp;
-
 
     public void uploadDirectory(Report report, File directory) throws Exception {
 
