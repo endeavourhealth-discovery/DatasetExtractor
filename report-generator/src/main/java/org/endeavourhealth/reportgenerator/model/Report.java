@@ -30,7 +30,7 @@ public class Report {
     private String csvOutputDirectory;
     private String csvStagingDirectory;
     private Database csvExportDatabase = Database.COMPASS;
-    private Integer maxNoOfRowsInEachFile = 0; //0 is no limit
+    private Integer csvMaxNumOfRowsInEachOutputFile = 0; //0 is no limit
 
     //SFTP upload
     private String sftpPrivateKeyFile;
