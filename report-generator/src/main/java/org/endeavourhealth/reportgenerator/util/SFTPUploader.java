@@ -27,7 +27,7 @@ public class SFTPUploader implements AutoCloseable {
 
         for (File f : file.listFiles()) {
             logger.info("Uploading file {}", f.getName());
-            channelSftp.put(file.getAbsolutePath(), remoteFilename);
+            channelSftp.put( file.getAbsolutePath(), remoteFilename );
         }
 
         close();
