@@ -171,8 +171,6 @@ public class ReportGenerator implements AutoCloseable {
     private Properties getCSVExporterProperties(Report report, Table table) {
 
         Properties p = new Properties();
-        p.put("outputDirectory", report.getCsvOutputDirectory());
-        p.put("noOfRowsInEachDatabaseFetch", "50000");
 
         switch (report.getStoredProcedureDatabase()) {
             case COMPASS:
@@ -192,9 +190,12 @@ public class ReportGenerator implements AutoCloseable {
                 break;
         }
 
+        p.put("outputDirectory", report.getCsvOutputDirectory());
+        p.put("noOfRowsInEachDatabaseFetch", "50000");
+
         p.put("dbTableName", table.getName());
         p.put("csvFilename", table.getFileName());
-        p.put("noOfRowsInEachOutputFile", report.getMaxNoOfRowsInEachFile().toString());
+        p.put("noOfRowsInEachOutputFile", report.getCsvMaxNumOfRowsInEachOutputFile().toString());
 
         return p;
     }
