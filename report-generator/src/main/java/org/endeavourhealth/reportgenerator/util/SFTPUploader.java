@@ -17,17 +17,17 @@ public class SFTPUploader implements AutoCloseable {
     private ChannelSftp channelSftp;
 
 
-    public void uploadDirectory(Report report, File file) throws Exception {
+    public void uploadDirectory(Report report, File directory) throws Exception {
 
-        String remoteFilename = getRemoteFilename( report );
+        String remoteFilename = report.getSftpFilename();
 
-        log.info("SFTP upload started to directory {} to {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
+        log.info("SFTP upload started to directory {} on host {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
 
         initSession( report );
 
-        for (File f : file.listFiles()) {
-            log.info("Uploading file {}", f.getName());
-            channelSftp.put( file.getAbsolutePath(), remoteFilename );
+        for (File file : directory.listFiles()) {
+            log.info("Uploading file {}", file.getName());
+            channelSftp.put( file.getAbsolutePath(), remoteFilename + file.getAbsolutePath() );
         }
 
         close();
