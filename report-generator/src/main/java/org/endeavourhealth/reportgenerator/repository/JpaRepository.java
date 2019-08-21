@@ -66,7 +66,7 @@ public class JpaRepository {
     public List<String> getPseudoIds(Integer offset) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 1000";
+        String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 3000";
         Query query = entityManager.createNativeQuery(sql);
 
         log.trace("Sql {}", sql);

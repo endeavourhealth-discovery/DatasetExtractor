@@ -235,7 +235,7 @@ public class ReportGenerator implements AutoCloseable {
 
             List<Object[]> rows = repository.deanonymise(pseudoIds);
 
-            offset += 1000;
+            offset += 3000;
 
             pseudoIds = repository.getPseudoIds(offset);
         }
