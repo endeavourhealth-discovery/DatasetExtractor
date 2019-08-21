@@ -17,7 +17,7 @@ public class SFTPUploader implements AutoCloseable {
     private ChannelSftp channelSftp;
 
 
-    public void upload(Report report, File file) throws Exception {
+    public void uploadDirectory(Report report, File file) throws Exception {
 
         String remoteFilename = getRemoteFilename( report );
 
