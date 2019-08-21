@@ -21,12 +21,12 @@ public class SFTPUploader implements AutoCloseable {
 
         String remoteFilename = getRemoteFilename( report );
 
-        logger.info("SFTP upload started to directory {} to {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
+        log.info("SFTP upload started to directory {} to {} with user {}", remoteFilename, report.getSftpHostname(), report.getSftpUsername());
 
         initSession( report );
 
         for (File f : file.listFiles()) {
-            logger.info("Uploading file {}", f.getName());
+            log.info("Uploading file {}", f.getName());
             channelSftp.put( file.getAbsolutePath(), remoteFilename );
         }
 
@@ -92,4 +92,3 @@ public class SFTPUploader implements AutoCloseable {
         session.disconnect();
     }
 }
-
