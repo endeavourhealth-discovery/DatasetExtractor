@@ -64,8 +64,6 @@ public class ReportGenerator implements AutoCloseable {
 
         bootRepository(report);
 
-        cleanOutputDirectory(report);
-
         callStoredProcedures(report.getPreStoredProcedures(), report);
 
         if (report.getRequiresDeanonymising()) {
@@ -94,6 +92,10 @@ public class ReportGenerator implements AutoCloseable {
             return;
         }
 
+        File stagingDirectory = new File(properties.getProperty("csv.staging.directory"));
+
+        cleanOutputDirectory(stagingDirectory);
+
         String filenameToSftp = zipDirectory(report);
 
         File fileToSftp = new File(filenameToSftp);
@@ -102,7 +104,7 @@ public class ReportGenerator implements AutoCloseable {
 
         fileEncrypter.encryptFile(fileToSftp);
 
-        File stagingDirectory = new File(properties.getProperty("csv.staging.directory"));
+
 
         sftpUploader.uploadDirectory(report, stagingDirectory);
     }
@@ -113,6 +115,10 @@ public class ReportGenerator implements AutoCloseable {
             log.info("No csv tables to export");
             return;
         }
+
+        File outputDirectory = new File(report.getCsvOutputDirectory());
+
+        cleanOutputDirectory(outputDirectory);
 
         for (Table table : report.getCsvTablesToExport()) {
 
@@ -143,16 +149,6 @@ public class ReportGenerator implements AutoCloseable {
         zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
 
         return zipFile.getFile().getAbsolutePath();
-    }
-
-
-    private void cleanOutputDirectory(Report report) throws IOException {
-
-        File outputDirectory = new File(report.getCsvOutputDirectory());
-        File stagingDirectory = new File(properties.getProperty("csv.staging.directory"));
-
-        cleanOutputDirectory(outputDirectory);
-        cleanOutputDirectory(stagingDirectory);
     }
 
     private void cleanOutputDirectory(File directory) throws IOException {
