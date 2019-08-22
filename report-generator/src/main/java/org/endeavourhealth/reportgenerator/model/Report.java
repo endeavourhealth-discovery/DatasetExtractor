@@ -17,7 +17,7 @@ public class Report {
     private Boolean storedProceduresSwitchedOn = true;
 
     private Boolean requiresDeanonymising  = false;
-    private Boolean active = false;
+    private Boolean active = true;
     private boolean success;
 
     //Schedule
@@ -40,12 +40,4 @@ public class Report {
     private Integer sftpPort;
     private String sftpHostDirectory;
     private Boolean sftpSwitchedOn = true;
-
-    public boolean runStoredProceduresInCompassDatabase() {
-	    return storedProcedureDatabase.equals("compass") ? true : false;
-    }
-
-    public boolean exportCSVFromCompassDatabase() {
-        return csvExportDatabase.equals("compass") ? true : false;
-    }
 }
