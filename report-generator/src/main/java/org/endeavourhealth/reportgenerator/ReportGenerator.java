@@ -66,9 +66,7 @@ public class ReportGenerator implements AutoCloseable {
 
         callStoredProcedures(report.getPreStoredProcedures(), report);
 
-        if (report.getRequiresDeanonymising()) {
-            deanonymise(report);
-        }
+        deanonymise(report);
 
         callStoredProcedures(report.getPostStoredProcedures(), report);
 
@@ -103,8 +101,6 @@ public class ReportGenerator implements AutoCloseable {
         FileEncrypter fileEncrypter = new FileEncrypter();
 
         fileEncrypter.encryptFile(fileToSftp);
-
-
 
         sftpUploader.uploadDirectory(report, stagingDirectory);
     }
@@ -221,6 +217,8 @@ public class ReportGenerator implements AutoCloseable {
 
 
     private void deanonymise(Report report) {
+
+        if(!report.getRequiresDeanonymising()) return;
 
         log.info("Report required deanonymising, running...");
 
