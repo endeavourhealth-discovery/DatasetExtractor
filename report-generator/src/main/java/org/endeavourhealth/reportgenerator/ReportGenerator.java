@@ -6,6 +6,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
+import org.endeavourhealth.reportgenerator.model.CSVExport;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.Table;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
@@ -107,16 +108,18 @@ public class ReportGenerator implements AutoCloseable {
 
     private void exportToCSVFile(Report report) throws Exception {
 
-        if (report.getCsvTablesToExport().isEmpty()) {
+        CSVExport csvExport = report.getCsvExport();
+
+        if (csvExport == null || csvExport.getTables().isEmpty()) {
             log.info("No csv tables to export");
             return;
         }
 
-        File outputDirectory = new File(report.getCsvOutputDirectory());
+        File outputDirectory = new File(csvExport.getOutputDirectory());
 
         cleanOutputDirectory(outputDirectory);
 
-        for (Table table : report.getCsvTablesToExport()) {
+        for (Table table : csvExport.getTables()) {
 
             Properties properties = getCSVExporterProperties(report, table);
 
@@ -128,7 +131,9 @@ public class ReportGenerator implements AutoCloseable {
 
     public String zipDirectory(Report report) throws Exception {
 
-        File source = new File(report.getCsvOutputDirectory());
+        CSVExport csvExport = report.getCsvExport();
+
+        File source = new File(csvExport.getOutputDirectory());
         File staging = new File(properties.getProperty("csv.staging.directory"));
 
         log.debug("Compressing contents of: " + source.getAbsolutePath());
@@ -184,12 +189,14 @@ public class ReportGenerator implements AutoCloseable {
                 break;
         }
 
-        p.put("outputDirectory", report.getCsvOutputDirectory());
+        CSVExport csvExport = report.getCsvExport();
+
+        p.put("outputDirectory", csvExport.getOutputDirectory());
         p.put("noOfRowsInEachDatabaseFetch", "50000");
 
         p.put("dbTableName", table.getName());
         p.put("csvFilename", table.getFileName());
-        p.put("noOfRowsInEachOutputFile", report.getCsvMaxNumOfRowsInEachOutputFile().toString());
+        p.put("noOfRowsInEachOutputFile", csvExport.getMaxNumOfRowsInEachOutputFile().toString());
 
         return p;
     }
