@@ -27,13 +27,6 @@ public class Report {
 
     private CSVExport csvExport;
 
-    //CSV export
-    private List<Table> csvTablesToExport;
-    private String csvOutputDirectory;
-    private Database csvExportDatabase = Database.COMPASS;
-    private Integer csvMaxNumOfRowsInEachOutputFile = 0; //0 is no limit
-    private Boolean csvExportSwitchedOn = true;
-
     //SFTP upload
     private String sftpPrivateKeyFile;
     private String sftpHostname;
