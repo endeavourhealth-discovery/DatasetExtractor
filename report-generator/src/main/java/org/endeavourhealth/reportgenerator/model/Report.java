@@ -27,11 +27,5 @@ public class Report {
 
     private CSVExport csvExport;
 
-    //SFTP upload
-    private String sftpPrivateKeyFile;
-    private String sftpHostname;
-    private String sftpUsername;
-    private Integer sftpPort;
-    private String sftpHostDirectory;
-    private Boolean sftpSwitchedOn = true;
+    private SftpUpload sftpUpload;
 }
