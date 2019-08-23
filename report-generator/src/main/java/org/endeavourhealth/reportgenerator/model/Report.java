@@ -25,6 +25,8 @@ public class Report {
     private String dayOfMonth;
     private String dayOfWeek;
 
+    private CSVExport csvExport;
+
     //CSV export
     private List<Table> csvTablesToExport;
     private String csvOutputDirectory;
