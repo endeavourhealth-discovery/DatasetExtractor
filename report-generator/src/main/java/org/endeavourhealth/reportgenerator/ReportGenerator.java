@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.model.CSVExport;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.SftpUpload;
 import org.endeavourhealth.reportgenerator.model.Table;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.FileEncrypter;
@@ -86,7 +87,9 @@ public class ReportGenerator implements AutoCloseable {
 
     private void uploadToSFTP(Report report) throws Exception {
 
-        if (!report.getSftpSwitchedOn()) {
+        SftpUpload sftpUpload = report.getSftpUpload();
+
+        if (!sftpUpload.getSwitchedOn()) {
             log.info("Upload to sftp switched off");
             return;
         }
@@ -103,7 +106,7 @@ public class ReportGenerator implements AutoCloseable {
 
         fileEncrypter.encryptFile(fileToSftp);
 
-        sftpUploader.uploadDirectory(report, stagingDirectory);
+        sftpUploader.uploadDirectory(sftpUpload, stagingDirectory);
     }
 
     private void exportToCSVFile(Report report) throws Exception {
