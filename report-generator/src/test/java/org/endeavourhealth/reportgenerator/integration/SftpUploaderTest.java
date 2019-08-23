@@ -44,13 +44,13 @@ public class SftpUploaderTest extends AbstractTest {
 
         Report report = getReport();
 
-        sftpUploader.upload(report);
+      //  sftpUploader.upload(report);
     }
 
     private Report getReport() throws FileNotFoundException {
 
         String address = sftp.getContainerIpAddress();
-        
+
         Integer port = sftp.getMappedPort(22);
 
         Yaml yaml = new Yaml(new Constructor(Report.class));
