@@ -16,11 +16,9 @@ public class ReportRunner {
 
         try (  ReportGenerator reportGenerator = new ReportGenerator( properties ) ) {
 
-            log.info("Starting report generator...");
-
             reportGenerator.generate();
 
-            log.info("...all done!");
+            log.info("Report generation all done!");
 
         } catch (Exception e) {
             log.error("Exception during report generator", e);
