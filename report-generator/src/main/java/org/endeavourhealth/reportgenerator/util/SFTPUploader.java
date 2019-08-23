@@ -3,6 +3,7 @@ package org.endeavourhealth.reportgenerator.util;
 import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.SftpUpload;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -16,13 +17,13 @@ public class SFTPUploader implements AutoCloseable {
 
     private ChannelSftp channelSftp;
 
-    public void uploadDirectory(Report report, File directory) throws Exception {
+    public void uploadDirectory(SftpUpload sftpUpload, File directory) throws Exception {
 
-        String remoteDirectory = report.getSftpHostDirectory();
+        String remoteDirectory = sftpUpload.getHostDirectory();
 
-        log.info("SFTP upload started to directory {} on host {} with user {}", remoteDirectory, report.getSftpHostname(), report.getSftpUsername());
+        log.info("SFTP upload started to directory {} on host {} with user {}", remoteDirectory, sftpUpload.getHostname(), sftpUpload.getUsername());
 
-        initSession( report );
+        initSession( sftpUpload );
 
         for (File file : directory.listFiles()) {
             log.info("Uploading file {}", file.getName());
@@ -34,16 +35,16 @@ public class SFTPUploader implements AutoCloseable {
         log.info("SFTP upload successful!");
     }
 
-    private void initSession(Report report) throws JSchException {
+    private void initSession(SftpUpload sftpUpload) throws JSchException {
         JSch jSch = new JSch();
 
-        jSch.addIdentity( report.getSftpPrivateKeyFile() );
+        jSch.addIdentity( sftpUpload.getPrivateKeyFile() );
 
-        log.debug("Opening sftp channel {} {}", report.getSftpHostname(), report.getSftpUsername());
+        log.debug("Opening sftp channel {} {}", sftpUpload.getHostname(), sftpUpload.getUsername());
 
 //        jSch.setKnownHosts("/home/hal/known_hosts");
 
-        session = jSch.getSession(report.getSftpUsername(), report.getSftpHostname(), report.getSftpPort());
+        session = jSch.getSession(sftpUpload.getUsername(), sftpUpload.getHostname(), sftpUpload.getPort());
 
         session.setConfig("StrictHostKeyChecking", "no");
 
@@ -68,9 +69,9 @@ public class SFTPUploader implements AutoCloseable {
         }
     }
 
-    private String getRemoteFilename(Report report) {
+    private String getRemoteFilename(SftpUpload sftpUpload) {
 
-        String remoteDirectory = report.getSftpHostDirectory();
+        String remoteDirectory = sftpUpload.getHostDirectory();
 
         if(remoteDirectory.contains("{today}")) {
 
