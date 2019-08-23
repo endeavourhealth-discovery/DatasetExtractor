@@ -146,8 +146,6 @@ public class JpaRepository {
         entityManagerCompass.getTransaction().commit();
         entityManagerCompass.close();
 
-
-
         return rows;
     }
 
