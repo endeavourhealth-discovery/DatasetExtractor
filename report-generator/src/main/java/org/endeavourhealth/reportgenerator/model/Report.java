@@ -11,10 +11,7 @@ public class Report {
     private String name;
 
     //Database
-    private List<String> preStoredProcedures;
-    private List<String> postStoredProcedures;
-    private Database storedProcedureDatabase = Database.COMPASS;
-    private Boolean storedProceduresSwitchedOn = true;
+    private StoredProcedureExecutor storedProcedureExecutor;
 
     private Boolean requiresDeanonymising  = false;
     private Boolean active = true;
@@ -25,7 +22,11 @@ public class Report {
     private String dayOfMonth;
     private String dayOfWeek;
 
+    //CSV
     private CSVExport csvExport;
 
+    //SFTP
     private SftpUpload sftpUpload;
+
+    //FHIR
 }
