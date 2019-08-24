@@ -6,10 +6,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
-import org.endeavourhealth.reportgenerator.model.CSVExport;
-import org.endeavourhealth.reportgenerator.model.Report;
-import org.endeavourhealth.reportgenerator.model.SftpUpload;
-import org.endeavourhealth.reportgenerator.model.Table;
+import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.FileEncrypter;
 import org.endeavourhealth.reportgenerator.util.SFTPUploader;
@@ -62,15 +59,16 @@ public class ReportGenerator implements AutoCloseable {
     }
 
     private void executeReport(Report report) throws Exception {
+
         log.info("Generating report {}", report);
 
         bootRepository(report);
 
-        callStoredProcedures(report.getPreStoredProcedures(), report);
+        callStoredProcedures(report.getStoredProcedureExecutor().getPreStoredProcedures(), report.getStoredProcedureExecutor());
 
         deanonymise(report);
 
-        callStoredProcedures(report.getPostStoredProcedures(), report);
+        callStoredProcedures(report.getStoredProcedureExecutor().getPostStoredProcedures(), report.getStoredProcedureExecutor());
 
         exportToCSVFile(report);
 
@@ -82,7 +80,7 @@ public class ReportGenerator implements AutoCloseable {
     }
 
     private void bootRepository(Report report) throws SQLException {
-        this.repository = new JpaRepository(properties, report.getStoredProcedureDatabase());
+        this.repository = new JpaRepository(properties, report.getStoredProcedureExecutor().getDatabase());
     }
 
     private void uploadToSFTP(Report report) throws Exception {
@@ -174,7 +172,7 @@ public class ReportGenerator implements AutoCloseable {
 
         Properties p = new Properties();
 
-        switch (report.getStoredProcedureDatabase()) {
+        switch (report.getStoredProcedureExecutor().getDatabase()) {
             case COMPASS:
                 p.put("url", properties.getProperty("db.compass.url"));
                 p.put("user", properties.getProperty("db.compass.user"));
@@ -204,9 +202,9 @@ public class ReportGenerator implements AutoCloseable {
         return p;
     }
 
-    private void callStoredProcedures(List<String> storedProcedures, Report report) {
+    private void callStoredProcedures(List<String> storedProcedures, StoredProcedureExecutor storedProcedureExecutor) {
 
-        if(!report.getStoredProceduresSwitchedOn()) {
+        if(!storedProcedureExecutor.getSwitchedOn()) {
             log.info("Stored procedure execution is turned off");
             return;
         }
@@ -219,7 +217,7 @@ public class ReportGenerator implements AutoCloseable {
         log.info("Cycling through stored procedures");
 
         for (String storedProcedure : storedProcedures) {
-            repository.call(storedProcedure, report);
+            repository.call(storedProcedure, storedProcedureExecutor);
         }
 
         log.info("Stored procedures all called");
