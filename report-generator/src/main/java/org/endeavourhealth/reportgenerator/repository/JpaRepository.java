@@ -3,6 +3,7 @@ package org.endeavourhealth.reportgenerator.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Database;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.StoredProcedureExecutor;
 
 import javax.persistence.*;
 import java.sql.*;
@@ -43,9 +44,9 @@ public class JpaRepository {
     }
 
 
-    public void call(String storedProceduresName, Report report) {
+    public void call(String storedProceduresName, StoredProcedureExecutor storedProcedureExecutor) {
 
-        log.info("Calling stored procedure {} with database {}", storedProceduresName, report.getStoredProcedureDatabase());
+        log.info("Calling stored procedure {} with database {}", storedProceduresName, storedProcedureExecutor.getDatabase());
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
