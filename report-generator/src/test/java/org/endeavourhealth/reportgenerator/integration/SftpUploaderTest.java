@@ -61,8 +61,8 @@ public class SftpUploaderTest extends AbstractTest {
 
         Report report = yaml.load(yamlReader);
 
-        report.setSftpHostname(address);
-        report.setSftpPort(port);
+        report.getSftpUpload().setHostname(address);
+        report.getSftpUpload().setPort(port);
 
         return report;
     }
