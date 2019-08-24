@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class CSVExport {
 
     private List<Table> tables;
