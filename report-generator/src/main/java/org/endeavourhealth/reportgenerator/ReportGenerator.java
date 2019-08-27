@@ -87,6 +87,11 @@ public class ReportGenerator implements AutoCloseable {
 
         SftpUpload sftpUpload = report.getSftpUpload();
 
+        if(sftpUpload == null) {
+            log.info("No configuration for sftp found, nothing to do here");
+            return;
+        }
+
         if (!sftpUpload.getSwitchedOn()) {
             log.info("Upload to sftp switched off");
             return;
