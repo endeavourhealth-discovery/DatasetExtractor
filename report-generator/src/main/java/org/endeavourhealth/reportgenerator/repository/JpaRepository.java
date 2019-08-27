@@ -31,6 +31,11 @@ public class JpaRepository {
                 properties.put("javax.persistence.jdbc.user", properties.getProperty("db.core.user"));
                 properties.put("javax.persistence.jdbc.url", properties.getProperty("db.core.url"));
                 break;
+            case SUBSCRIBER_PI:
+                properties.put("javax.persistence.jdbc.password", properties.get("db.sub.password"));
+                properties.put("javax.persistence.jdbc.user", properties.getProperty("db.sub.user"));
+                properties.put("javax.persistence.jdbc.url", properties.getProperty("db.sub.url"));
+                break;
             case PCR:
                 properties.put("javax.persistence.jdbc.password", properties.get("db.pcr.password"));
                 properties.put("javax.persistence.jdbc.user", properties.getProperty("db.pcr.user"));
