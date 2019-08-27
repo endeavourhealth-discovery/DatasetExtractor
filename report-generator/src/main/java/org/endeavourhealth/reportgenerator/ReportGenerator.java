@@ -116,8 +116,13 @@ public class ReportGenerator implements AutoCloseable {
 
         CSVExport csvExport = report.getCsvExport();
 
-        if (csvExport == null || csvExport.getTables().isEmpty()) {
-            log.info("No csv tables to export");
+        if (csvExport == null ) {
+            log.info("No configuration for csv export found, nothing to do here");
+            return;
+        }
+
+        if (csvExport.getTables().isEmpty()) {
+            log.info("No csv tables to export, nothing to do here");
             return;
         }
 
