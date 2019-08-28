@@ -13,7 +13,7 @@ import java.util.Properties;
 public class JpaRepository {
 
     private EntityManagerFactory entityManagerFactoryPrimary;
-    private EntityManagerFactory entityManagerFactoryCore;
+    private EntityManagerFactory entityManagerFactorySecondary;
 
     private final Properties properties;
 
@@ -65,7 +65,7 @@ public class JpaRepository {
 
         entityManagerFactoryPrimary.close();
 
-        if(entityManagerFactoryCore != null) entityManagerFactoryCore.close();
+        if(entityManagerFactorySecondary != null) entityManagerFactorySecondary.close();
     }
 
     public List<String> getPseudoIds(Integer offset) {
@@ -80,13 +80,13 @@ public class JpaRepository {
     }
 
     public void bootEntityManagerFactoryCore() {
-        entityManagerFactoryCore = getEntityManagerFactoryCore();
+        entityManagerFactorySecondary = getEntityManagerFactorySecondary();
     }
 
 
     public List<Object[]> deanonymise(List<String> pseudoIds) {
 
-        EntityManager entityManagerCore = entityManagerFactoryCore.createEntityManager();
+        EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
         EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
 
         entityManagerCore.getTransaction().begin();
@@ -154,7 +154,7 @@ public class JpaRepository {
         return rows;
     }
 
-    private EntityManagerFactory getEntityManagerFactoryCore() {
+    private EntityManagerFactory getEntityManagerFactorySecondary() {
         properties.put("javax.persistence.jdbc.password", properties.get("db.core.password"));
         properties.put("javax.persistence.jdbc.user", properties.getProperty("db.core.user"));
         properties.put("javax.persistence.jdbc.url", properties.getProperty("db.core.url"));
