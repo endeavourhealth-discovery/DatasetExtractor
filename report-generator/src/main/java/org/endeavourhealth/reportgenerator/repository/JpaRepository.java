@@ -2,7 +2,6 @@ package org.endeavourhealth.reportgenerator.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Database;
-import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.StoredProcedureExecutor;
 
 import javax.persistence.*;
@@ -13,7 +12,7 @@ import java.util.Properties;
 @Slf4j
 public class JpaRepository {
 
-    private EntityManagerFactory entityManagerFactory;
+    private EntityManagerFactory entityManagerFactoryPrimary;
     private EntityManagerFactory entityManagerFactoryCore;
 
     private final Properties properties;
@@ -45,7 +44,7 @@ public class JpaRepository {
 
         this.properties = properties;
 
-        entityManagerFactory = Persistence.createEntityManagerFactory("databaseUno", properties);
+        entityManagerFactoryPrimary = Persistence.createEntityManagerFactory("databaseUno", properties);
     }
 
 
@@ -53,7 +52,7 @@ public class JpaRepository {
 
         log.info("Calling stored procedure {} with database {}", storedProceduresName, storedProcedureExecutor.getDatabase());
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery(storedProceduresName);
 
@@ -64,13 +63,13 @@ public class JpaRepository {
 
     public void close() throws SQLException {
 
-        entityManagerFactory.close();
+        entityManagerFactoryPrimary.close();
 
         if(entityManagerFactoryCore != null) entityManagerFactoryCore.close();
     }
 
     public List<String> getPseudoIds(Integer offset) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
         String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 3000";
         Query query = entityManager.createNativeQuery(sql);
@@ -88,7 +87,7 @@ public class JpaRepository {
     public List<Object[]> deanonymise(List<String> pseudoIds) {
 
         EntityManager entityManagerCore = entityManagerFactoryCore.createEntityManager();
-        EntityManager entityManagerCompass = entityManagerFactory.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
 
         entityManagerCore.getTransaction().begin();
         entityManagerCompass.getTransaction().begin();
