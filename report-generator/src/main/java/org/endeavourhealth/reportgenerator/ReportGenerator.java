@@ -66,7 +66,7 @@ public class ReportGenerator implements AutoCloseable {
 
         callStoredProcedures(report.getStoredProcedureExecutor().getPreStoredProcedures(), report.getStoredProcedureExecutor());
 
-        deanonymise(report);
+        executeExtensions(report);
 
         callStoredProcedures(report.getStoredProcedureExecutor().getPostStoredProcedures(), report.getStoredProcedureExecutor());
 
@@ -77,6 +77,16 @@ public class ReportGenerator implements AutoCloseable {
         report.setSuccess(true);
 
         repository.close();
+    }
+
+    private void executeExtensions(Report report) {
+
+        if(report.getExtensions() == null || report.getExtensions().isEmpty()) {
+            log.info("No extensions found, nothing to do here");
+            return;
+        }
+
+        
     }
 
     private void bootRepository(Report report) throws SQLException {
