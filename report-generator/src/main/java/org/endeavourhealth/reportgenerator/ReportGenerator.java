@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
+import org.endeavourhealth.reportgenerator.util.ExtensionExecutor;
 import org.endeavourhealth.reportgenerator.util.FileEncrypter;
 import org.endeavourhealth.reportgenerator.util.SFTPUploader;
 import org.yaml.snakeyaml.Yaml;
@@ -86,7 +87,11 @@ public class ReportGenerator implements AutoCloseable {
             return;
         }
 
-        
+        ExtensionExecutor extensionExecutor = new ExtensionExecutor();
+
+        for(Extension e : report.getExtensions()) {
+            extensionExecutor.execute( e );
+        }
     }
 
     private void bootRepository(Report report) throws SQLException {
