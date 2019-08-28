@@ -17,6 +17,9 @@ public class Report {
     private Boolean active = true;
     private boolean success;
 
+    //Extensions
+    List<Extension> extensions;
+
     //Schedule
     private Boolean isDaily = false;
     private String dayOfMonth;
