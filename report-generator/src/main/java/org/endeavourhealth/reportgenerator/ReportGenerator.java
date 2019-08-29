@@ -254,12 +254,14 @@ public class ReportGenerator implements AutoCloseable {
 
         String reportYamlFile = properties.getProperty("report.yaml.directory") + properties.getProperty("report.yaml.file");
 
+        log.info("Loading report from file : {}", reportYamlFile);
+
         FileReader fileReader = new FileReader(new File( reportYamlFile ));
 
         for (Object o : yaml.loadAll(fileReader)) {
             Report report = (Report) o;
 
-            log.info("Loaded report from yaml : {}", report);
+            log.debug("Loaded report from yaml : {}", report);
 
             reports.add(report);
         }
