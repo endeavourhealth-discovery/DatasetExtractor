@@ -33,6 +33,11 @@ public class ReportRunner {
 
         properties.load( inputStream );
 
+        if(args.length > 0) {
+            String reportYamlFile = args[0];
+            properties.put("report.yaml.file", reportYamlFile);
+        }
+
         return properties;
     }
 }
