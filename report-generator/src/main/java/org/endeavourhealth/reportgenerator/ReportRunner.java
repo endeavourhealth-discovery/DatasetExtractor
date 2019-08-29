@@ -42,6 +42,11 @@ public class ReportRunner {
             properties.put("report.yaml.file", reportYamlFile);
         }
 
+        if(args.length > 1) {
+            String reportYamlDirectory = args[1];
+            properties.put("report.yaml.directory", reportYamlDirectory);
+        }
+
         return properties;
     }
 }
