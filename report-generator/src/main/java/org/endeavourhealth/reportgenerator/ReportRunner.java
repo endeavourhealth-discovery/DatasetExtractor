@@ -35,6 +35,10 @@ public class ReportRunner {
 
         if(args.length > 0) {
             String reportYamlFile = args[0];
+            if(!reportYamlFile.contains(".")) {
+                //shorthand
+                reportYamlFile = "report." + reportYamlFile + ".yaml";
+            }
             properties.put("report.yaml.file", reportYamlFile);
         }
 
