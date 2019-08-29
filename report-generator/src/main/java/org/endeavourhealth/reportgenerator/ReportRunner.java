@@ -47,6 +47,9 @@ public class ReportRunner {
             properties.put("report.yaml.directory", reportYamlDirectory);
         }
 
+        log.debug("Using report.yaml.file {}", properties.get("report.yaml.file"));
+        log.debug("Using report.yaml.directory {}", properties.get("report.yaml.directory"));
+
         return properties;
     }
 }
