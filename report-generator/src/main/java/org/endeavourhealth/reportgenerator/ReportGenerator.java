@@ -87,7 +87,7 @@ public class ReportGenerator implements AutoCloseable {
             return;
         }
 
-        ExtensionExecutor extensionExecutor = new ExtensionExecutor();
+        ExtensionExecutor extensionExecutor = new ExtensionExecutor( repository );
 
         for(Extension e : report.getExtensions()) {
             extensionExecutor.execute( e );
@@ -246,31 +246,6 @@ public class ReportGenerator implements AutoCloseable {
         }
 
         log.info("Stored procedures all called");
-    }
-
-
-    private void deanonymise(Report report) {
-
-        if(!report.getRequiresDeanonymising()) return;
-
-        log.info("Report required deanonymising, running...");
-
-        repository.bootEntityManagerFactoryCore();
-
-        Integer offset = 0;
-
-        List<String> pseudoIds = repository.getPseudoIds(offset);
-
-        while (pseudoIds.size() > 0) {
-
-            repository.deanonymise(pseudoIds);
-
-            offset += 3000;
-
-            pseudoIds = repository.getPseudoIds(offset);
-        }
-
-        log.info("...deanonymising all done");
     }
 
     private void loadReports(Properties properties) throws FileNotFoundException {
