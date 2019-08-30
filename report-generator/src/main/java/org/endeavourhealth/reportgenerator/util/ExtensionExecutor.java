@@ -42,15 +42,15 @@ public class ExtensionExecutor {
 
         Integer offset = 0;
 
-        List<String> pseudoIds = repository.getPseudoIds(offset);
+        List<String> pseudoIds = repository.getPseudoIdsForELGH(offset);
 
         while (pseudoIds.size() > 0) {
 
-            repository.deanonymise(pseudoIds);
+            repository.deanonymiseELGH(pseudoIds);
 
             offset += 3000;
 
-            pseudoIds = repository.getPseudoIds(offset);
+            pseudoIds = repository.getPseudoIdsForELGH(offset);
         }
 
         log.info("...deanonymising all done");
@@ -64,15 +64,15 @@ public class ExtensionExecutor {
 
         Integer offset = 0;
 
-        List<String> pseudoIds = repository.getPseudoIds(offset);
+        List<String> pseudoIds = repository.getPseudoIdsForWF(offset);
 
         while (pseudoIds.size() > 0) {
 
-            repository.deanonymise(pseudoIds);
+            repository.deanonymiseWF(pseudoIds);
 
             offset += 3000;
 
-            pseudoIds = repository.getPseudoIds(offset);
+            pseudoIds = repository.getPseudoIdsForWF(offset);
         }
 
         log.info("...deanonymising all done");
