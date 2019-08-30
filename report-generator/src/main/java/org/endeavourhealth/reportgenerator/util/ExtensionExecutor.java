@@ -3,7 +3,6 @@ package org.endeavourhealth.reportgenerator.util;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Extension;
 import org.endeavourhealth.reportgenerator.model.ExtensionType;
-import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class ExtensionExecutor {
             case DELTA:
                 executeDelta( extension );
                 break;
-            case DEANONYMISE:
+            case DEANONYMISE_WF:
                 executeDeanonymise( extension );
             }
         }
