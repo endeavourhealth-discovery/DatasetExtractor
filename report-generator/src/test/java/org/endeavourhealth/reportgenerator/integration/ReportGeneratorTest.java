@@ -38,12 +38,18 @@ public class ReportGeneratorTest extends AbstractTest {
         Integer port = mysql.getFirstMappedPort();
 
         properties = loadProperties();
+
         properties.put("db.core.url", "jdbc:mysql://localhost:" + port + "/data_extracts" );
         properties.put("db.core.user", "root" );
         properties.put("db.core.password", "admin" );
+
         properties.put("db.compass.url", "jdbc:mysql://localhost:" + port + "/data_extracts" );
         properties.put("db.compass.user", "root" );
         properties.put("db.compass.password", "admin" );
+
+        properties.put("db.pcr.url", "jdbc:mysql://localhost:" + port + "/data_extracts" );
+        properties.put("db.pcr.user", "root" );
+        properties.put("db.pcr.password", "admin" );
 
         SFTPUploader sftpUploader = Mockito.mock(SFTPUploader.class);
 
