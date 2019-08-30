@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public enum ExtensionType {
 
-    DELTA("Delta"), DEANONYMISE("Deanonymise");
+    DELTA("Delta"), DEANONYMISE_WF("Deanonymise");
 
     @Getter
     String displayName;
