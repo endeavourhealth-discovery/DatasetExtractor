@@ -4,7 +4,9 @@ import lombok.Getter;
 
 public enum ExtensionType {
 
-    DELTA("Delta"), DEANONYMISE_WF("Deanonymise");
+    DELTA("Delta"),
+    DEANONYMISE_WF("Deanonymise Waltham Forest"),
+    DEANONYMISE_ELGH("Deanonymise East London Genes & Health") ;
 
     @Getter
     String displayName;
