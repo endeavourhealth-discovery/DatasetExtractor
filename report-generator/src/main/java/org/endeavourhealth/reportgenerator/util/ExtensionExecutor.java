@@ -10,6 +10,7 @@ import java.util.List;
 @Slf4j
 public class ExtensionExecutor {
 
+    private static final DEANONYMISE_ELGH =;
     private final JpaRepository repository;
 
     public ExtensionExecutor(JpaRepository repository) {
@@ -22,35 +23,60 @@ public class ExtensionExecutor {
 
         log.info("Executing extension {}", extension);
 
-        switch( type ) {
+        switch (type) {
             case DELTA:
-                executeDelta( extension );
+                executeDelta(extension);
                 break;
             case DEANONYMISE_WF:
-                executeDeanonymise( extension );
-            }
+                executeDeanonymiseWF(extension);
+                break;
+            case DEANONYMISE_ELGH:
+                executeDeanonymiseELGH(extension);
+                break;
+        }
+    }
+
+    private void executeDeanonymiseELGH(Extension extension) {
+        log.info("Running deanonymising of ELGH, running...");
+
+        repository.bootEntityManagerFactoryCore();
+
+        Integer offset = 0;
+
+        List<String> pseudoIds = repository.getPseudoIds(offset);
+
+        while (pseudoIds.size() > 0) {
+
+            repository.deanonymise(pseudoIds);
+
+            offset += 3000;
+
+            pseudoIds = repository.getPseudoIds(offset);
         }
 
-    private void executeDeanonymise(Extension extension) {
+        log.info("...deanonymising all done");
+    }
 
-            log.info("Report required deanonymising, running...");
+    private void executeDeanonymiseWF(Extension extension) {
 
-            repository.bootEntityManagerFactoryCore();
+        log.info("Report required deanonymising of Waltham Forest, running...");
 
-            Integer offset = 0;
+        repository.bootEntityManagerFactoryCore();
 
-            List<String> pseudoIds = repository.getPseudoIds(offset);
+        Integer offset = 0;
 
-            while (pseudoIds.size() > 0) {
+        List<String> pseudoIds = repository.getPseudoIds(offset);
 
-                repository.deanonymise(pseudoIds);
+        while (pseudoIds.size() > 0) {
 
-                offset += 3000;
+            repository.deanonymise(pseudoIds);
 
-                pseudoIds = repository.getPseudoIds(offset);
-            }
+            offset += 3000;
 
-            log.info("...deanonymising all done");
+            pseudoIds = repository.getPseudoIds(offset);
+        }
+
+        log.info("...deanonymising all done");
     }
 
     private void executeDelta(Extension extension) {
