@@ -47,6 +47,10 @@ public class JpaRepository {
         entityManagerFactoryPrimary = Persistence.createEntityManagerFactory("databaseUno", properties);
     }
 
+    public void bootEntityManagerFactoryCore() {
+        entityManagerFactorySecondary = getEntityManagerFactorySecondary();
+    }
+
 
     public void call(String storedProceduresName, StoredProcedureExecutor storedProcedureExecutor) {
 
@@ -68,7 +72,18 @@ public class JpaRepository {
         if(entityManagerFactorySecondary != null) entityManagerFactorySecondary.close();
     }
 
-    public List<String> getPseudoIds(Integer offset) {
+    public List<String> getPseudoIdsForELGH(Integer offset) {
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        String sql = "select distinct pseudo_id_from_compass from cohort limit " + offset + ", 3000";
+        Query query = entityManager.createNativeQuery(sql);
+
+        log.trace("Sql {}", sql);
+
+        return query.getResultList();
+    }
+
+    public List<String> getPseudoIdsForWF(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
         String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 3000";
@@ -79,12 +94,55 @@ public class JpaRepository {
         return query.getResultList();
     }
 
-    public void bootEntityManagerFactoryCore() {
-        entityManagerFactorySecondary = getEntityManagerFactorySecondary();
+    public List<Object[]> deanonymiseELGH(List<String> pseudoIds) {
+
+        EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
+
+        entityManagerCore.getTransaction().begin();
+        entityManagerCompass.getTransaction().begin();
+
+        Query query = entityManagerCore.createNativeQuery("select s.pseudo_id," +
+                "DATE_SUB(p.date_of_birth, INTERVAL DAYOFMONTH(p.date_of_birth) - 1 DAY)," +
+                "p.gender," +
+                "YEAR(p.date_of_death)" +
+                " from eds.patient_search p " +
+                " join subscriber_transform_ceg_enterprise.pseudo_id_map s on p.patient_id = s.patient_id" +
+                " where s.pseudo_id in (:pseudoIds) and p.registered_practice_ods_code is not null and p.nhs_number is not null");
+
+        query.setParameter("pseudoIds", pseudoIds);
+
+        List<Object[]> rows = query.getResultList();
+
+        log.debug("Have got {} rows", rows.size());
+
+        Query update = entityManagerCompass.createNativeQuery("update cohort c set " +
+                "c.DateOfBirth = ?" +
+                "c.Gender = ?," +
+                "c.YearOfDeath = ?" +
+                " where d.pseudo_id = ?");
+
+        for(Object[] row : rows) {
+
+            update.setParameter(1, row[1]);
+            update.setParameter(2, row[2]);
+            update.setParameter(3, row[3]);
+
+            update.executeUpdate();
+
+            log.trace("Updating {}", row[0]);
+        }
+
+        entityManagerCore.getTransaction().commit();
+        entityManagerCore.close();
+
+        entityManagerCompass.getTransaction().commit();
+        entityManagerCompass.close();
+
+        return rows;
     }
 
-
-    public List<Object[]> deanonymise(List<String> pseudoIds) {
+    public List<Object[]> deanonymiseWF(List<String> pseudoIds) {
 
         EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
         EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
