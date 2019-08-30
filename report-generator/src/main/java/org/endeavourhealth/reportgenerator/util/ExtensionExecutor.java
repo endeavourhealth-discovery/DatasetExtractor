@@ -10,7 +10,6 @@ import java.util.List;
 @Slf4j
 public class ExtensionExecutor {
 
-    private static final DEANONYMISE_ELGH =;
     private final JpaRepository repository;
 
     public ExtensionExecutor(JpaRepository repository) {
