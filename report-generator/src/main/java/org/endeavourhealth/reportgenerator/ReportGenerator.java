@@ -11,14 +11,17 @@ import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.ExtensionExecutor;
 import org.endeavourhealth.reportgenerator.util.FileEncrypter;
 import org.endeavourhealth.reportgenerator.util.SFTPUploader;
+import org.endeavourhealth.reportgenerator.validator.ReportValidator;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import javax.validation.ConstraintViolation;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 @Slf4j
 public class ReportGenerator implements AutoCloseable {
@@ -54,6 +57,7 @@ public class ReportGenerator implements AutoCloseable {
         for (Report report : reports) {
 
             if (!report.getActive()) continue;
+            if (!report.getIsValid()) continue;
 
             executeReport(report);
         }
@@ -131,8 +135,13 @@ public class ReportGenerator implements AutoCloseable {
 
         CSVExport csvExport = report.getCsvExport();
 
-        if (csvExport == null ) {
+        if (csvExport == null) {
             log.info("No configuration for csv export found, nothing to do here");
+            return;
+        }
+
+        if (!csvExport.getSwitchedOn()) {
+            log.info("CSV switched off, nothing to do here");
             return;
         }
 
@@ -250,6 +259,8 @@ public class ReportGenerator implements AutoCloseable {
 
     private void loadReports(Properties properties) throws FileNotFoundException {
 
+        ReportValidator reportValidator = new ReportValidator();
+
         Yaml yaml = new Yaml(new Constructor(Report.class));
 
         String reportYamlFile = properties.getProperty("report.yaml.directory") + properties.getProperty("report.yaml.file");
@@ -261,7 +272,10 @@ public class ReportGenerator implements AutoCloseable {
         for (Object o : yaml.loadAll(fileReader)) {
             Report report = (Report) o;
 
-            log.debug("Loaded report from yaml : {}", report);
+            log.info("Loaded report from yaml : {}", report);
+
+            //Sets validation on bean
+            reportValidator.validate( report );
 
             reports.add(report);
         }
@@ -269,6 +283,6 @@ public class ReportGenerator implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        repository.close();
+        if(repository != null) repository.close();
     }
 }
