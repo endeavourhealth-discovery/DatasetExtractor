@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.AllArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -14,8 +16,10 @@ import java.util.List;
 @NoArgsConstructor
 public class CSVExport {
 
+    @NotEmpty
     private List<Table> tables;
 
+    @NotNull
     private String outputDirectory;
 
     private Database database = Database.COMPASS;
