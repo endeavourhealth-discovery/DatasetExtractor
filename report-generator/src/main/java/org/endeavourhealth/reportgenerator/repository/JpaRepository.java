@@ -78,7 +78,7 @@ public class JpaRepository {
         String sql = "select distinct pseudo_id_from_compass from cohort limit " + offset + ", 3000";
         Query query = entityManager.createNativeQuery(sql);
 
-        log.trace("Sql {}", sql);
+        log.debug("Sql {}", sql);
 
         return query.getResultList();
     }
@@ -102,7 +102,7 @@ public class JpaRepository {
         entityManagerCore.getTransaction().begin();
         entityManagerCompass.getTransaction().begin();
 
-        Query query = entityManagerCore.createNativeQuery("select s.pseudo_id," +
+        Query query = entityManagerCore.createNativeQuery("select distinct s.pseudo_id," +
                 "DATE_SUB(p.date_of_birth, INTERVAL DAYOFMONTH(p.date_of_birth) - 1 DAY)," +
                 "p.gender," +
                 "YEAR(p.date_of_death)" +
@@ -117,10 +117,10 @@ public class JpaRepository {
         log.debug("Have got {} rows", rows.size());
 
         Query update = entityManagerCompass.createNativeQuery("update cohort c set " +
-                "c.DateOfBirth = ?" +
+                "c.DateOfBirth = ?," +
                 "c.Gender = ?," +
                 "c.YearOfDeath = ?" +
-                " where d.pseudo_id = ?");
+                " where c.pseudo_id_from_compass = ?");
 
         for(Object[] row : rows) {
 
@@ -128,9 +128,11 @@ public class JpaRepository {
             update.setParameter(2, row[2]);
             update.setParameter(3, row[3]);
 
+            update.setParameter(4, row[0]); //pseudo_id
+
             update.executeUpdate();
 
-            log.trace("Updating {}", row[0]);
+            log.trace("Updating {}", row);
         }
 
         entityManagerCore.getTransaction().commit();
@@ -196,7 +198,7 @@ public class JpaRepository {
             update.setParameter(9, row[9]);
             update.setParameter(10, row[10]);
 
-            update.setParameter(11, row[0]);
+            update.setParameter(11, row[0]); //pseudo_id
 
             update.executeUpdate();
 
