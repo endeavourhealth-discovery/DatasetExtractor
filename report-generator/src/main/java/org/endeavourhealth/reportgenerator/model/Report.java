@@ -2,23 +2,34 @@ package org.endeavourhealth.reportgenerator.model;
 
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @ToString
 public class Report {
+
+    @NotNull
+    @Length(min = 3, max = 100)
     private String name;
+
+    //Validation
+    private Boolean isValid = true;
+    private Set<ConstraintViolation<Report>> constraintViolations;
 
     //Database
     private StoredProcedureExecutor storedProcedureExecutor;
 
-    private Boolean requiresDeanonymising  = false;
     private Boolean active = true;
-    private boolean success;
+    private boolean success = false;
 
     //Extensions
-    List<Extension> extensions;
+    private List<Extension> extensions;
 
     //Schedule
     private Boolean isDaily = false;
@@ -26,9 +37,11 @@ public class Report {
     private String dayOfWeek;
 
     //CSV
+    @Valid
     private CSVExport csvExport;
 
     //SFTP
+    @Valid
     private SftpUpload sftpUpload;
 
     //FHIR
