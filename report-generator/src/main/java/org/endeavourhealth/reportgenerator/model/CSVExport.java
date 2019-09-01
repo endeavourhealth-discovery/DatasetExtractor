@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.AllArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -16,8 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 public class CSVExport {
 
-    @NotEmpty
-    private List<Table> tables;
+    @NotEmpty(message = "CSV export must have at least one table to export")
+    private List<@Valid Table> tables;
 
     @NotNull
     private String outputDirectory;
