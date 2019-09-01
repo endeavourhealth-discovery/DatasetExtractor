@@ -22,6 +22,11 @@ public class ExtensionExecutor {
 
         log.info("Executing extension {}", extension);
 
+        if(!extension.getSwitchedOn()) {
+          log.info("Extension is switched off, nothing to do");
+          return;
+        }
+
         switch (type) {
             case DELTA:
                 executeDelta(extension);
@@ -81,4 +86,3 @@ public class ExtensionExecutor {
     private void executeDelta(Extension extension) {
     }
 }
-
