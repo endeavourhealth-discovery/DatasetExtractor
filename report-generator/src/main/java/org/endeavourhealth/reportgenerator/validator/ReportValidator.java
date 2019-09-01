@@ -30,7 +30,8 @@ public class ReportValidator {
         if(!constraintViolations.isEmpty()) {
             log.warn("Report has failed validations {}", constraintViolations);
             report.setIsValid( false );
-
+        } else {
+            report.setIsValid( true );
         }
 
         return validator.validate( report );
