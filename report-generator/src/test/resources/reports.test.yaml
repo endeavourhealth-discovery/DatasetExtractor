@@ -25,5 +25,6 @@ sftpUpload      :
   switchedOn: true
 extensions:
   - type: DELTA
+    switchedOn: true
     properties:
       tableName : dataset_wf
