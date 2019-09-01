@@ -1,6 +1,4 @@
 name: "TestReport"
-requiresDeanonymising: true
-active: true
 storedProcedureExecutor:
   preStoredProcedures:
     - createCohortWF
@@ -8,7 +6,7 @@ storedProcedureExecutor:
     - generateReportForChildImms
   postStoredProcedures:
     - createDeltasForChildImms
-  database: PCR
+  database: COMPASS
   switchedOn: true
 csvExport:
   outputDirectory: "/home/hal/dev/data_extracts/output/"
@@ -17,7 +15,7 @@ csvExport:
   switchedOn: true
   tables:
     - name: "deltas_wf"
-      fileName: "date"
+      fileName: "deltas_wf.csv"
 sftpUpload      :
   username: "foo"
   privateKeyFile: "/home/git/endeavour/DatasetExtractor/report-generator/src/test/resources/docker/ssh_host_rsa_key"
