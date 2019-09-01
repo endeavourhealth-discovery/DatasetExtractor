@@ -19,17 +19,18 @@ public class Report {
     private String name;
 
     //Validation
-    private Boolean isValid = true;
+    private Boolean isValid;
     private Set<ConstraintViolation<Report>> constraintViolations;
 
     //Database
+    @Valid
     private StoredProcedureExecutor storedProcedureExecutor;
 
     private Boolean active = true;
     private boolean success = false;
 
     //Extensions
-    private List<Extension> extensions;
+    private List<@Valid Extension> extensions;
 
     //Schedule
     private Boolean isDaily = false;
