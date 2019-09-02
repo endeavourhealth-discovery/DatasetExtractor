@@ -112,7 +112,7 @@ public class ReportGenerator implements AutoCloseable {
         }
 
         if (!sftpUpload.getSwitchedOn()) {
-            log.info("Upload to sftp switched off");
+            log.info("SFTP switched off, nothing to do here");
             return;
         }
 
