@@ -99,6 +99,12 @@ public class ReportGenerator implements AutoCloseable {
     }
 
     private void bootRepository(Report report) throws SQLException {
+
+        if(report.requiresDatabase() == false) {
+            log.info("Report doesn't required database, not booting repository");
+            return;
+        }
+
         this.repository = new JpaRepository(properties, report.getStoredProcedureExecutor().getDatabase());
     }
 
