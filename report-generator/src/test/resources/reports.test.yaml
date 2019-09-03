@@ -7,7 +7,7 @@ storedProcedureExecutor:
   postStoredProcedures:
     - createDeltasForChildImms
   database: COMPASS
-  switchedOn: true
+  switchedOn: false
 csvExport:
   outputDirectory: "/home/hal/dev/data_extracts/output/"
   database: COMPASS
@@ -15,8 +15,8 @@ csvExport:
   switchedOn: true
   tables:
     - name: "deltas_wf"
-      fileName: "deltas_wf.csv"
-sftpUpload      :
+      fileName: "deltas_wf"
+sftpUpload:
   username: "foo"
   privateKeyFile: "/home/git/endeavour/DatasetExtractor/report-generator/src/test/resources/docker/ssh_host_rsa_key"
   port: 22
@@ -25,6 +25,6 @@ sftpUpload      :
   switchedOn: true
 extensions:
   - type: DELTA
-    switchedOn: true
+    switchedOn: false
     properties:
       tableName : dataset_wf
