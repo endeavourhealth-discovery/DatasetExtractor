@@ -20,4 +20,12 @@ public class Extension {
     private Map<String, String> properties;
 
     private Boolean switchedOn = true;
+
+    public boolean requiresDatabase() {
+        if(!switchedOn) return false;
+
+        if(type == ExtensionType.DEANONYMISE_ELGH || type == ExtensionType.DEANONYMISE_WF || type == ExtensionType.DEANONYMISE_WF) return true;
+
+        return false;
+    }
 }
