@@ -45,5 +45,19 @@ public class Report {
     @Valid
     private SftpUpload sftpUpload;
 
+    public boolean requiresDatabase() {
+        //Filter not needed, but more explicit if declared here
+        if(extensions.stream().filter( e -> e.getSwitchedOn() ).anyMatch( e -> e.requiresDatabase()) ) {
+            return true;
+        }
+        if(storedProcedureExecutor.requiresDatabase()) {
+            return true;
+        }
+
+        //Csv export uses own datasource, as was designed to be stand alone
+
+        return false;
+    }
+
     //FHIR
 }
