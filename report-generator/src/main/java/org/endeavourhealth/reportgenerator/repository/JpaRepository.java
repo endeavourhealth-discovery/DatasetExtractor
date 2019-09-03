@@ -67,7 +67,7 @@ public class JpaRepository {
 
     public void close() throws SQLException {
 
-        entityManagerFactoryPrimary.close();
+        if(entityManagerFactoryPrimary != null) entityManagerFactoryPrimary.close();
 
         if(entityManagerFactorySecondary != null) entityManagerFactorySecondary.close();
     }
