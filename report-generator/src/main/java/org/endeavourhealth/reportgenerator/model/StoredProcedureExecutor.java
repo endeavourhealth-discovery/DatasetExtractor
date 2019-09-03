@@ -21,4 +21,9 @@ public class StoredProcedureExecutor {
 
     private Boolean switchedOn = true;
 
+    public boolean requiresDatabase() {
+        if(!switchedOn) return false;
+        if(postStoredProcedures.isEmpty() && preStoredProcedures.isEmpty()) return false;
+        return true;
+    }
 }
