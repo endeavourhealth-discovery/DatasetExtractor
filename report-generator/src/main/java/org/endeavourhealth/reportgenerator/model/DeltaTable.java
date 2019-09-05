@@ -13,6 +13,6 @@ public class DeltaTable {
     @NotNull(message = "Delta Table name cannot be null")
     private String name;
 
-    @NotNull(message = "Columns for delta cannot be null")
-    private String columnsForDelta;
+    @NotNull(message = "Columns to hash for delta cannot be null")
+    private String columnsToHash;
 }
