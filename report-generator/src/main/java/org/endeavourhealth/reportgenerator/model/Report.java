@@ -32,6 +32,9 @@ public class Report {
     //Extensions
     private List<@Valid Extension> extensions;
 
+    //Delta
+    private Delta delta;
+
     //Schedule
     private Boolean isDaily = false;
     private String dayOfMonth;
@@ -50,7 +53,10 @@ public class Report {
         if(extensions.stream().filter( e -> e.getSwitchedOn() ).anyMatch( e -> e.requiresDatabase()) ) {
             return true;
         }
-        if(storedProcedureExecutor.requiresDatabase()) {
+        if(storedProcedureExecutor != null && storedProcedureExecutor.requiresDatabase()) {
+            return true;
+        }
+        if(delta != null && delta.getSwitchedOn()) {
             return true;
         }
 
