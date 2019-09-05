@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
+import org.endeavourhealth.reportgenerator.util.DeltaExecutor;
 import org.endeavourhealth.reportgenerator.util.ExtensionExecutor;
 import org.endeavourhealth.reportgenerator.util.FileEncrypter;
 import org.endeavourhealth.reportgenerator.util.SFTPUploader;
@@ -71,7 +72,9 @@ public class ReportGenerator implements AutoCloseable {
 
         callStoredProcedures(report.getStoredProcedureExecutor().getPreStoredProcedures(), report.getStoredProcedureExecutor());
 
-        executeExtensions(report);
+        executeExtensions( report );
+
+        executeDeltas( report );
 
         callStoredProcedures(report.getStoredProcedureExecutor().getPostStoredProcedures(), report.getStoredProcedureExecutor());
 
@@ -82,6 +85,23 @@ public class ReportGenerator implements AutoCloseable {
         report.setSuccess(true);
 
         repository.close();
+    }
+
+    private void executeDeltas(Report report) {
+
+        if(report.getDelta() == null) {
+            log.info("No delta found, nothing to do here");
+            return;
+        }
+
+        if( !report.getDelta().getSwitchedOn()) {
+            log.info("Delta switched off, nothing to do here");
+            return;
+        }
+
+        DeltaExecutor deltaExecutor = new DeltaExecutor( repository );
+
+        deltaExecutor.execute( report.getDelta());
     }
 
     private void executeExtensions(Report report) {
