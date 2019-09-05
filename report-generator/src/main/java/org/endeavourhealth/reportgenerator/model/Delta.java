@@ -14,5 +14,7 @@ import java.util.List;
 public class Delta {
 
     @NotEmpty(message = "Delta must have at least one table to export")
-    private List<@Valid Table> tables;
+    private List<@Valid DeltaTable> tables;
+
+    private Boolean switchedOn = true;
 }
