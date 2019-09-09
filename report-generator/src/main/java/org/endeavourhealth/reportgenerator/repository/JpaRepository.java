@@ -2,6 +2,7 @@ package org.endeavourhealth.reportgenerator.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Database;
+import org.endeavourhealth.reportgenerator.model.DeltaTable;
 import org.endeavourhealth.reportgenerator.model.StoredProcedureExecutor;
 
 import javax.persistence.*;
@@ -61,6 +62,43 @@ public class JpaRepository {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery(storedProceduresName);
 
         query.execute();
+
+        entityManager.close();
+    }
+
+    /**
+     * CREATE PROCEDURE createDeltaTable (
+     *      IN tableName varchar (100),
+     *      IN columnsToHash varchar (1000)
+     * )
+     *
+     * CREATE PROCEDURE populateDeltas (
+     * 	IN tableName varchar (100)
+     * )
+     */
+    public void call(DeltaTable deltaTable) {
+
+        log.info("Calling delta for {}", deltaTable);
+
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        //CREATE PROCEDURE createDeltaTable
+        StoredProcedureQuery createDeltaTableQuery = entityManager.createStoredProcedureQuery( "createDeltaTable" );
+        createDeltaTableQuery.registerStoredProcedureParameter("tableName", String.class, ParameterMode.IN);
+        createDeltaTableQuery.registerStoredProcedureParameter("columnsToHash", String.class, ParameterMode.IN);
+
+        createDeltaTableQuery.setParameter("tableName", deltaTable.getName());
+        createDeltaTableQuery.setParameter("columnsToHash", deltaTable.getColumnsToHash());
+
+        createDeltaTableQuery.execute();
+
+        //CREATE PROCEDURE populateDeltas (
+        StoredProcedureQuery populateDeltasQuery = entityManager.createStoredProcedureQuery( "populateDeltas" );
+        populateDeltasQuery.registerStoredProcedureParameter("tableName", String.class, ParameterMode.IN);
+
+        populateDeltasQuery.setParameter("tableName", deltaTable.getName());
+
+        populateDeltasQuery.execute();
 
         entityManager.close();
     }
@@ -223,4 +261,6 @@ public class JpaRepository {
 
         return entityManagerFactoryCore;
     }
+
+
 }
