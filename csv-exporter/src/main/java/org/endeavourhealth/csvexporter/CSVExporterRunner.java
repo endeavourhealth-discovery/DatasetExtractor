@@ -2,7 +2,6 @@ package org.endeavourhealth.csvexporter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.csvexporter.exception.CSVExporterException;
-import org.endeavourhealth.csvexporter.repository.Repository;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +15,7 @@ public class CSVExporterRunner {
 
         Properties properties = loadProperties( args );
 
-        Repository repository = new Repository( properties );
-
-        try (  CSVExporter csvExporter = new CSVExporter( properties, repository ) ) {
+        try (  CSVExporter csvExporter = new CSVExporter( properties  ) ) {
 
             log.info("Starting csv exporter...");
 
