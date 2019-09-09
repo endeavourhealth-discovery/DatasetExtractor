@@ -12,6 +12,7 @@
     <modules>
         <module>csv-exporter</module>
         <module>report-generator</module>
+        <module>fihr-exporter</module>
     </modules>
 
     <properties>
