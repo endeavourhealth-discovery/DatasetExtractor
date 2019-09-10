@@ -80,14 +80,15 @@ public class ReportGenerator implements AutoCloseable {
         callStoredProcedures(report.getStoredProcedureExecutor().getPostStoredProcedures(), report.getStoredProcedureExecutor());
 
         exportToCSVFile(report);
-        
+
         exportToFihr(report);
 
         uploadToSFTP(report);
 
         report.setSuccess(true);
 
-        repository.close();
+        //Not all reports have use of a database
+        if(repository != null) repository.close();
     }
 
     private void exportToFihr(Report report) throws Exception {
