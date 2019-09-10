@@ -108,6 +108,7 @@ public class ReportGenerator implements AutoCloseable {
             return;
         }
 
+        log.warn("Fihr exporter running, not implemented yet!!!!!!");
 
         for (Table table : fihrExport.getTables()) {
 
