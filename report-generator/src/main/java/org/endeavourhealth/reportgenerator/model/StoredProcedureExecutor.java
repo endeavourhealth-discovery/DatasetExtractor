@@ -26,8 +26,6 @@ public class StoredProcedureExecutor {
 
         if(postStoredProcedures == null && preStoredProcedures == null) return false;
 
-        if(postStoredProcedures.isEmpty() && preStoredProcedures.isEmpty()) return false;
-
         return true;
     }
 }
