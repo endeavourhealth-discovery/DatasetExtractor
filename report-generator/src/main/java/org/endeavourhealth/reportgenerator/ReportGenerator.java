@@ -103,21 +103,7 @@ public class ReportGenerator implements AutoCloseable {
             return;
         }
 
-        if (fihrExport.getTables().isEmpty()) {
-            log.info("Fihr configuration found, but no tables to export, nothing to do here");
-            return;
-        }
-
-        log.warn("Fihr exporter running, not implemented yet!!!!!!");
-
-        for (Table table : fihrExport.getTables()) {
-
-//            Properties properties = getCSVExporterProperties(report, table);
-
-            try (FihrExporter fihrExporter = new FihrExporter(properties)) {
-                fihrExporter.export();
-            }
-        }
+        log.warn("Fihr exporter not implemented yet!!!!!!");
     }
 
     private void executeDeltas(Report report) {
