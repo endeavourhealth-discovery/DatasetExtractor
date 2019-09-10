@@ -6,6 +6,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
+import org.endeavourhealth.fihrexporter.FihrExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.DeltaExecutor;
@@ -79,12 +80,43 @@ public class ReportGenerator implements AutoCloseable {
         callStoredProcedures(report.getStoredProcedureExecutor().getPostStoredProcedures(), report.getStoredProcedureExecutor());
 
         exportToCSVFile(report);
+        
+        exportToFihr(report);
 
         uploadToSFTP(report);
 
         report.setSuccess(true);
 
         repository.close();
+    }
+
+    private void exportToFihr(Report report) throws Exception {
+        FihrExport fihrExport = report.getFihrExport();
+
+        if (fihrExport == null) {
+            log.info("No configuration for fihr export found, nothing to do here");
+            return;
+        }
+
+        if (!fihrExport.getSwitchedOn()) {
+            log.info("Fihr switched off, nothing to do here");
+            return;
+        }
+
+        if (fihrExport.getTables().isEmpty()) {
+            log.info("Fihr configuration found, but no tables to export, nothing to do here");
+            return;
+        }
+
+
+        for (Table table : fihrExport.getTables()) {
+
+//            Properties properties = getCSVExporterProperties(report, table);
+
+            try (FihrExporter fihrExporter = new FihrExporter(properties)) {
+                fihrExporter.export();
+            }
+        }
     }
 
     private void executeDeltas(Report report) {
