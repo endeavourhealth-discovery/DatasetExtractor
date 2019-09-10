@@ -44,6 +44,10 @@ public class Report {
     @Valid
     private CSVExport csvExport;
 
+    //CSV
+    @Valid
+    private FihrExport fihrExport;
+
     //SFTP
     @Valid
     private SftpUpload sftpUpload;
