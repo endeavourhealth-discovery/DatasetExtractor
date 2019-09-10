@@ -16,7 +16,7 @@ import java.util.List;
 public class FihrExport {
 
     @NotEmpty(message = "Fihr export must have at least one table to export")
-    private List<@Valid Table> tables;
+    private List<@Valid FihrTable> tables;
 
     private Boolean switchedOn = true;
 }
