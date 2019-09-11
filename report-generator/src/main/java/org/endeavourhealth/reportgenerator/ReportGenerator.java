@@ -6,6 +6,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
+import org.endeavourhealth.fihrexporter.FihrExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.DeltaExecutor;
@@ -80,11 +81,30 @@ public class ReportGenerator implements AutoCloseable {
 
         exportToCSVFile(report);
 
+        exportToFihr(report);
+
         uploadToSFTP(report);
 
         report.setSuccess(true);
 
-        repository.close();
+        //Not all reports have use of a database
+        if(repository != null) repository.close();
+    }
+
+    private void exportToFihr(Report report) throws Exception {
+        FihrExport fihrExport = report.getFihrExport();
+
+        if (fihrExport == null) {
+            log.info("No configuration for fihr export found, nothing to do here");
+            return;
+        }
+
+        if (!fihrExport.getSwitchedOn()) {
+            log.info("Fihr switched off, nothing to do here");
+            return;
+        }
+
+        log.warn("Fihr exporter not implemented yet!!!!!!");
     }
 
     private void executeDeltas(Report report) {

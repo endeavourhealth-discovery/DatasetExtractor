@@ -44,13 +44,17 @@ public class Report {
     @Valid
     private CSVExport csvExport;
 
+    //CSV
+    @Valid
+    private FihrExport fihrExport;
+
     //SFTP
     @Valid
     private SftpUpload sftpUpload;
 
     public boolean requiresDatabase() {
         //Filter not needed, but more explicit if declared here
-        if(extensions.stream().filter( e -> e.getSwitchedOn() ).anyMatch( e -> e.requiresDatabase()) ) {
+        if(extensions != null && extensions.stream().filter( e -> e.getSwitchedOn() ).anyMatch( e -> e.requiresDatabase()) ) {
             return true;
         }
         if(storedProcedureExecutor != null && storedProcedureExecutor.requiresDatabase()) {
