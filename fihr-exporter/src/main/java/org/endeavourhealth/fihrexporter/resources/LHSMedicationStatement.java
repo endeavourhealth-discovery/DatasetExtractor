@@ -1,0 +1,139 @@
+package org.endeavourhealth.fihrexporter.resources;
+
+import ca.uhn.fhir.context.FhirContext;
+import org.endeavourhealth.fihrexporter.send.LHShttpSend;
+import org.hl7.fhir.dstu3.model.*;
+
+import org.endeavourhealth.fihrexporter.repository.Repository;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class LHSMedicationStatement {
+	private Dosage addDosage(String dosagetext, String qtyvalue, String qtyunit)
+	{
+		Dosage dose = null;
+
+		dose = new Dosage();
+		dose.setText(dosagetext);
+
+
+		if ( (qtyvalue != null) & (qtyunit != null) ) {
+			dose.setDose(new SimpleQuantity()
+					//.setValue(Integer.parseInt(qtyvalue))
+					.setValue(Double.parseDouble(qtyvalue))
+					.setUnit(qtyunit)
+			);
+		}
+
+		return dose;
+	}
+
+	private String GetMedicationStatementResource(Integer patientid, String dose, String quantityvalue, String quantityunit, String clinicaleffdate, String medicationname, String snomedcode, String PatientRef, String rxref)
+	{
+		FhirContext ctx = FhirContext.forDstu3();
+
+		MedicationStatement rxstatement = null;
+
+		rxstatement = new MedicationStatement();
+
+		rxstatement.getMeta().addProfile("https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-MedicationStatement-1");
+
+		// this needs to be a switch statement using ?
+		rxstatement.setStatus(MedicationStatement.MedicationStatementStatus.ACTIVE);
+
+		rxstatement.setSubject(new Reference("/api/Patient/33"));
+
+		rxstatement.setTaken(MedicationStatement.MedicationStatementTaken.UNK);
+
+		rxstatement.setSubject(new Reference("Patient/" + PatientRef));
+
+		rxstatement.setMedication(new Reference("Medication/" + rxref)
+				.setDisplay(medicationname));
+
+		ArrayList dosages=new ArrayList();
+
+		Dosage doseage = addDosage(dose, quantityvalue, quantityunit);
+		dosages.add(doseage);
+		rxstatement.setDosage(dosages);
+
+		String encoded = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(rxstatement);
+
+		return encoded;
+	}
+
+	public String Run(Repository repository)  throws SQLException
+	{
+		String encoded = "";
+		Integer id = 0; Integer j = 0;
+
+		List<Integer> ids = repository.getRows("filteredmedications");
+
+		ResultSet rs;
+
+		Integer nor = 0;
+		String snomedcode = ""; String drugname = "";
+
+		String dose = ""; String quantityvalue; String quantityunit = "";
+		String clinicaleffdate = ""; String location = ""; Integer typeid = 10;
+
+		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/MedicationStatement";
+
+		while (ids.size() > j) {
+
+			id = ids.get(j);
+
+			rs = repository.getMedicationStatementRS(id);
+
+			if (rs.next()) {
+
+				nor = rs.getInt("patient_id");
+				snomedcode = rs.getString("snomed_code");
+				drugname = rs.getString("drugname");
+
+				boolean prev = repository.PreviouslyPostedId(nor, "Patient");
+				if (prev==false) {
+					LHSPatient patient = new LHSPatient();
+					patient.RunSinglePatient(repository, nor);
+				}
+
+				prev = repository.PreviouslyPostedCode(snomedcode,"Medication");
+				if (prev == false) {
+					LHSMedication medication = new LHSMedication();
+					medication.Run(repository, snomedcode, drugname);
+				}
+
+				location = repository.getLocation(nor, "Patient");
+				if (location.length() == 0)
+				{
+					System.out.println("Unable to find patient " + nor);
+					continue;
+				}
+
+				String rxref = repository.GetMedicationReference(snomedcode);
+				if (rxref.length() == 0)
+				{
+					System.out.println("Unable to find " + snomedcode);
+					continue;
+				}
+
+				dose = rs.getString("dose"); quantityvalue = rs.getString("quantity_value");
+				quantityunit = rs.getString("quantity_unit"); clinicaleffdate = rs.getString("clinical_effective_date");
+				id = rs.getInt(1);
+
+				encoded = GetMedicationStatementResource(nor, dose, quantityvalue, quantityunit, clinicaleffdate, drugname, snomedcode, location, rxref);
+				System.out.println(encoded);
+
+				LHShttpSend send = new LHShttpSend();
+				Integer httpResponse = send.Post(repository, id, "", url, encoded, "MedicationStatement", nor, typeid);
+			}
+
+			j++;
+
+			System.out.println(id);
+		}
+
+		return encoded;
+	}
+}
