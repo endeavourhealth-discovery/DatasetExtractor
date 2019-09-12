@@ -108,13 +108,15 @@ public class LHSMedicationStatement {
 				if (location.length() == 0)
 				{
 					System.out.println("Unable to find patient " + nor);
+					j++;
 					continue;
 				}
 
 				String rxref = repository.GetMedicationReference(snomedcode);
 				if (rxref.length() == 0)
 				{
-					System.out.println("Unable to find " + snomedcode);
+					System.out.println("Unable to find medication reference" + snomedcode);
+					j++;
 					continue;
 				}
 

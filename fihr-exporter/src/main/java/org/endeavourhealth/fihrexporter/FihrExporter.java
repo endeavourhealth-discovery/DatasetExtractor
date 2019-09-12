@@ -5,6 +5,7 @@ import org.endeavourhealth.fihrexporter.resources.LHSAllergyIntolerance;
 import org.endeavourhealth.fihrexporter.resources.LHSMedicationStatement;
 import org.endeavourhealth.fihrexporter.resources.LHSPatient;
 import org.endeavourhealth.fihrexporter.resources.LHSMedicationStatement;
+import org.endeavourhealth.fihrexporter.resources.LHSObservation;
 
 import java.util.Properties;
 
@@ -26,14 +27,19 @@ public class FihrExporter implements AutoCloseable {
         //do something
         System.out.println("test");
 
+        this.repository.DeleteTracker();
+
         //LHSPatient patient = new LHSPatient();
         //patient.Run(this.repository);
 
         //LHSMedicationStatement medicationStatement = new LHSMedicationStatement();
         //medicationStatement.Run(this.repository);
 
-        LHSAllergyIntolerance allergyIntolerance = new LHSAllergyIntolerance();
-        allergyIntolerance.Run(this.repository);
+        //LHSAllergyIntolerance allergyIntolerance = new LHSAllergyIntolerance();
+        //allergyIntolerance.Run(this.repository);
+
+        LHSObservation observation = new LHSObservation();
+        observation.Run(this.repository);
 
     }
 

@@ -69,7 +69,16 @@ public class Repository {
         return location;
     }
 
-    public boolean Audit(Integer anId, String strid, String resource, Integer responseCode, String location, String encoded, Integer patientid, Integer typeid)  throws SQLException {
+    public void DeleteTracker() throws SQLException
+    {
+        String q ="DELETE FROM data_extracts.references where resource ='Tracker'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        preparedStmt.execute();
+    }
+
+    public boolean Audit(Integer anId, String strid, String resource, Integer responseCode, String location, String encoded, Integer patientid, Integer typeid)  throws SQLException
+    {
 
         String q = "insert into data_extracts.references (an_id,strid,resource,response,location,datesent,json,patient_id,type_id) values(?,?,?,?,?,?,?,?,?)";
 
@@ -109,7 +118,6 @@ public class Repository {
     public String GetTelecom(Integer patientid) throws SQLException {
         String telecom ="";
 
-
         String q = "select pc.value, cctype.name as contact_type, ccuse.name as contact_use ";
         q = q + "from subscriber_pi.patient_contact pc " + "left outer join subscriber_pi.concept ccuse on ccuse.dbid = pc.use_concept_id "
                 + "left outer join subscriber_pi.concept cctype on cctype.dbid = pc.type_concept_id where pc.patient_id = '"+patientid.toString()+"'";
@@ -137,6 +145,93 @@ public class Repository {
                 + "join subscriber_pi.concept c on c.dbid = cm.core "
                 + "where ms.id = '" + record_id + "'";
 
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        return rs;
+    }
+
+    public String getObservationRecord(String id) throws SQLException {
+
+        String obsrec = ""; String snomedcode = ""; String orginalterm = "";
+        String result_value = ""; String clineffdate = ""; String resultvalunits = "";
+
+        Integer noncoreconceptid = 0;
+
+        String q = "select ";
+        q = q + "o.id,"
+                + "o.patient_id,"
+                + "c.code as snomed_code,"
+                + "c.name as original_term,"
+                + "o.result_value,"
+                + "o.clinical_effective_date,"
+                + "o.parent_observation_id,"
+                + "o.result_value_units,"
+                + "o.non_core_concept_id "
+                + "from subscriber_pi.observation o "
+                + "join subscriber_pi.concept_map cm on cm.legacy = o.non_core_concept_id "
+                + "join subscriber_pi.concept c on c.dbid = cm.core "
+                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
+                + "where o.id = '"+id+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            snomedcode = rs.getString(3); orginalterm = rs.getString(4);
+            result_value = rs.getString(5); clineffdate = rs.getString(6); resultvalunits = rs.getString(8);
+            noncoreconceptid = rs.getInt("non_core_concept_id");
+            obsrec = snomedcode + "~" + orginalterm + "~" + result_value + "~" + clineffdate + "~" + resultvalunits + "~" + noncoreconceptid;
+        }
+
+        if (obsrec.length()==0) {
+            q = "select * from subscriber_pi.observation where id = "+id;
+            preparedStatement = connection.prepareStatement(q);
+            rs = preparedStatement.executeQuery();
+            if (rs.next()) { ;
+                result_value = rs.getString("result_value"); clineffdate = rs.getString("clinical_effective_date"); resultvalunits = rs.getString("result_value_units");
+                noncoreconceptid = rs.getInt("non_core_concept_id");
+                obsrec = "~~"+result_value+"~"+clineffdate+"~"+resultvalunits+"~"+noncoreconceptid;
+            }
+        }
+
+        System.out.println(q);
+
+        return obsrec;
+    }
+
+    public String getIdsFromParent(Integer parentid) throws SQLException {
+        String ids = "";
+
+        String q = "SELECT id FROM subscriber_pi.observation WHERE parent_observation_id="+parentid;
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while(rs.next()) {
+            ids = ids + rs.getString(1) + "~";
+        }
+
+        return ids;
+    }
+
+    public ResultSet getObservationRS(Integer record_id) throws SQLException {
+        String q = "select ";
+        q = q + "o.id,"
+                + "o.patient_id,"
+                + "c.code as snomed_code,"
+                + "c.name as original_term,"
+                + "o.result_value,"
+                + "o.clinical_effective_date,"
+                + "o.parent_observation_id,"
+                + "o.result_value_units "
+                + "from subscriber_pi.observation o "
+                + "join subscriber_pi.concept_map cm on cm.legacy = o.non_core_concept_id "
+                + "join subscriber_pi.concept c on c.dbid = cm.core "
+                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
+                + "where scs.codeSetId = 2 and o.id = '"+record_id+"'";
         PreparedStatement preparedStatement = connection.prepareStatement(q);
 
         ResultSet rs = preparedStatement.executeQuery();
@@ -193,7 +288,8 @@ public class Repository {
                 + "left outer join subscriber_pi.patient_address pa on pa.id = p.current_address_id \r\n"
                 + "left outer join subscriber_pi.patient_contact pc on pc.patient_id = p.id \r\n"
                 + "left outer join subscriber_pi.concept ccuse on ccuse.dbid = pc.use_concept_id \r\n"
-                + "left outer join subscriber_pi.concept cctype on cctype.dbid = pc.type_concept_id \r\n" + "left outer join subscriber_pi.concept gc on gc.dbid = p.gender_concept_id \r\n"
+                + "left outer join subscriber_pi.concept cctype on cctype.dbid = pc.type_concept_id \r\n"
+                + "left outer join subscriber_pi.concept gc on gc.dbid = p.gender_concept_id \r\n"
                 + "left outer join subscriber_pi.organization org on org.id = p.organization_id \r\n"
                 + "join subscriber_pi.observation o on o.patient_id = p.id \r\n"
                 + "join subscriber_pi.concept_map cm on cm.legacy = o.non_core_concept_id \r\n"

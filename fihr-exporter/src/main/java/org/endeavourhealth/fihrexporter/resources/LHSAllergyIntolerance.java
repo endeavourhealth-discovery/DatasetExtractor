@@ -14,7 +14,8 @@ import java.util.List;
 public class LHSAllergyIntolerance {
 
 	private String getAllergyResource(Integer patientid, String clineffdate, String allergyname, String snomedcode, String PatientRef)
-	{        FhirContext ctx = FhirContext.forDstu3();
+	{
+		FhirContext ctx = FhirContext.forDstu3();
 
 		AllergyIntolerance allergy = new AllergyIntolerance();
 
@@ -81,6 +82,7 @@ public class LHSAllergyIntolerance {
 				if (location.length() == 0)
 				{
 					System.out.println("Unable to find patient " + nor);
+					j++;
 					continue;
 				}
 

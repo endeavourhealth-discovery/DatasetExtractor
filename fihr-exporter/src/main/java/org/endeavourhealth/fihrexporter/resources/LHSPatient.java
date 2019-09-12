@@ -188,8 +188,6 @@ public class LHSPatient {
 
 			List<Integer> patient = repository.getPatientRows();
 
-			System.out.println(patient);
-
 			int j = 0;
 			List row;
 
