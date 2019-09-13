@@ -158,6 +158,9 @@ public class LHSObservation {
 		while (ids.size() > j) {
 			id = ids.get(j);
 
+			if (id == 28827) {
+				System.out.println("test");
+			}
 			rs = repository.getObservationRS(id);
 
 			if (rs.next()) {
@@ -173,6 +176,7 @@ public class LHSObservation {
 				}
 
 				parent = rs.getInt("parent_observation_id");
+				parentids = "";
 				if (parent != 0) {
 					// find the other event with the same parent id
 					parentids = repository.getIdsFromParent(parent);
