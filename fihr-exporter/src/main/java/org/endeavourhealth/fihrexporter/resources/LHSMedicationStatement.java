@@ -95,7 +95,7 @@ public class LHSMedicationStatement {
 				boolean prev = repository.PreviouslyPostedId(nor, "Patient");
 				if (prev==false) {
 					LHSPatient patient = new LHSPatient();
-					patient.RunSinglePatient(repository, nor);
+					patient.RunSinglePatient(repository, nor, baseURL);
 				}
 
 				prev = repository.PreviouslyPostedCode(snomedcode,"Medication");

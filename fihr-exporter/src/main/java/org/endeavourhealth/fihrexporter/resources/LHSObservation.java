@@ -191,7 +191,7 @@ public class LHSObservation {
 				boolean prev = repository.PreviouslyPostedId(nor, "Patient");
 				if (prev==false) {
 					LHSPatient patient = new LHSPatient();
-					patient.RunSinglePatient(repository, nor);
+					patient.RunSinglePatient(repository, nor, baseURL);
 				}
 
 				location = repository.getLocation(nor, "Patient");

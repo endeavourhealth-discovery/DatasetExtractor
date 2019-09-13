@@ -67,13 +67,13 @@ public class LHSPatient {
 				String[] contact = z.split("\\~");
 				ContactPoint t = new ContactPoint();
 
-				t.setValue(contact[2]);
+				t.setValue(contact[0]);
 
-				if (contact[1].equals("Mobile")) t.setUse(ContactPoint.ContactPointUse.MOBILE);
-				if (contact[1].equals("Home")) t.setUse(ContactPoint.ContactPointUse.HOME);
+				if (contact[2].equals("Mobile")) t.setUse(ContactPoint.ContactPointUse.MOBILE);
+				if (contact[2].equals("Home")) t.setUse(ContactPoint.ContactPointUse.HOME);
 
-				if (contact[0].equals("Email")) t.setSystem(ContactPoint.ContactPointSystem.EMAIL);
-				if (contact[0].equals("Phone")) t.setSystem(ContactPoint.ContactPointSystem.PHONE);
+				if (contact[1].equals("Email")) t.setSystem(ContactPoint.ContactPointSystem.EMAIL);
+				if (contact[1].equals("Phone")) t.setSystem(ContactPoint.ContactPointSystem.PHONE);
 
 				patient.addTelecom(t);
 			}
@@ -114,12 +114,12 @@ public class LHSPatient {
 		return encoded;
 	}
 
-	public void RunSinglePatient(Repository repository, Integer nor)  throws SQLException {
+	public void RunSinglePatient(Repository repository, Integer nor, String baseURL)  throws SQLException {
 		ResultSet rs;
 
 		rs = repository.getPatientRS(nor);
 
-		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Patient";
+		String url = baseURL + "Patient";
 
 		int j = 0;
 		List row;
@@ -201,7 +201,7 @@ public class LHSPatient {
 				nor = patient.get(j);
 				System.out.println(nor);
 
-				RunSinglePatient(repository, nor);
+				RunSinglePatient(repository, nor, baseURL);
 
 				j++;
 			}
