@@ -121,7 +121,7 @@ public class ReportGenerator implements AutoCloseable {
 
         DeltaExecutor deltaExecutor = new DeltaExecutor( repository );
 
-        deltaExecutor.execute( report.getDelta());
+        deltaExecutor.execute( report.getDelta() );
     }
 
     private void executeExtensions(Report report) {
