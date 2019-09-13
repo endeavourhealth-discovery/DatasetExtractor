@@ -1,11 +1,8 @@
 package org.endeavourhealth.fihrexporter;
 
 import org.endeavourhealth.fihrexporter.repository.Repository;
-import org.endeavourhealth.fihrexporter.resources.LHSAllergyIntolerance;
+import org.endeavourhealth.fihrexporter.resources.*;
 import org.endeavourhealth.fihrexporter.resources.LHSMedicationStatement;
-import org.endeavourhealth.fihrexporter.resources.LHSPatient;
-import org.endeavourhealth.fihrexporter.resources.LHSMedicationStatement;
-import org.endeavourhealth.fihrexporter.resources.LHSObservation;
 
 import java.util.Properties;
 
@@ -24,22 +21,25 @@ public class FihrExporter implements AutoCloseable {
 
     public void export() throws Exception {
 
-        //do something
-        System.out.println("test");
+        // ** TO DO needs to be got from config (indexed by organization id)
+        String baseURL = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/";
 
         this.repository.DeleteTracker();
 
-        //LHSPatient patient = new LHSPatient();
-        //patient.Run(this.repository);
+        LHSPatient patient = new LHSPatient();
+        patient.Run(this.repository, baseURL);
 
-        //LHSMedicationStatement medicationStatement = new LHSMedicationStatement();
-        //medicationStatement.Run(this.repository);
+        LHSMedicationStatement medicationStatement = new LHSMedicationStatement();
+        medicationStatement.Run(this.repository, baseURL);
 
-        //LHSAllergyIntolerance allergyIntolerance = new LHSAllergyIntolerance();
-        //allergyIntolerance.Run(this.repository);
+        LHSAllergyIntolerance allergyIntolerance = new LHSAllergyIntolerance();
+        allergyIntolerance.Run(this.repository, baseURL);
 
         LHSObservation observation = new LHSObservation();
-        observation.Run(this.repository);
+        observation.Run(this.repository, baseURL);
+
+        //LHSTest test = new LHSTest();
+        //test.Run(this.repository);
 
     }
 

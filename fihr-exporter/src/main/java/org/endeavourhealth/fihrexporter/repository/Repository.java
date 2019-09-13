@@ -77,7 +77,31 @@ public class Repository {
         preparedStmt.execute();
     }
 
-    public boolean Audit(Integer anId, String strid, String resource, Integer responseCode, String location, String encoded, Integer patientid, Integer typeid)  throws SQLException
+    public boolean UpdateAudit(Integer anId, String strid, String encoded, Integer responseCode) throws SQLException
+    {
+        long timeNow = Calendar.getInstance().getTimeInMillis();
+        java.sql.Timestamp ts = new java.sql.Timestamp(timeNow);
+        String str = ts.toString();
+
+        String q = "";
+
+        if (anId != 0) {
+            q = "update data_extracts.references set response = " + responseCode + ", datesent = '"+str+"', json = '"+encoded+"' where an_id = '"+anId+"'";
+        }
+
+        if (strid.length() > 0) {
+            q = "update data_extracts.references set response = " + responseCode + ", datesent = '" + str + "', json = '" + encoded + "' where strid = '"+strid+"'";
+        }
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        preparedStmt.execute();
+
+        System.out.println(q);
+
+        return true;
+    }
+
+    public boolean Audit(Integer anId, String strid, String resource, Integer responseCode, String location, String encoded, Integer patientid, Integer typeid) throws SQLException
     {
 
         String q = "insert into data_extracts.references (an_id,strid,resource,response,location,datesent,json,patient_id,type_id) values(?,?,?,?,?,?,?,?,?)";
@@ -319,8 +343,11 @@ public class Repository {
             List<Integer> row = new ArrayList<>();
             result.add(id);
         }
-
         preparedStatement.close();
+
+        //List<Integer> result = new ArrayList<>();
+        //result.add(29059);
+
         return result;
     }
     public List<Integer> getPatientRows() throws SQLException {

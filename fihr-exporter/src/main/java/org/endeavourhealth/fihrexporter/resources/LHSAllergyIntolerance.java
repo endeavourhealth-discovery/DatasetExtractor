@@ -45,12 +45,12 @@ public class LHSAllergyIntolerance {
 		return encoded;
 	}
 
-	public String Run(Repository repository)  throws SQLException
+	public String Run(Repository repository, String baseURL)  throws SQLException
 	{
 		String encoded = "";
 		List<Integer> ids = repository.getRows("filteredallergies");
 
-		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/AllergyIntolerance";
+		String url = baseURL + "AllergyIntolerance";
 
 		ResultSet rs;
 		Integer id = 0; Integer j = 0;

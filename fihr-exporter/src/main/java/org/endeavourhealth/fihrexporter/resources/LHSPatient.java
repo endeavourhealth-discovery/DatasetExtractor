@@ -182,7 +182,7 @@ public class LHSPatient {
 		}
 	}
 
-	public void Run(Repository repository) {
+	public void Run(Repository repository, String baseURL) {
 		try {
 			// List<List<String>> patient = repository.getPatientRows();
 
@@ -194,7 +194,7 @@ public class LHSPatient {
 			// String nor;
 			Integer nor;
 
-			String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Patient";
+			String url = baseURL + "Patient";
 
 			while (patient.size() > j) {
 				// nor = patient.get(j).get(1);

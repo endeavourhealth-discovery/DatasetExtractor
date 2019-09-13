@@ -60,6 +60,8 @@ public class LHShttpSend {
 			//printing result from response
 			System.out.println(response.toString());
 
+			if (method == "PUT") {repository.UpdateAudit(anId, strid, encoded, responseCode);}
+
 			if (method == "POST") {
 				System.out.println("location = " + con.getHeaderField("location"));
 				location = con.getHeaderField("location");

@@ -63,7 +63,7 @@ public class LHSMedicationStatement {
 		return encoded;
 	}
 
-	public String Run(Repository repository)  throws SQLException
+	public String Run(Repository repository, String baseURL)  throws SQLException
 	{
 		String encoded = "";
 		Integer id = 0; Integer j = 0;
@@ -78,7 +78,7 @@ public class LHSMedicationStatement {
 		String dose = ""; String quantityvalue; String quantityunit = "";
 		String clinicaleffdate = ""; String location = ""; Integer typeid = 10;
 
-		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/MedicationStatement";
+		String url = baseURL + "MedicationStatement";
 
 		while (ids.size() > j) {
 

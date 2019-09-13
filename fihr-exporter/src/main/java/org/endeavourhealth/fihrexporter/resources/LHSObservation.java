@@ -35,13 +35,11 @@ public class LHSObservation {
 				.setDisplay(term);
 		occ.setCode(codecc);
 
-		if ( (resultvalue != null) & (resultvalueunits != null) ) {
-			Quantity q = new Quantity();
-			q.setValue(Double.parseDouble(resultvalue));
-			q.setSystem("http://unitsofmeasure.org");
-			q.setCode(resultvalueunits);
-			occ.setValue(q);
-		}
+		Quantity q = new Quantity();
+		q.setValue(Double.parseDouble(resultvalue));
+		q.setSystem("http://unitsofmeasure.org");
+		if (resultvalueunits !=null) {q.setCode(resultvalueunits);}
+		occ.setValue(q);
 
 		return occ;
 	}
@@ -81,6 +79,8 @@ public class LHSObservation {
 			observation.setCode(code);
 		}
 
+		// http://hl7.org/fhir/stu3/valueset-observation-category.html
+        // social-history, vital-signs, imaging, laboratory, procedure, survey, exam, therapy
 		CodeableConcept vital = new CodeableConcept();
 		vital.addCoding()
 				.setCode("vital-signs");
@@ -122,9 +122,11 @@ public class LHSObservation {
 			return encoded;
 		}
 
-		Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits);
-		occs.add(ocs);
-		observation.setComponent(occs);
+		if (resultvalue !=null) {
+            Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits);
+            occs.add(ocs);
+            observation.setComponent(occs);
+        }
 
 		encoded = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(observation);
 
@@ -141,7 +143,7 @@ public class LHSObservation {
 		}
 	}
 
-	public String Run(Repository repository) throws SQLException
+	public String Run(Repository repository, String baseURL) throws SQLException
 	{
 		String encoded = ""; Integer j = 0; Integer id = 0;
 		List<Integer> ids = repository.getRows("filteredobservations");
@@ -151,14 +153,14 @@ public class LHSObservation {
 		String clineffdate = ""; String resultvalunits = ""; String location="";
 		Integer typeid = 11; String t = ""; Integer parent =0; String parentids = "";
 
-		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Observation";
+        String url = baseURL + "Observation";
 
 		ResultSet rs;
 
 		while (ids.size() > j) {
 			id = ids.get(j);
 
-			if (id == 28827) {
+			if (id == 29059) {
 				System.out.println("test");
 			}
 			rs = repository.getObservationRS(id);
