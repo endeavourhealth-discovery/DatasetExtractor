@@ -111,9 +111,12 @@ public class LHSObservation {
 					if (ObsRec.length() == 0) {continue;}
 					String obs[] = ObsRec.split("\\~");
 					snomedcode = obs[0]; orginalterm = obs[1]; resultvalue = obs[2]; clineffdate = obs[3]; resultvalunits = obs[4];
-					Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits);
-					occs.add(ocs);
-					observation.setComponent(occs);
+					if (snomedcode.length() == 0) snomedcode = obs[5];
+					if (resultvalue.length() > 0 || resultvalunits.length() > 0) {
+                        Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits);
+                        occs.add(ocs);
+                        observation.setComponent(occs);
+                    }
 				} catch (Exception e) {
 				}
 			}
