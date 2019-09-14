@@ -15,4 +15,10 @@ public class DeltaTable {
 
     @NotNull(message = "Columns to hash for delta cannot be null")
     private String columnsToHash;
+
+    private String uniqueIdentifier;
+
+    public String getUniqueIdentifier() {
+      return uniqueIdentifier == null ? "id" : uniqueIdentifier;
+    }
 }
