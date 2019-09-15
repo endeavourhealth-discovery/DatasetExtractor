@@ -95,8 +95,10 @@ public class JpaRepository {
         //CREATE PROCEDURE populateDeltas (
         StoredProcedureQuery populateDeltasQuery = entityManager.createStoredProcedureQuery( "populateDeltas" );
         populateDeltasQuery.registerStoredProcedureParameter("tableName", String.class, ParameterMode.IN);
+        populateDeltasQuery.registerStoredProcedureParameter("uniqueIdentifier", String.class, ParameterMode.IN);
 
         populateDeltasQuery.setParameter("tableName", deltaTable.getName());
+        populateDeltasQuery.setParameter("uniqueIdentifier", deltaTable.getUniqueIdentifier());
 
         populateDeltasQuery.execute();
 
