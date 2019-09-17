@@ -21,10 +21,14 @@ public class FihrExporter implements AutoCloseable {
 
     public void export() throws Exception {
 
-        // ** TO DO needs to be got from config (indexed by organization id)
-        String baseURL = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/";
+        // String baseURL = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/";
+
+        System.out.println(">>>> " + this.repository.getBaseURL());
+        String baseURL = this.repository.getBaseURL();
 
         this.repository.DeleteTracker();
+
+        this.repository.DeleteFileReferences();
 
         LHSPatient patient = new LHSPatient();
         patient.Run(this.repository, baseURL);

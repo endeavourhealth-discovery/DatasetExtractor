@@ -53,7 +53,7 @@ public class LHSObservation {
 
 		observation = new Observation();
 
-		observation.setStatus(Observation.ObservationStatus.UNKNOWN);
+		observation.setStatus(Observation.ObservationStatus.FINAL);
 
 		String ObsRec = ""; String noncoreconceptid = "";
 
@@ -81,12 +81,15 @@ public class LHSObservation {
 
 		// http://hl7.org/fhir/stu3/valueset-observation-category.html
         // social-history, vital-signs, imaging, laboratory, procedure, survey, exam, therapy
+
+        /*
 		CodeableConcept vital = new CodeableConcept();
 		vital.addCoding()
 				.setCode("vital-signs");
 
 		// might be a lab result, or something else?
 		observation.addCategory(vital);
+        */
 
 		observation.setSubject(new Reference("/Patient/" + PatientRef));
 

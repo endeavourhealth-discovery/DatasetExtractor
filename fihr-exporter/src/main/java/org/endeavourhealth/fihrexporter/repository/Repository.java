@@ -14,6 +14,10 @@ public class Repository {
 
     private Connection connection;
 
+    private String baseURL;
+
+    public String outputFHIR;
+
     public Repository(Properties properties) throws SQLException {
         init( properties );
     }
@@ -77,6 +81,13 @@ public class Repository {
         preparedStmt.execute();
     }
 
+    public void DeleteFileReferences() throws SQLException
+    {
+        String q ="DELETE FROM data_extracts.references where response = 123";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        preparedStmt.execute();
+    }
     public boolean UpdateAudit(Integer anId, String strid, String encoded, Integer responseCode) throws SQLException
     {
         long timeNow = Calendar.getInstance().getTimeInMillis();
@@ -397,7 +408,15 @@ public class Repository {
         return result;
     }
 
+    public String getBaseURL()
+    {
+        return baseURL;
+    }
+
     private void init(Properties props) throws SQLException {
+
+        baseURL = props.getProperty("baseurl");
+        outputFHIR = props.getProperty("outputFHIR");
 
         dataSource = new MysqlDataSource();
 

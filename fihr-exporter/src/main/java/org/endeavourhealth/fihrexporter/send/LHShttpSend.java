@@ -1,5 +1,6 @@
 package org.endeavourhealth.fihrexporter.send;
 
+import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.fihrexporter.repository.Repository;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -8,6 +9,9 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class LHShttpSend {
 
@@ -105,6 +109,17 @@ public class LHShttpSend {
 
 			String location = ""; String method = "POST";
 
+			if (repository.outputFHIR != null) {
+				String folder = repository.outputFHIR;
+				String file = folder+resource+"-"+anId+strid+".json";
+				Files.write(Paths.get(file), encoded.getBytes());
+
+				location = resource+"-"+anId+strid+".json";
+                repository.Audit(anId, strid, resource, 123, location, encoded, patientid, typeid);
+
+				return 0;
+			}
+
 			// decide if it's a post or a put?
 			if (anId != 0) {location = repository.getLocation(anId, resource);}
 
@@ -127,47 +142,9 @@ public class LHShttpSend {
 				responseCode = SendTLS(url,method, encoded);
 			}
 
-			/*
-			URL obj = new URL(url);
-			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-			if (url.contains("https:")) {HttpsURLConnection con = (HttpsURLConnection) obj.openConnection()};
-
-			con.setRequestMethod(method);
-
-			con.setRequestProperty("Content-Type","application/json");
-
-			// Send request
-			con.setDoOutput(true);
-			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-			wr.writeBytes(encoded);
-			wr.flush();
-			wr.close();
-
-			int responseCode = con.getResponseCode();
-
-			System.out.println("Response Code : " + responseCode);
-
-			BufferedReader in = new BufferedReader(
-					new InputStreamReader(con.getInputStream()));
-			String output;
-			StringBuffer response = new StringBuffer();
-
-			while ((output = in.readLine()) != null) {
-				response.append(output);
-			}
-			in.close();
-
-			//printing result from response
-			System.out.println(response.toString());
-			 */
-
 			if (method == "PUT") {repository.UpdateAudit(anId, strid, encoded, responseCode);}
 
 			if (method == "POST") {
-
-				//System.out.println("location = " + con.getHeaderField("location"));
-				//location = con.getHeaderField("location");
 
 				System.out.println(LHShttpSend.location);
 
