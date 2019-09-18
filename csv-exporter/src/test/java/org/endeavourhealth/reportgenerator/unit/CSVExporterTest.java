@@ -89,7 +89,7 @@ public class CSVExporterTest {
     private static Properties loadProperties() throws IOException {
         Properties properties = new Properties();
 
-        InputStream inputStream = CSVExporterRunner.class.getClassLoader().getResourceAsStream("csv.exporter.properties.example");
+        InputStream inputStream = CSVExporterRunner.class.getClassLoader().getResourceAsStream("csv.exporter.properties");
 
         properties.load( inputStream );
 
