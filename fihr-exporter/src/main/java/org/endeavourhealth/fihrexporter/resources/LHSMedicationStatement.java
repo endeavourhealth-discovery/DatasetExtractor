@@ -34,9 +34,9 @@ public class LHSMedicationStatement {
 	{
 		FhirContext ctx = FhirContext.forDstu3();
 
-		MedicationStatement rxstatement = null;
+		// MedicationStatement rxstatement = null;
 
-		rxstatement = new MedicationStatement();
+		MedicationStatement rxstatement = new MedicationStatement();
 
 		rxstatement.getMeta().addProfile("https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-MedicationStatement-1");
 
@@ -70,7 +70,7 @@ public class LHSMedicationStatement {
 
 		List<Integer> ids = repository.getRows("filteredmedications");
 
-		ResultSet rs;
+		ResultSet rs; String result;
 
 		Integer nor = 0;
 		String snomedcode = ""; String drugname = "";
@@ -84,13 +84,14 @@ public class LHSMedicationStatement {
 
 			id = ids.get(j);
 
-			rs = repository.getMedicationStatementRS(id);
+			result = repository.getMedicationStatementRS(id);
 
-			if (rs.next()) {
+			if (result.length()>0) {
 
-				nor = rs.getInt("patient_id");
-				snomedcode = rs.getString("snomed_code");
-				drugname = rs.getString("drugname");
+				String[] ss = result.split("\\~");
+				nor = Integer.parseInt(ss[0]);
+				snomedcode = ss[1];
+				drugname = ss[2];
 
 				boolean prev = repository.PreviouslyPostedId(nor, "Patient");
 				if (prev==false) {
@@ -120,9 +121,7 @@ public class LHSMedicationStatement {
 					continue;
 				}
 
-				dose = rs.getString("dose"); quantityvalue = rs.getString("quantity_value");
-				quantityunit = rs.getString("quantity_unit"); clinicaleffdate = rs.getString("clinical_effective_date");
-				id = rs.getInt(1);
+				dose=ss[3]; quantityvalue=ss[4]; quantityunit=ss[5]; clinicaleffdate=ss[6]; id= Integer.parseInt(ss[7]);
 
 				encoded = GetMedicationStatementResource(nor, dose, quantityvalue, quantityunit, clinicaleffdate, drugname, snomedcode, location, rxref);
 				System.out.println(encoded);

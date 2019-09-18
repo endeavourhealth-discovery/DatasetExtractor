@@ -15,6 +15,7 @@ public class LHSTest {
 		String clineffdate = ""; String resultvalunits = ""; String location="";
 		Integer typeid = 11; String t = ""; Integer parent =0; String parentids = "";
 
+		/*
 		rs = repository.getObservationRS(28827);
 		if (rs.next()) {
 			nor = rs.getInt(2);
@@ -26,5 +27,6 @@ public class LHSTest {
 
 			parent = rs.getInt("parent_observation_id");
 		}
+		 */
 	}
 }

@@ -26,9 +26,9 @@ public class LHSMedication {
 	{
 		FhirContext ctx = FhirContext.forDstu3();
 
-		Medication medication = null;
+		//Medication medication = null;
 
-		medication = new Medication();
+		Medication medication = new Medication();
 
 		medication.getMeta().addProfile("https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-Medication-1");
 

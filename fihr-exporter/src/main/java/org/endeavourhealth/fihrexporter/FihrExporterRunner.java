@@ -16,7 +16,7 @@ public class FihrExporterRunner {
             csvExporter.export();
 
         } catch (Exception e) {
-            //do something!
+            System.out.println(e);
         }
     }
 

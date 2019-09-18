@@ -21,6 +21,10 @@ public class FihrExporter implements AutoCloseable {
 
     public void export() throws Exception {
 
+        //Runtime gfg = Runtime.getRuntime();
+        //long memory1, memory2;
+        //Integer integer[] = new Integer[1000];
+
         // String baseURL = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/";
 
         System.out.println(">>>> " + this.repository.getBaseURL());
@@ -38,6 +42,8 @@ public class FihrExporter implements AutoCloseable {
 
         LHSAllergyIntolerance allergyIntolerance = new LHSAllergyIntolerance();
         allergyIntolerance.Run(this.repository, baseURL);
+
+        //gfg.gc();
 
         LHSObservation observation = new LHSObservation();
         observation.Run(this.repository, baseURL);

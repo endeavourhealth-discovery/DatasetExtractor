@@ -29,8 +29,10 @@ public class Repository {
         ResultSet rs = preparedStatement.executeQuery();
 
         if (rs.next()) {
+            preparedStatement.close();
             return true;
         }
+        preparedStatement.close();
         return false;
     }
 
@@ -42,8 +44,12 @@ public class Repository {
         ResultSet rs = preparedStatement.executeQuery();
 
         if (rs.next()) {
+            preparedStatement.close();
             return true;
         }
+
+        preparedStatement.close();
+
         return false;
     }
 
@@ -56,6 +62,8 @@ public class Repository {
         ResultSet rs = preparedStatement.executeQuery();
 
         if (rs.next()) { location =  rs.getString("location"); }
+
+        preparedStatement.close();
 
         return location;
     }
@@ -70,6 +78,7 @@ public class Repository {
 
         if (rs.next()) { location =  rs.getString("location"); }
 
+        preparedStatement.close();
         return location;
     }
 
@@ -79,6 +88,8 @@ public class Repository {
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         preparedStmt.execute();
+
+        preparedStmt.close();
     }
 
     public void DeleteFileReferences() throws SQLException
@@ -107,7 +118,9 @@ public class Repository {
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         preparedStmt.execute();
 
-        System.out.println(q);
+        //System.out.println(q);
+
+        preparedStmt.close();
 
         return true;
     }
@@ -139,15 +152,33 @@ public class Repository {
 
         preparedStmt.execute();
 
+        preparedStmt.close();
+
         return true;
     }
 
-    public ResultSet getOrganizationRS(Integer organization_id) throws SQLException {
-            String q = "SELECT * FROM subscriber_pi.organization where id = '" + organization_id + "'";
-            PreparedStatement preparedStatement = connection.prepareStatement(q);
+    public String getOrganizationRS(Integer organization_id) throws SQLException {
 
-            ResultSet rs = preparedStatement.executeQuery();
-            return rs;
+        String result = "";
+        String q = "SELECT * FROM subscriber_pi.organization where id = '" + organization_id + "'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            String odscode = rs.getString("ods_code");
+            String name = rs.getString("name");
+            String postcode = rs.getString("postcode");
+            Integer id = rs.getInt("id");
+
+            result = odscode + "~" + name + "~" + postcode + "~" + id;
+        }
+
+        preparedStatement.close();
+
+        return result;
+
     }
 
     public String GetTelecom(Integer patientid) throws SQLException {
@@ -163,15 +194,17 @@ public class Repository {
 
         while(rs.next()) {
             if (rs.getString(3) != null) {
-                telecom = telecom + rs.getString(1) + "~" + rs.getString(2) + "~" + rs.getString(3) + "|";
+                telecom = telecom + rs.getString(1) + "`" + rs.getString(2) + "`" + rs.getString(3) + "|";
             }
         }
+
+        preparedStatement.close();
 
         return telecom;
     }
 
-    public ResultSet getMedicationStatementRS(Integer record_id) throws SQLException {
-        String q = "";
+    public String getMedicationStatementRS(Integer record_id) throws SQLException {
+        String q = ""; String result = "";
 
         q = "select " + "ms.id," + "ms.patient_id," + "ms.dose," + "ms.quantity_value," + "ms.quantity_unit," + "ms.clinical_effective_date,"
                 + "c.name as medication_name," + "c.code as snomed_code, c.name as drugname "
@@ -184,7 +217,23 @@ public class Repository {
 
         ResultSet rs = preparedStatement.executeQuery();
 
-        return rs;
+        if (rs.next()) {
+            Integer nor = rs.getInt("patient_id");
+            String snomedcode = rs.getString("snomed_code");
+            String drugname = rs.getString("drugname");
+            String dose = rs.getString("dose"); String quantityvalue = rs.getString("quantity_value");
+            String quantityunit = rs.getString("quantity_unit"); String clinicaleffdate = rs.getString("clinical_effective_date");
+            Integer id = rs.getInt(1);
+
+            if (rs.getString("dose")==null) {dose="";}
+            if (rs.getString("quantity_value")==null) {quantityvalue="";}
+            if (rs.getString("quantity_unit")==null) {quantityunit="";}
+
+            result = nor+"~"+snomedcode+"~"+drugname+"~"+dose+"~"+quantityvalue+"~"+quantityunit+"~"+clinicaleffdate+"~"+id;
+        }
+        preparedStatement.close();
+
+        return result;
     }
 
     public String getObservationRecord(String id) throws SQLException {
@@ -231,7 +280,8 @@ public class Repository {
             }
         }
 
-        System.out.println(q);
+        //System.out.println(q);
+        preparedStatement.close();
 
         return obsrec;
     }
@@ -249,10 +299,14 @@ public class Repository {
             ids = ids + rs.getString(1) + "~";
         }
 
+        preparedStatement.close();
+
         return ids;
     }
 
-    public ResultSet getObservationRS(Integer record_id) throws SQLException {
+    public String getObservationRS(Integer record_id) throws SQLException {
+        String result = "";
+
         String q = "select ";
         q = q + "o.id,"
                 + "o.patient_id,"
@@ -267,15 +321,29 @@ public class Repository {
                 + "join subscriber_pi.concept c on c.dbid = cm.core "
                 + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
                 + "where scs.codeSetId = 2 and o.id = '"+record_id+"'";
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
 
         ResultSet rs = preparedStatement.executeQuery();
 
-        return rs;
+        if (rs.next()) {
+            Integer nor = rs.getInt(2); String snomedcode = rs.getString(3); String orginalterm = rs.getString(4);
+            String result_value = rs.getString(5); String clineffdate = rs.getString(6); String resultvalunits = rs.getString(7);
+
+            if (rs.getString(5) == null) {result_value="";}
+            if (rs.getString(7) == null) {resultvalunits="";}
+
+            result = nor.toString()+"~"+snomedcode+"~"+orginalterm+"~"+result_value+"~"+clineffdate+"~"+resultvalunits+"~"+rs.getInt("parent_observation_id");
+        }
+
+        preparedStatement.close();
+
+        return result;
     }
 
-    public ResultSet getAllergyIntoleranceRS(Integer record_id) throws SQLException {
-        String q = "select ";
+    public String getAllergyIntoleranceRS(Integer record_id) throws SQLException {
+        String q = "select "; String result = "";
+
         q =q + "ai.id,"
                 + "ai.patient_id,"
                 + "ai.clinical_effective_date,"
@@ -290,10 +358,20 @@ public class Repository {
 
         ResultSet rs = preparedStatement.executeQuery();
 
-        return rs;
+        if (rs.next()) {
+            Integer nor = rs.getInt("patient_id");
+            String clineffdate = rs.getString(3);
+            String allergyname = rs.getString(4);
+            String snomedcode = rs.getString(5);
+            result = nor+"~"+clineffdate+"~"+allergyname+"~"+snomedcode;
+        }
+
+        preparedStatement.close();
+
+        return result;
     }
 
-    public ResultSet getPatientRS(Integer patient_id) throws SQLException {
+    public String getPatientRS(Integer patient_id) throws SQLException {
 
         String q = "select distinct ";
 
@@ -309,6 +387,7 @@ public class Repository {
                 + "pa.address_line_2,\r\n"
                 + "pa.address_line_3,\r\n"
                 + "pa.address_line_4,\r\n"
+                + "pa.postcode,\r\n"
                 + "pa.city,\r\n"
                 + "pa.start_date,\r\n"
                 + "pa.end_date,\r\n"
@@ -336,9 +415,57 @@ public class Repository {
 
         ResultSet rs = preparedStatement.executeQuery();
 
-        System.out.println(q);
+        String result="";
+        if (rs.next()) {
+            String nhsno = rs.getString("nhs_number");
+            String dob = rs.getString("date_of_birth");
+            String odscode = rs.getString("ods_code");
+            String orgname = rs.getString("org_name");
+            String orgpostcode = rs.getString("org_postcode");
 
-        return rs;
+            String telecom = GetTelecom(patient_id);
+
+            String dod = rs.getString("date_of_death");
+
+            String add1="";
+            if (rs.getString("address_line_1")!=null) {add1 = rs.getString("address_line_1");}
+
+            String add2="";
+            if (rs.getString("address_line_2")!=null) add2 = rs.getString("address_line_1");
+
+            String add3="";
+            if (rs.getString("address_line_3")!=null) add3 = rs.getString("address_line_3");
+
+            String add4="";
+            if (rs.getString("address_line_4")!=null) add4 = rs.getString("address_line_4");
+
+            String city="";
+            if (rs.getString("city")!=null) city = rs.getString("city");
+
+            String postcode="";
+            if (rs.getString("postcode")!=null) postcode = rs.getString("postcode");
+
+            String gender = rs.getString("gender");
+            String contacttype = rs.getString("contact_type");
+            String contactuse = rs.getString("contact_use");
+            String contactvalue = rs.getString("contact_value");
+            String title = rs.getString("title");
+            String firstname = rs.getString("first_names");
+            String lastname = rs.getString("last_name");
+
+            String startdate = rs.getString("start_date"); // date added to the cohort?
+            Integer orgid = rs.getInt("organization_id");
+            ;
+
+            result = nhsno + "~" + odscode + "~" + orgname + "~" + orgpostcode + "~" + telecom + "~" + dod + "~" + add1 + "~" + add2 + "~" + add3 + "~" + add4 + "~" + city + "~";
+            result = result + gender + "~" + contacttype + "~" + contactuse + "~" + contactvalue + "~" + title + "~" + firstname + "~" + lastname + "~" + startdate + "~" + orgid + "~" + dob + "~" + postcode + "~";
+        }
+
+        preparedStatement.close();
+
+        //System.out.println(q);
+
+        return result;
     }
 
     public List<Integer> getRows(String table) throws SQLException {
@@ -356,10 +483,8 @@ public class Repository {
         }
         preparedStatement.close();
 
-        /*
-        List<Integer> result = new ArrayList<>();
-        result.add(29059);
-        */
+        //List<Integer> result = new ArrayList<>();
+        //result.add(56229);
 
         return result;
     }
@@ -385,6 +510,11 @@ public class Repository {
         }
 
         preparedStatement.close();
+
+
+        // Testing
+        //List<Integer> result = new ArrayList<>();
+        //result.add(28844);
 
         return result;
     }
@@ -415,10 +545,15 @@ public class Repository {
 
     private void init(Properties props) throws SQLException {
 
+        try {
+        System.out.println("initializing properties");
+
         baseURL = props.getProperty("baseurl");
         outputFHIR = props.getProperty("outputFHIR");
 
         dataSource = new MysqlDataSource();
+
+        System.out.println(">> " + outputFHIR);
 
         dataSource.setURL(props.getProperty("url"));
         dataSource.setUser(props.getProperty("user"));
@@ -426,10 +561,13 @@ public class Repository {
 
         dataSource.setReadOnlyPropagatesToServer(true);
 
+        System.out.println(">> " + props.getProperty("url"));
+        System.out.println(">> " + props.getProperty("password"));
+
         connection = dataSource.getConnection();
 
         // connection.setReadOnly(true);
-
+        }catch(Exception e){ System.out.println(e);}
     }
 
 

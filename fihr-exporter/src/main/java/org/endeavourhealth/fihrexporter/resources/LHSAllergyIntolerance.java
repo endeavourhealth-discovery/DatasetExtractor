@@ -15,6 +15,8 @@ public class LHSAllergyIntolerance {
 
 	private String getAllergyResource(Integer patientid, String clineffdate, String allergyname, String snomedcode, String PatientRef)
 	{
+		//AllergyIntolerance allergy = null;
+
 		FhirContext ctx = FhirContext.forDstu3();
 
 		AllergyIntolerance allergy = new AllergyIntolerance();
@@ -47,7 +49,7 @@ public class LHSAllergyIntolerance {
 
 	public String Run(Repository repository, String baseURL)  throws SQLException
 	{
-		String encoded = "";
+		String encoded = ""; String result ="";
 		List<Integer> ids = repository.getRows("filteredallergies");
 
 		String url = baseURL + "AllergyIntolerance";
@@ -63,14 +65,16 @@ public class LHSAllergyIntolerance {
 
 			id = ids.get(j);
 
-			rs = repository.getAllergyIntoleranceRS(id);
+			//rs = repository.getAllergyIntoleranceRS(id);
+			result = repository.getAllergyIntoleranceRS(id);
 
-			if (rs.next())
+			if (result.length()>0)
 			{
-				nor = rs.getInt("patient_id");
-				clineffdate = rs.getString(3);
-				allergyname = rs.getString(4);
-				snomedcode = rs.getString(5);
+				String[] ss = result.split("\\~");
+				nor = Integer.parseInt(ss[0]);
+				clineffdate=ss[1];
+				allergyname=ss[2];
+				snomedcode=ss[3];
 
 				boolean prev = repository.PreviouslyPostedId(nor, "Patient");
 				if (prev==false) {

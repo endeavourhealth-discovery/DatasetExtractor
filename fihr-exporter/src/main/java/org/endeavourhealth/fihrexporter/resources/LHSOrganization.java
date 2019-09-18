@@ -33,8 +33,9 @@ public class LHSOrganization {
 
 	public String Run(Repository repository, Integer organization_id)  throws SQLException
 	{
-		ResultSet rs;
-		rs = repository.getOrganizationRS(organization_id);
+		ResultSet rs; String result;
+
+		result = repository.getOrganizationRS(organization_id);
 
 		String odscode = "";
 		String name = "";
@@ -44,11 +45,10 @@ public class LHSOrganization {
 
 		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Organization";
 
-		if (rs.next()) {
-			odscode = rs.getString("ods_code");
-			name = rs.getString("name");
-			postcode = rs.getString("postcode");
-			id = rs.getInt("id");
+		if (result.length()>0) {
+			String[] ss = result.split("\\~");
+
+			odscode=ss[0]; name=ss[1]; postcode=ss[2]; id=Integer.parseInt(ss[3]);
 			encoded = GetOrgResource(odscode, name, postcode);
 
 			LHShttpSend send = new LHShttpSend();

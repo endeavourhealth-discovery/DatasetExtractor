@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class LHSObservation {
@@ -47,11 +48,12 @@ public class LHSObservation {
 	private String getObervationResource(Repository repository, Integer patientid, String snomedcode, String orginalterm, String resultvalue, String clineffdate, String resultvalunits, String PatientRef, String ids, Integer parent)
 	{
 		String id = "";
-		Observation observation = null;
+
+		//Observation observation = null;
 
 		FhirContext ctx = FhirContext.forDstu3();
 
-		observation = new Observation();
+		Observation observation = new Observation();
 
 		observation.setStatus(Observation.ObservationStatus.FINAL);
 
@@ -60,7 +62,9 @@ public class LHSObservation {
 		// use parent code if necessary
 		if (parent !=0) {
 			try {
+
 				ObsRec= repository.getObservationRecord(Integer.toString(parent));
+
 				String[] ss = ObsRec.split("\\~");
 
 				noncoreconceptid = ss[0]; orginalterm = ss[1];
@@ -69,7 +73,7 @@ public class LHSObservation {
 				CodeableConcept code = addCodeableConcept(noncoreconceptid, orginalterm);
 				observation.setCode(code);
 
-				System.out.println(ObsRec);
+				//System.out.println(ObsRec);
 			} catch (Exception e) {
 			}
 		}
@@ -110,7 +114,9 @@ public class LHSObservation {
 			for (int i = 0; i < ss.length; i++) {
 				id = ss[i];
 				try {
+
 					ObsRec = repository.getObservationRecord(id);
+
 					if (ObsRec.length() == 0) {continue;}
 					String obs[] = ObsRec.split("\\~");
 					snomedcode = obs[0]; orginalterm = obs[1]; resultvalue = obs[2]; clineffdate = obs[3]; resultvalunits = obs[4];
@@ -128,7 +134,9 @@ public class LHSObservation {
 			return encoded;
 		}
 
-		if (resultvalue !=null) {
+        System.out.println(resultvalue.length());
+
+		if (resultvalue.length()>0) {
             Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits);
             occs.add(ocs);
             observation.setComponent(occs);
@@ -149,6 +157,13 @@ public class LHSObservation {
 		}
 	}
 
+	public void DT(String prefix) {
+        long timeNow = Calendar.getInstance().getTimeInMillis();
+        java.sql.Timestamp ts = new java.sql.Timestamp(timeNow);
+        String str = ts.toString();
+        System.out.println(prefix+" "+str);
+	}
+
 	public String Run(Repository repository, String baseURL) throws SQLException
 	{
 		String encoded = ""; Integer j = 0; Integer id = 0;
@@ -161,19 +176,27 @@ public class LHSObservation {
 
         String url = baseURL + "Observation";
 
-		ResultSet rs;
+		ResultSet rs; String result = "";
 
-		while (ids.size() > j) {
+        Runtime gfg = Runtime.getRuntime();
+        long memory1, memory2;
+        Integer integer[] = new Integer[1000];
+
+        while (ids.size() > j) {
 			id = ids.get(j);
 
-			if (id == 29059) {
+            System.out.println(id);
+
+			if (id == 114870) {
 				System.out.println("test");
 			}
-			rs = repository.getObservationRS(id);
 
-			if (rs.next()) {
-				nor = rs.getInt(2); snomedcode = rs.getString(3); orginalterm = rs.getString(4);
-				result_value = rs.getString(5); clineffdate = rs.getString(6); resultvalunits = rs.getString(7);
+            result = repository.getObservationRS(id);
+
+            if (result.length()>0) {
+
+                String[] ss = result.split("\\~");
+                nor = Integer.parseInt(ss[0]); snomedcode=ss[1]; orginalterm=ss[2]; result_value=ss[3]; clineffdate=ss[4]; resultvalunits=ss[5];
 
 				// obs id sent in this run?  might have already been sent in a bp?
 				t = repository.getLocation(id,"Tracker");
@@ -183,12 +206,12 @@ public class LHSObservation {
 					continue;
 				}
 
-				parent = rs.getInt("parent_observation_id");
-				parentids = "";
+				// parent = rs.getInt("parent_observation_id");
+                parent = Integer.parseInt(ss[6]); parentids = "";
 				if (parent != 0) {
 					// find the other event with the same parent id
 					parentids = repository.getIdsFromParent(parent);
-					System.out.println(ids);
+					//System.out.println(ids);
 				}
 
 				boolean prev = repository.PreviouslyPostedId(nor, "Patient");
@@ -210,6 +233,7 @@ public class LHSObservation {
 				// post
 				Integer httpResponse;
 				LHShttpSend send = new LHShttpSend();
+
 				httpResponse = send.Post(repository, id, "", url, encoded, "Observation", nor, typeid);
 
 				if (parentids.length() > 0) {ObsAudit(repository, parentids, nor);}

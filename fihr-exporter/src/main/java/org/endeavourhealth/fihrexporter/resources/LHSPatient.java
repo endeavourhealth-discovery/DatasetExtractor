@@ -18,7 +18,7 @@ import org.endeavourhealth.fihrexporter.resources.LHSOrganization;
 
 public class LHSPatient {
 
-	private static String getPatientResource(Integer PatId, String nhsNumber, String dob, String dod, String add1, String add2, String add3, String add4, String city, String startdate, String gender, String title, String firstname, String lastname, String telecom, String orglocation)
+	private static String getPatientResource(Integer PatId, String nhsNumber, String dob, String dod, String add1, String add2, String add3, String add4, String city, String startdate, String gender, String title, String firstname, String lastname, String telecom, String orglocation, String postcode)
 	{
 		FhirContext ctx = FhirContext.forDstu3();
 
@@ -58,13 +58,13 @@ public class LHSPatient {
 				.addGiven(firstname)
 				.setUse(HumanName.NameUse.OFFICIAL);
 
-		// contact_type~contact_use~contact_value|
-		if (telecom !="") {
+		// contact_type~contact_use`contact_value|
+		if (telecom.length()>0) {
 			String[] ss = telecom.split("\\|");
 			String z = "";
 			for (int i = 0; i < ss.length; i++) {
 				z = ss[i];
-				String[] contact = z.split("\\~");
+				String[] contact = z.split("\\`");
 				ContactPoint t = new ContactPoint();
 
 				t.setValue(contact[0]);
@@ -95,7 +95,8 @@ public class LHSPatient {
 				.addLine(add2)
 				.addLine(add3)
 				.addLine(add4)
-				.addLine(city);
+				.setPostalCode(postcode)
+				.setCity(city);
 
 		Extension registration = patient.addExtension();
 		registration.setUrl("https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-RegistrationDetails-1");
@@ -115,9 +116,10 @@ public class LHSPatient {
 	}
 
 	public void RunSinglePatient(Repository repository, Integer nor, String baseURL)  throws SQLException {
-		ResultSet rs;
+		ResultSet rs; String result;
 
-		rs = repository.getPatientRS(nor);
+		//rs = repository.getPatientRS(nor);
+		result = repository.getPatientRS(nor);
 
 		String url = baseURL + "Patient";
 
@@ -129,12 +131,16 @@ public class LHSPatient {
 		String contacttype = ""; String contactuse = ""; String contactvalue = "";
 		String firstname =""; String lastname = ""; String telecom = ""; String query = "";
 		String odscode = ""; String orgname = ""; String orgpostcode = ""; Integer orgid = 0;
-		Integer typeid = 2; String encoded = "";
+		Integer typeid = 2; String encoded = ""; String postcode = "";
 
 		boolean prev; String orglocation;
 
-		if (rs.next()) {
-			orgid = rs.getInt("organization_id");
+		if (result.length()>0) {
+
+			String[] ss = result.split("\\~", -1);
+
+			//orgid = rs.getInt("organization_id");
+			orgid = Integer.parseInt(ss[19]);
 
 			// has the organization been sent for this patient?
 			prev = repository.PreviouslyPostedId(orgid, "Organization");
@@ -151,31 +157,12 @@ public class LHSPatient {
 				return;
 			}
 
-			nhsno = rs.getString(2);
-			dob = rs.getString("date_of_birth");
-			odscode = rs.getString("ods_code");
-			orgname = rs.getString("org_name");
-			orgpostcode = rs.getString("org_postcode");
+			nhsno=ss[0]; dob=ss[20]; odscode=ss[1]; orgname=ss[2]; orgpostcode=ss[3]; telecom=ss[4];
+			dod=ss[5]; add1=ss[6]; add2=ss[7]; add3=ss[8]; add4=ss[9]; city=ss[10]; gender=ss[11];
+			contacttype=ss[12]; contactuse=ss[13]; contactvalue=ss[14]; title=ss[15]; firstname=ss[16];
+			lastname=ss[17]; startdate=ss[18]; postcode=ss[21];
 
-			telecom = repository.GetTelecom(nor);
-
-			dod = rs.getString("date_of_death");
-			add1 = rs.getString(9);
-			add2 = rs.getString(10);
-			add3 = rs.getString(11);
-			add4 = rs.getString(12);
-			city = rs.getString(13);
-			gender = rs.getString("gender");
-			contacttype = rs.getString("contact_type");
-			contactuse = rs.getString("contact_use");
-			contactvalue = rs.getString("contact_value");
-			title = rs.getString("title");
-			firstname = rs.getString("first_names");
-			lastname = rs.getString("last_name");
-
-			startdate = rs.getString(11); // date added to the cohort?
-
-			encoded = getPatientResource(nor, nhsno, dob, dod, add1, add2, add3, add4, city, startdate, gender, title, firstname, lastname, telecom, orglocation);
+			encoded = getPatientResource(nor, nhsno, dob, dod, add1, add2, add3, add4, city, startdate, gender, title, firstname, lastname, telecom, orglocation, postcode);
 
 			LHShttpSend send = new LHShttpSend();
 			Integer httpResponse = send.Post(repository, nor, "", url, encoded, "Patient", nor, typeid);
