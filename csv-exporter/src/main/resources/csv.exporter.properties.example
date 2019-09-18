@@ -1,16 +1,18 @@
 # Database connection properties
 
-url=jdbc:mysql://localhost/blah
-user=blah
-password=blah
+url=jdbc:mysql://localhost:3306/data_extracts
+user=root
+password=1qaz1qaz
 
 #Database table properties
 tablename=test
 orderBy=a
-outputFilepath=/home/git/endeavour/DatasetExtractor/src/main/etc/output
+outputFilepath=d:\\temp\\output\\
+dbTableName=test
+csvFilename=bob.csv
 
 # CSV Output properties
 
-noOfRowsInEachOutputFile=50000
+noOfRowsInEachOutputFile=1
 noOfRowsInEachDatabaseFetch=10000
 
