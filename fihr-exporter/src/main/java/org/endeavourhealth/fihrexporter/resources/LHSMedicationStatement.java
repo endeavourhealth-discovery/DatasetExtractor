@@ -68,7 +68,8 @@ public class LHSMedicationStatement {
 		String encoded = "";
 		Integer id = 0; Integer j = 0;
 
-		List<Integer> ids = repository.getRows("filteredmedications");
+		//List<Integer> ids = repository.getRows("filteredmedications");
+        List<Integer> ids = repository.getRows("filteredMedicationsDelta");
 
 		ResultSet rs; String result;
 

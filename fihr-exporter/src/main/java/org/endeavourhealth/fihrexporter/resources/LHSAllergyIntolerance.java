@@ -50,7 +50,9 @@ public class LHSAllergyIntolerance {
 	public String Run(Repository repository, String baseURL)  throws SQLException
 	{
 		String encoded = ""; String result ="";
-		List<Integer> ids = repository.getRows("filteredallergies");
+
+		//List<Integer> ids = repository.getRows("filteredallergies");
+        List<Integer> ids = repository.getRows("filteredAllergiesDelta");
 
 		String url = baseURL + "AllergyIntolerance";
 

@@ -167,7 +167,9 @@ public class LHSObservation {
 	public String Run(Repository repository, String baseURL) throws SQLException
 	{
 		String encoded = ""; Integer j = 0; Integer id = 0;
-		List<Integer> ids = repository.getRows("filteredobservations");
+
+		//List<Integer> ids = repository.getRows("filteredobservations");
+        List<Integer> ids = repository.getRows("filteredObservationsDelta");
 
 		Integer nor =0; // patientid
 		String snomedcode =""; String orginalterm=""; String result_value="";

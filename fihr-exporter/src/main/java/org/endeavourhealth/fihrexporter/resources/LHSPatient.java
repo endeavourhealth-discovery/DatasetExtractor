@@ -118,7 +118,6 @@ public class LHSPatient {
 	public void RunSinglePatient(Repository repository, Integer nor, String baseURL)  throws SQLException {
 		ResultSet rs; String result;
 
-		//rs = repository.getPatientRS(nor);
 		result = repository.getPatientRS(nor);
 
 		String url = baseURL + "Patient";

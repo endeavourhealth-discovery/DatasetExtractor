@@ -491,7 +491,8 @@ public class Repository {
     }
     public List<Integer> getPatientRows() throws SQLException {
 
-        String preparedSql = "select * from data_extracts.cohort";
+        // String preparedSql = "select * from data_extracts.cohort";
+        String preparedSql = "select * from data_extracts.filteredPatientsDelta";
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
 
