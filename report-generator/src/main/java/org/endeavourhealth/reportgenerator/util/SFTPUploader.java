@@ -42,8 +42,6 @@ public class SFTPUploader implements AutoCloseable {
 
         log.debug("Opening sftp channel {} {}", sftpUpload.getHostname(), sftpUpload.getUsername());
 
-//        jSch.setKnownHosts("/home/hal/known_hosts");
-
         session = jSch.getSession(sftpUpload.getUsername(), sftpUpload.getHostname(), sftpUpload.getPort());
 
         session.setConfig("StrictHostKeyChecking", "no");
