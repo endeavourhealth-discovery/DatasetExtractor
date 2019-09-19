@@ -22,11 +22,11 @@ public class DeltaExecutor implements AutoCloseable {
 
     public void execute(Delta delta) {
 
-        for(DeltaTable dt : delta.getTables()) {
-            log.info("Executing delta {}", dt);
-            repository.call( dt );
-        }
+      log.info("Executing delta {}", delta);
 
+      for(DeltaTable dt : delta.getTables()) {
+        repository.call( dt );
+      }
     }
 
     public void close() throws SQLException {
