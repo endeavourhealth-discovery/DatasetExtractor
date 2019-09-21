@@ -153,10 +153,17 @@ public class JpaRepository {
         entityManagerCore.getTransaction().begin();
         entityManagerCompass.getTransaction().begin();
 
-        Query query = entityManagerCore.createNativeQuery("select distinct s.pseudo_id," +
-                "DATE_SUB(p.date_of_birth, INTERVAL DAYOFMONTH(p.date_of_birth) - 1 DAY)," +
+        Query query = entityManagerCore.createNativeQuery("select s.pseudo_id," +
+                "p.nhs_number," +
+                "p.address_line_1," +
+                "p.address_line_2," +
+                "p.address_line_3," +
+                "p.city," +
+                "p.postcode," +
                 "p.gender," +
-                "YEAR(p.date_of_death)" +
+                "p.forenames," +
+                "p.surname," +
+                "p.date_of_birth" +
                 " from eds.patient_search p " +
                 " join subscriber_transform_ceg_enterprise.pseudo_id_map s on p.patient_id = s.patient_id" +
                 " where s.pseudo_id in (:pseudoIds) and p.registered_practice_ods_code is not null and p.nhs_number is not null");
@@ -167,23 +174,36 @@ public class JpaRepository {
 
         log.debug("Have got {} rows", rows.size());
 
-        Query update = entityManagerCompass.createNativeQuery("update cohort c set " +
-                "c.DateOfBirth = ?," +
-                "c.Gender = ?," +
-                "c.YearOfDeath = ?" +
-                " where c.pseudo_id_from_compass = ?");
+        Query update = entityManagerCompass.createNativeQuery("update dataset_eye d set " +
+                "d.NHSNumber = ?," +
+                "d.AddressLine1 = ?," +
+                "d.AddressLine2 = ?," +
+                "d.AddressLine3 = ?," +
+                "d.AddressLine4 = ?," +
+                "d.Postcode = ?," +
+                "d.Gender = ?," +
+                "d.FirstName = ?," +
+                "d.LastName = ?," +
+                "d.BirthDate = ? where d.pseudo_id = ?");
 
-        for (Object[] row : rows) {
+        for(Object[] row : rows) {
 
             update.setParameter(1, row[1]);
             update.setParameter(2, row[2]);
             update.setParameter(3, row[3]);
+            update.setParameter(4, row[4]);
+            update.setParameter(5, row[5]);
+            update.setParameter(6, row[6]);
+            update.setParameter(7, row[7]);
+            update.setParameter(8, row[8]);
+            update.setParameter(9, row[9]);
+            update.setParameter(10, row[10]);
 
-            update.setParameter(4, row[0]); //pseudo_id
+            update.setParameter(11, row[0]); //pseudo_id
 
             update.executeUpdate();
 
-            log.trace("Updating {}", row);
+            log.trace("Updating {}", row[0]);
         }
 
         entityManagerCore.getTransaction().commit();
