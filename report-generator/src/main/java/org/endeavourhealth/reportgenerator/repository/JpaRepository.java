@@ -115,7 +115,7 @@ public class JpaRepository {
     public List<String> getPseudoIdsForEye(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
-        String sql = "select distinct pseudo_id from cohort limit " + offset + ", 3000";
+        String sql = "select distinct group_by from cohort limit " + offset + ", 3000";
         Query query = entityManager.createNativeQuery(sql);
 
         log.debug("Sql {}", sql);
