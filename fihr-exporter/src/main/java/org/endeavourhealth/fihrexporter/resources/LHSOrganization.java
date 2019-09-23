@@ -31,7 +31,7 @@ public class LHSOrganization {
 		return encoded;
 	}
 
-	public String Run(Repository repository, Integer organization_id)  throws SQLException
+	public String Run(Repository repository, Integer organization_id, String baseURL)  throws SQLException
 	{
 		ResultSet rs; String result;
 
@@ -43,7 +43,8 @@ public class LHSOrganization {
 		Integer id = 0;
 		String encoded = "";
 
-		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Organization";
+		//String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Organization";
+		String url = baseURL+"Organization";
 
 		if (result.length()>0) {
 			String[] ss = result.split("\\~");

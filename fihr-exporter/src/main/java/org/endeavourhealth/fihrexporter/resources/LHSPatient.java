@@ -134,6 +134,8 @@ public class LHSPatient {
 
 		boolean prev; String orglocation;
 
+        // System.out.println(result);
+
 		if (result.length()>0) {
 
 			String[] ss = result.split("\\~", -1);
@@ -146,7 +148,7 @@ public class LHSPatient {
 
 			if (prev == false) {
 				LHSOrganization organization = new LHSOrganization();
-				organization.Run(repository, orgid);
+				organization.Run(repository, orgid, baseURL);
 			}
 
 			// get the http location of the organization_id

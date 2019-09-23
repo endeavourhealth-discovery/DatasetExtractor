@@ -8,25 +8,37 @@ import java.sql.SQLException;
 
 public class LHSTest {
 	public void Run(Repository repository) throws SQLException {
-		ResultSet rs;
+		String result="";
 
-		Integer nor =0; // patientid
-		String snomedcode =""; String orginalterm=""; String result_value="";
-		String clineffdate = ""; String resultvalunits = ""; String location="";
-		Integer typeid = 11; String t = ""; Integer parent =0; String parentids = "";
+		Integer nor = 0;
+		String snomedcode = ""; String drugname = "";
 
-		/*
-		rs = repository.getObservationRS(28827);
-		if (rs.next()) {
-			nor = rs.getInt(2);
-			snomedcode = rs.getString(3);
-			orginalterm = rs.getString(4);
-			result_value = rs.getString(5);
-			clineffdate = rs.getString(6);
-			resultvalunits = rs.getString(7);
+		String dose = ""; String quantityvalue; String quantityunit = "";
+		String clinicaleffdate = ""; String location = ""; Integer typeid = 10;
+		Integer id = 0;
 
-			parent = rs.getInt("parent_observation_id");
+		result = repository.getMedicationStatementRS(14189472);
+
+		if (result.length()>0) {
+
+			System.out.println(result);
+
+			String[] ss = result.split("\\`");
+			nor = Integer.parseInt(ss[0]);
+			snomedcode = ss[1];
+			drugname = ss[2];
+
+			boolean prev = repository.PreviouslyPostedId(nor, "Patient");
+
+			prev = repository.PreviouslyPostedCode(snomedcode,"Medication");
+
+			location = repository.getLocation(nor, "Patient");
+
+			String rxref = repository.GetMedicationReference(snomedcode);
+
+			dose=ss[3]; quantityvalue=ss[4]; quantityunit=ss[5]; clinicaleffdate=ss[6]; id= Integer.parseInt(ss[7]);
+
 		}
-		 */
+
 	}
 }

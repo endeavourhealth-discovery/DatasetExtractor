@@ -3,10 +3,7 @@ package org.endeavourhealth.fihrexporter.repository;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class Repository {
 
@@ -17,6 +14,13 @@ public class Repository {
     private String baseURL;
 
     public String outputFHIR;
+    public String dbschema;
+    public String clientid;
+    public String clientsecret;
+    public String scope;
+    public String granttype;
+    public String tokenurl;
+    public String token;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -118,8 +122,6 @@ public class Repository {
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         preparedStmt.execute();
 
-        //System.out.println(q);
-
         preparedStmt.close();
 
         return true;
@@ -160,7 +162,8 @@ public class Repository {
     public String getOrganizationRS(Integer organization_id) throws SQLException {
 
         String result = "";
-        String q = "SELECT * FROM subscriber_pi.organization where id = '" + organization_id + "'";
+        //String q = "SELECT * FROM subscriber_pi.organization where id = '" + organization_id + "'";
+        String q = "SELECT * FROM "+dbschema+".organization where id = '" + organization_id + "'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
 
@@ -184,9 +187,13 @@ public class Repository {
     public String GetTelecom(Integer patientid) throws SQLException {
         String telecom ="";
 
+        //String q = "select pc.value, cctype.name as contact_type, ccuse.name as contact_use ";
+        //q = q + "from subscriber_pi.patient_contact pc " + "left outer join subscriber_pi.concept ccuse on ccuse.dbid = pc.use_concept_id "
+        //        + "left outer join subscriber_pi.concept cctype on cctype.dbid = pc.type_concept_id where pc.patient_id = '"+patientid.toString()+"'";
+
         String q = "select pc.value, cctype.name as contact_type, ccuse.name as contact_use ";
-        q = q + "from subscriber_pi.patient_contact pc " + "left outer join subscriber_pi.concept ccuse on ccuse.dbid = pc.use_concept_id "
-                + "left outer join subscriber_pi.concept cctype on cctype.dbid = pc.type_concept_id where pc.patient_id = '"+patientid.toString()+"'";
+        q = q + "from "+dbschema+".patient_contact pc " + "left outer join "+dbschema+".concept ccuse on ccuse.dbid = pc.use_concept_id "
+                + "left outer join "+dbschema+".concept cctype on cctype.dbid = pc.type_concept_id where pc.patient_id = '"+patientid.toString()+"'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
 
@@ -206,12 +213,27 @@ public class Repository {
     public String getMedicationStatementRS(Integer record_id) throws SQLException {
         String q = ""; String result = "";
 
+        /*
         q = "select " + "ms.id," + "ms.patient_id," + "ms.dose," + "ms.quantity_value," + "ms.quantity_unit," + "ms.clinical_effective_date,"
                 + "c.name as medication_name," + "c.code as snomed_code, c.name as drugname "
                 + "from subscriber_pi.medication_statement ms "
                 + "join subscriber_pi.concept_map cm on cm.legacy = ms.non_core_concept_id "
                 + "join subscriber_pi.concept c on c.dbid = cm.core "
                 + "where ms.id = '" + record_id + "'";
+         */
+
+        q = "select " + "ms.id," + "ms.patient_id," + "ms.dose," + "ms.quantity_value," + "ms.quantity_unit," + "ms.clinical_effective_date,"
+                + "c.name as medication_name," + "c.code as snomed_code, c.name as drugname "
+                + "from "+dbschema+".medication_statement ms "
+                // + "join "+dbschema+".concept_map cm on cm.legacy = ms.non_core_concept_id "
+                // + "join "+dbschema+".concept c on c.dbid = cm.core "
+                + "join "+dbschema+".concept c on c.dbid = ms.non_core_concept_id "
+                + "where ms.id = '" + record_id + "'";
+
+        //System.out.println(q);
+        //Scanner scan = new Scanner(System.in);
+        //System.out.print("Press any key to continue . . . ");
+        //scan.nextLine();
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
 
@@ -229,7 +251,8 @@ public class Repository {
             if (rs.getString("quantity_value")==null) {quantityvalue="";}
             if (rs.getString("quantity_unit")==null) {quantityunit="";}
 
-            result = nor+"~"+snomedcode+"~"+drugname+"~"+dose+"~"+quantityvalue+"~"+quantityunit+"~"+clinicaleffdate+"~"+id;
+            // dose contained a ~!
+            result = nor+"`"+snomedcode+"`"+drugname+"`"+dose+"`"+quantityvalue+"`"+quantityunit+"`"+clinicaleffdate+"`"+id;
         }
         preparedStatement.close();
 
@@ -243,6 +266,7 @@ public class Repository {
 
         Integer noncoreconceptid = 0;
 
+        /*
         String q = "select ";
         q = q + "o.id,"
                 + "o.patient_id,"
@@ -258,6 +282,23 @@ public class Repository {
                 + "join subscriber_pi.concept c on c.dbid = cm.core "
                 + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
                 + "where o.id = '"+id+"'";
+         */
+
+        String q = "select ";
+        q = q + "o.id,"
+                + "o.patient_id,"
+                + "c.code as snomed_code,"
+                + "c.name as original_term,"
+                + "o.result_value,"
+                + "o.clinical_effective_date,"
+                + "o.parent_observation_id,"
+                + "o.result_value_units,"
+                + "o.non_core_concept_id "
+                + "from "+dbschema+".observation o "
+                + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id "
+                + "join "+dbschema+".concept c on c.dbid = cm.core "
+                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
+                + "where o.id = '"+id+"'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -269,8 +310,11 @@ public class Repository {
             obsrec = snomedcode + "~" + orginalterm + "~" + result_value + "~" + clineffdate + "~" + resultvalunits + "~" + noncoreconceptid;
         }
 
+        preparedStatement.close();
+
         if (obsrec.length()==0) {
-            q = "select * from subscriber_pi.observation where id = "+id;
+            //q = "select * from subscriber_pi.observation where id = "+id;
+            q = "select * from "+dbschema+".observation where id = "+id;
             preparedStatement = connection.prepareStatement(q);
             rs = preparedStatement.executeQuery();
             if (rs.next()) { ;
@@ -278,10 +322,10 @@ public class Repository {
                 noncoreconceptid = rs.getInt("non_core_concept_id");
                 obsrec = "~~"+result_value+"~"+clineffdate+"~"+resultvalunits+"~"+noncoreconceptid;
             }
+            preparedStatement.close();
         }
 
-        //System.out.println(q);
-        preparedStatement.close();
+        //preparedStatement.close();
 
         return obsrec;
     }
@@ -289,7 +333,8 @@ public class Repository {
     public String getIdsFromParent(Integer parentid) throws SQLException {
         String ids = "";
 
-        String q = "SELECT id FROM subscriber_pi.observation WHERE parent_observation_id="+parentid;
+        //String q = "SELECT id FROM subscriber_pi.observation WHERE parent_observation_id="+parentid;
+        String q = "SELECT id FROM "+dbschema+".observation WHERE parent_observation_id="+parentid;
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
 
@@ -307,6 +352,7 @@ public class Repository {
     public String getObservationRS(Integer record_id) throws SQLException {
         String result = "";
 
+        /*
         String q = "select ";
         q = q + "o.id,"
                 + "o.patient_id,"
@@ -319,6 +365,22 @@ public class Repository {
                 + "from subscriber_pi.observation o "
                 + "join subscriber_pi.concept_map cm on cm.legacy = o.non_core_concept_id "
                 + "join subscriber_pi.concept c on c.dbid = cm.core "
+                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
+                + "where scs.codeSetId = 2 and o.id = '"+record_id+"'";
+         */
+
+        String q = "select ";
+        q = q + "o.id,"
+                + "o.patient_id,"
+                + "c.code as snomed_code,"
+                + "c.name as original_term,"
+                + "o.result_value,"
+                + "o.clinical_effective_date,"
+                + "o.parent_observation_id,"
+                + "o.result_value_units "
+                + "from "+dbschema+".observation o "
+                + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id "
+                + "join "+dbschema+".concept c on c.dbid = cm.core "
                 + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
                 + "where scs.codeSetId = 2 and o.id = '"+record_id+"'";
 
@@ -344,6 +406,7 @@ public class Repository {
     public String getAllergyIntoleranceRS(Integer record_id) throws SQLException {
         String q = "select "; String result = "";
 
+        /*
         q =q + "ai.id,"
                 + "ai.patient_id,"
                 + "ai.clinical_effective_date,"
@@ -352,6 +415,18 @@ public class Repository {
                 + "from subscriber_pi.allergy_intolerance ai "
                 + "join subscriber_pi.concept_map cm on cm.legacy = ai.non_core_concept_id "
                 + "join subscriber_pi.concept c on c.dbid = cm.core "
+                + "where ai.id = '"+record_id+"'";
+         */
+
+        q =q + "ai.id,"
+                + "ai.patient_id,"
+                + "ai.clinical_effective_date,"
+                + "c.name as allergy_name,"
+                + "c.code as snomed_code "
+                + "from "+dbschema+".allergy_intolerance ai "
+                //+ "join "+dbschema+".concept_map cm on cm.legacy = ai.non_core_concept_id "
+                //+ "join "+dbschema+".concept c on c.dbid = cm.core "
+                + "join "+dbschema+".concept c on c.dbid = ai.non_core_concept_id "
                 + "where ai.id = '"+record_id+"'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -368,6 +443,11 @@ public class Repository {
 
         preparedStatement.close();
 
+        if (result.length()==0) {
+            System.out.println("?"+record_id);
+            System.out.println(q);
+        }
+
         return result;
     }
 
@@ -375,6 +455,7 @@ public class Repository {
 
         String q = "select distinct ";
 
+        /*
         q = q + "p.id as patient_id,\r\n"
                 + "p.nhs_number,\r\n"
                 + "p.title,\r\n"
@@ -408,6 +489,43 @@ public class Repository {
                 + "join subscriber_pi.observation o on o.patient_id = p.id \r\n"
                 + "join subscriber_pi.concept_map cm on cm.legacy = o.non_core_concept_id \r\n"
                 + "join subscriber_pi.concept c on c.dbid = cm.core \r\n"
+                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code \r\n"
+                + "where scs.codeSetId = 1 and p.id ='" + patient_id.toString() + "'";
+         */
+
+        q = q + "p.id as patient_id,\r\n"
+                + "p.nhs_number,\r\n"
+                + "p.title,\r\n"
+                + "p.first_names,\r\n"
+                + "p.last_name,\r\n"
+                + "gc.name as gender,\r\n"
+                + "p.date_of_birth,\r\n"
+                + "p.date_of_death,\r\n"
+                + "pa.address_line_1,\r\n"
+                + "pa.address_line_2,\r\n"
+                + "pa.address_line_3,\r\n"
+                + "pa.address_line_4,\r\n"
+                + "pa.postcode,\r\n"
+                + "pa.city,\r\n"
+                + "pa.start_date,\r\n"
+                + "pa.end_date,\r\n"
+                + "cctype.name as contact_type,\r\n"
+                + "ccuse.name as contact_use,\r\n"
+                + "pc.value as contact_value,\r\n"
+                + "p.organization_id,\r\n"
+                + "org.ods_code,\r\n"
+                + "org.name as org_name,\r\n"
+                + "org.postcode as org_postcode\r\n "
+                + "from "+dbschema+".patient p \r\n"
+                + "left outer join "+dbschema+".patient_address pa on pa.id = p.current_address_id \r\n"
+                + "left outer join "+dbschema+".patient_contact pc on pc.patient_id = p.id \r\n"
+                + "left outer join "+dbschema+".concept ccuse on ccuse.dbid = pc.use_concept_id \r\n"
+                + "left outer join "+dbschema+".concept cctype on cctype.dbid = pc.type_concept_id \r\n"
+                + "left outer join "+dbschema+".concept gc on gc.dbid = p.gender_concept_id \r\n"
+                + "left outer join "+dbschema+".organization org on org.id = p.organization_id \r\n"
+                + "join "+dbschema+".observation o on o.patient_id = p.id \r\n"
+                + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id \r\n"
+                + "join "+dbschema+".concept c on c.dbid = cm.core \r\n"
                 + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code \r\n"
                 + "where scs.codeSetId = 1 and p.id ='" + patient_id.toString() + "'";
 
@@ -464,13 +582,13 @@ public class Repository {
 
         preparedStatement.close();
 
-        //System.out.println(q);
-
         return result;
     }
 
     public List<Integer> getRows(String table) throws SQLException {
         String preparedSql = "select * from " + table;
+
+        // preparedSql = preparedSql + " where id>14189471 order by id asc";
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
         ResultSet rs = preparedStatement.executeQuery();
@@ -479,6 +597,7 @@ public class Repository {
 
         while (rs.next()) {
             id = rs.getInt("id");
+
             List<Integer> row = new ArrayList<>();
             result.add(id);
         }
@@ -504,7 +623,8 @@ public class Repository {
 
         while (rs.next()) {
 
-            patient_id = rs.getInt("patient_id");
+            //patient_id = rs.getInt("patient_id");
+            patient_id = rs.getInt("id");
 
             List<Integer> row = new ArrayList<>();
 
@@ -552,6 +672,13 @@ public class Repository {
 
         baseURL = props.getProperty("baseurl");
         outputFHIR = props.getProperty("outputFHIR");
+        dbschema = props.getProperty("dbschema");
+        clientid = props.getProperty("clientid");
+        clientsecret = props.getProperty("clientsecret");
+        scope = props.getProperty("scope");
+        granttype = props.getProperty("granttype");
+        tokenurl = props.getProperty("tokenurl");
+        token = props.getProperty("token");
 
         dataSource = new MysqlDataSource();
 
@@ -562,9 +689,6 @@ public class Repository {
         dataSource.setPassword(props.getProperty("password"));
 
         dataSource.setReadOnlyPropagatesToServer(true);
-
-        System.out.println(">> " + props.getProperty("url"));
-        System.out.println(">> " + props.getProperty("password"));
 
         connection = dataSource.getConnection();
 

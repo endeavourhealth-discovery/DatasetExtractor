@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 public class LHSMedicationStatement {
 	private Dosage addDosage(String dosagetext, String qtyvalue, String qtyunit)
@@ -43,7 +44,15 @@ public class LHSMedicationStatement {
 		// this needs to be a switch statement using ?
 		rxstatement.setStatus(MedicationStatement.MedicationStatementStatus.ACTIVE);
 
-		rxstatement.setSubject(new Reference("/api/Patient/33"));
+		//rxstatement.setSubject(new Reference("/api/Patient/33"));
+
+		Period period = new Period();
+		try {
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			period.setStart(format.parse(clinicaleffdate));
+		} catch (Exception e) {
+		}
+		rxstatement.setEffective(period);
 
 		rxstatement.setTaken(MedicationStatement.MedicationStatementTaken.UNK);
 
@@ -66,7 +75,7 @@ public class LHSMedicationStatement {
 	public String Run(Repository repository, String baseURL)  throws SQLException
 	{
 		String encoded = "";
-		Integer id = 0; Integer j = 0;
+		Integer id = 0;
 
 		//List<Integer> ids = repository.getRows("filteredmedications");
         List<Integer> ids = repository.getRows("filteredMedicationsDelta");
@@ -81,15 +90,18 @@ public class LHSMedicationStatement {
 
 		String url = baseURL + "MedicationStatement";
 
+		Integer j = 0;
+
 		while (ids.size() > j) {
 
 			id = ids.get(j);
+			System.out.println(id);
 
 			result = repository.getMedicationStatementRS(id);
 
 			if (result.length()>0) {
 
-				String[] ss = result.split("\\~");
+				String[] ss = result.split("\\`");
 				nor = Integer.parseInt(ss[0]);
 				snomedcode = ss[1];
 				drugname = ss[2];
