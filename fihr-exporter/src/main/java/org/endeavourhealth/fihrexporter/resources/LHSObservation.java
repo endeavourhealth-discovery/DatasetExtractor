@@ -237,6 +237,7 @@ public class LHSObservation {
 				LHShttpSend send = new LHShttpSend();
 
 				httpResponse = send.Post(repository, id, "", url, encoded, "Observation", nor, typeid);
+				if (httpResponse == 401) {return "401, aborting";}
 
 				if (parentids.length() > 0) {ObsAudit(repository, parentids, nor);}
 

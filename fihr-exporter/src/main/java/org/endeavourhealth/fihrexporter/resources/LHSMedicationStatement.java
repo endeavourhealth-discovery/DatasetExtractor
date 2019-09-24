@@ -141,6 +141,7 @@ public class LHSMedicationStatement {
 
 				LHShttpSend send = new LHShttpSend();
 				Integer httpResponse = send.Post(repository, id, "", url, encoded, "MedicationStatement", nor, typeid);
+                if (httpResponse == 401) {return "401, aborting";}
 			}
 
 			j++;

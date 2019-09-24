@@ -97,6 +97,7 @@ public class LHShttpSend {
 			int responseCode = con.getResponseCode();
 
 			System.out.println("Response Code : " + responseCode);
+			if (responseCode == 401) {return 401;}
 
 			BufferedReader in = new BufferedReader(
 					new InputStreamReader(con.getInputStream()));
@@ -187,7 +188,8 @@ public class LHShttpSend {
 
 				location = resource+"-"+anId+strid+".json";
 
-				if (FileExists==false) repository.Audit(anId, strid, resource, 123, location, encoded, patientid, typeid);
+				//if (FileExists==false) repository.Audit(anId, strid, resource, 123, location, encoded, patientid, typeid);
+				repository.Audit(anId, strid, resource, 123, location, encoded, patientid, typeid);
 
 				return 0;
 			}
@@ -212,6 +214,11 @@ public class LHShttpSend {
 			}
 			if (url.contains("https:")) {
 				responseCode = SendTLS(url,method, encoded, repository.token);
+				// assume 401 is token expiration (try once again)
+				if (responseCode == 401) {
+					repository.token = GetToken(repository);
+					responseCode = SendTLS(url,method, encoded, repository.token);
+				}
 			}
 
 			if (method == "PUT") {repository.UpdateAudit(anId, strid, encoded, responseCode);}

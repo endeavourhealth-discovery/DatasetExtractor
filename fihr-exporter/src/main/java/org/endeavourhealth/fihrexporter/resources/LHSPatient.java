@@ -167,6 +167,10 @@ public class LHSPatient {
 
 			LHShttpSend send = new LHShttpSend();
 			Integer httpResponse = send.Post(repository, nor, "", url, encoded, "Patient", nor, typeid);
+            if (httpResponse == 401) {
+                System.out.println("401, aborting");
+                return;
+            }
 		}
 	}
 

@@ -96,6 +96,7 @@ public class LHSAllergyIntolerance {
 
 				LHShttpSend send = new LHShttpSend();
 				Integer httpResponse = send.Post(repository,id, "", url, encoded, "AllergyIntolerance", nor, typeid);
+				if (httpResponse == 401) {return "401, aborting";}
 			}
 
 			j++;
