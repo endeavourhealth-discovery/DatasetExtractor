@@ -112,6 +112,17 @@ public class JpaRepository {
         if(entityManagerFactorySecondary != null) entityManagerFactorySecondary.close();
     }
 
+    public List<String> getPseudoIdsForEye(Integer offset) {
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        String sql = "select distinct pseudo_id from cohort limit " + offset + ", 3000";
+        Query query = entityManager.createNativeQuery(sql);
+
+        log.debug("Sql {}", sql);
+
+        return query.getResultList();
+    }
+
     public List<String> getPseudoIdsForELGH(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
@@ -132,6 +143,76 @@ public class JpaRepository {
         log.trace("Sql {}", sql);
 
         return query.getResultList();
+    }
+
+    public List<Object[]> deanonymiseEYE(List<String> pseudoIds) {
+
+        EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
+
+        entityManagerCore.getTransaction().begin();
+        entityManagerCompass.getTransaction().begin();
+
+        Query query = entityManagerCore.createNativeQuery("select s.pseudo_id," +
+                "p.nhs_number," +
+                "p.address_line_1," +
+                "p.address_line_2," +
+                "p.address_line_3," +
+                "p.city," +
+                "p.postcode," +
+                "p.gender," +
+                "p.forenames," +
+                "p.surname," +
+                "p.date_of_birth" +
+                " from eds.patient_search p " +
+                " join subscriber_transform_ceg_enterprise.pseudo_id_map s on p.patient_id = s.patient_id" +
+                " where s.pseudo_id in (:pseudoIds) and p.registered_practice_ods_code is not null and p.nhs_number is not null");
+
+        query.setParameter("pseudoIds", pseudoIds);
+
+        List<Object[]> rows = query.getResultList();
+
+        log.debug("Have got {} rows", rows.size());
+
+        Query update = entityManagerCompass.createNativeQuery("update dataset_eye d set " +
+                "d.NHSNumber = ?," +
+                "d.AddressLine1 = ?," +
+                "d.AddressLine2 = ?," +
+                "d.AddressLine3 = ?," +
+                "d.AddressLine4 = ?," +
+                "d.Postcode = ?," +
+                "d.Gender = ?," +
+                "d.FirstName = ?," +
+                "d.LastName = ?," +
+                "d.BirthDate = ? where d.pseudo_id = ?");
+
+        for(Object[] row : rows) {
+
+            update.setParameter(1, row[1]);
+            update.setParameter(2, row[2]);
+            update.setParameter(3, row[3]);
+            update.setParameter(4, row[4]);
+            update.setParameter(5, row[5]);
+            update.setParameter(6, row[6]);
+            update.setParameter(7, row[7]);
+            update.setParameter(8, row[8]);
+            update.setParameter(9, row[9]);
+            update.setParameter(10, row[10]);
+
+            update.setParameter(11, row[0]); //pseudo_id
+
+            update.executeUpdate();
+
+            log.trace("Updating {}", row[0]);
+        }
+
+        entityManagerCore.getTransaction().commit();
+        entityManagerCore.close();
+
+        entityManagerCompass.getTransaction().commit();
+        entityManagerCompass.close();
+
+        return rows;
     }
 
     public List<Object[]> deanonymiseELGH(List<String> pseudoIds) {
@@ -263,6 +344,7 @@ public class JpaRepository {
 
         return entityManagerFactoryCore;
     }
+
 
 
 }
