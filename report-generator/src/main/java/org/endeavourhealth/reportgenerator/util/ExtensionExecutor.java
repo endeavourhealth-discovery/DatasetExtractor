@@ -58,7 +58,7 @@ public class ExtensionExecutor {
 
             offset += 3000;
 
-            pseudoIds = repository.getPseudoIdsForELGH(offset);
+            pseudoIds = repository.getPseudoIdsForEye(offset);
         }
 
         log.info("...deanonymising all done");

@@ -64,6 +64,9 @@ public class Report {
             return true;
         }
 
+        //All extensions require database at present TODO check for switchedOn
+        if(extensions.isEmpty() == false) return true;
+
         //Csv export uses own datasource, as was designed to be stand alone
 
         return false;
