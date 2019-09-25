@@ -95,7 +95,7 @@ public class JpaRepository {
         createDeltaTableQuery.execute();
 
         //CREATE PROCEDURE populateDeltas (
-        
+        log.debug("Calling populateDeltas");
 
         StoredProcedureQuery populateDeltasQuery = entityManager.createStoredProcedureQuery( "populateDeltas" );
         populateDeltasQuery.registerStoredProcedureParameter("tableName", String.class, ParameterMode.IN);
