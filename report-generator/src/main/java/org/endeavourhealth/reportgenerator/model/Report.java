@@ -65,6 +65,9 @@ public class Report {
         if(delta != null && delta.getSwitchedOn()) {
             return true;
         }
+        if(analytics != null && analytics.getSwitchedOn()) {
+            return true;
+        }
 
         //All extensions require database at present TODO check for switchedOn
         if(extensions != null && extensions.isEmpty() == false) return true;
