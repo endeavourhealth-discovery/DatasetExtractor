@@ -106,6 +106,8 @@ public class JpaRepository {
 
         populateDeltasQuery.execute();
 
+        log.info("Delta table completed");
+
         entityManager.close();
     }
 
