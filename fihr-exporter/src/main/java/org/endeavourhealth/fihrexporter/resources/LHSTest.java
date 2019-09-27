@@ -1,14 +1,161 @@
 package org.endeavourhealth.fihrexporter.resources;
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import com.sun.org.apache.xml.internal.serialize.LineSeparator;
 import org.endeavourhealth.fihrexporter.repository.Repository;
 import org.hl7.fhir.dstu3.model.*;
-
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Scanner;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+import org.endeavourhealth.fihrexporter.send.*;
+import org.json.*;
+
+import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
+import java.net.URL;
+//import java.security.cert.X509Certificate;
+//import java.security.cert.CertificateExpiredException;
+import java.security.cert.Certificate;
 
 public class LHSTest {
+
+    public String TestCert(String token, String url)
+    {
+        // test that the cert is valid (only done once at the start of the process)
+        String response = GetTLS(url, token, true);
+        return response;
+    }
+
+    public String GetToken(Repository repository)
+    {
+        LHShttpSend send = new LHShttpSend();
+        String token = send.GetToken(repository);
+        System.out.print(token);
+        return token;
+    }
+
+    public void GetPatients(Repository repository)
+    {
+        String token = GetToken(repository);
+        String url = "https://dhs-fhir-test.azurehealthcareapis.com/Patient/54a1580f-5fb7-4cc4-974f-76b071f2396e";
+        String response = GetTLS(url, token, false);
+        // System.out.println(response);
+
+        FhirContext ctx = FhirContext.forDstu3();
+        IParser parser = ctx.newJsonParser();
+
+        try {
+            JSONObject jsonObj = new JSONObject(response);
+            System.out.println("test");
+
+            String zurl = ""; String rel = "";
+
+            JSONArray resources = jsonObj.getJSONArray("entry");
+            String o = "";
+            for (int it = 0; it < resources.length(); it++) {
+                JSONObject resource = resources.getJSONObject(it).getJSONObject("resource");
+                o = resource.toString();
+                Patient patient = parser.parseResource(Patient.class, o);
+                System.out.println("Patient Last Name: " + patient.getName().get(0).getFamily());
+                System.out.println("Patient First Name: " + patient.getName().get(0).getGiven().get(0));
+
+                //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                //String dateString = format.format( new Date()   );
+                //Date   date       = format.parse (patient.getBirthDate().toString());
+                //System.out.println(date.toString());
+
+
+                //format.parse(patient.getBirthDate().toString());
+                //System.out.println(patient.getBirthDateElement().toHumanDisplayLocalTimezone());
+
+                String dob = patient.getBirthDate().toString();
+                DateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH);
+                Date date;
+                date = (Date)formatter.parse(dob);
+
+                //System.out.println(date);
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                String formatedDate = cal.get(Calendar.DATE) + "/" +
+                        (cal.get(Calendar.MONTH) + 1) +
+                        "/" +         cal.get(Calendar.YEAR);
+                System.out.println("formatedDate : " + formatedDate);;
+
+                List<Address> addresses = patient.getAddress();
+                Address address = addresses.get(0);
+                System.out.println(address.getLine().size());
+
+                System.out.println(patient.getId());
+
+                for ( int i=0 ; i<=(address.getLine().size()-1); i++) {
+                    System.out.println(address.getLine().get(i).getValue());
+                }
+
+                //    Address address = addresses.get(i);
+                //    System.out.println(address.getLine().get(i).getValue());
+                    //System.out.println(address.getLine().get(1).getValue());
+                //}
+
+                //System.out.println(patient.getBirthDate());
+                //patient.getAddress().get(0).getLine().
+                // patient.address
+            }
+
+        }catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
+    private String GetTLS(String url, String token, boolean testCert)
+    {
+        try {
+            URL obj = new URL(url);
+            HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+            con.setRequestMethod("GET");
+
+            con.setRequestProperty("Content-Type","application/json");
+            con.setRequestProperty("Authorization","Bearer "+token);
+
+            int responseCode = con.getResponseCode();
+
+            if (testCert == true) {
+                LHShttpSend send = new LHShttpSend();
+                Certificate[] certs = con.getServerCertificates();
+                boolean valid = send.CheckCert(certs);
+                if (valid == false) {return "invalid-cert";}
+            }
+
+            System.out.println("Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+
+            String output;
+            // StringBuffer response = new StringBuffer();
+            String response = "";
+
+            while ((output = in.readLine()) != null) {
+                // response.append(output);
+                response = response + output;
+            }
+            in.close();
+
+            return response;
+        }catch(Exception e){
+            System.out.println(e);
+            return "?";
+        }
+    }
 
     private void ReconcileTables(Repository repository, String table, String resource) throws SQLException {
         // tables:

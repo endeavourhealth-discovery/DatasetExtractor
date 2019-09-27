@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.fihrexporter.repository.Repository;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.security.cert.Certificate;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -13,11 +14,36 @@ import java.nio.file.Files;
 import java.nio.file.*;
 import java.nio.file.StandardOpenOption;
 import org.json.*;
+
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.X509Certificate;
 import java.util.Scanner;
 
 public class LHShttpSend {
 
 	private static String location = "";
+
+	public boolean CheckCert(Certificate[] certs)
+    {
+        try {
+        for (Certificate cert : certs) {
+            //System.out.println("Certificate is: " + cert);
+            if(cert instanceof X509Certificate) {
+                try {
+                    ( (X509Certificate) cert).checkValidity();
+                    System.out.println("Certificate is active for current date");
+                    return true;
+                } catch(CertificateExpiredException cee) {
+                    System.out.println("Certificate is expired");
+                    return false;
+                }
+            }
+        }
+        }catch(Exception e) {
+            System.out.println(e);
+        }
+        return false;
+    }
 
 	public String GetToken(Repository repository)
 	{
@@ -47,11 +73,9 @@ public class LHShttpSend {
 			wr.close();
 
 			int responseCode = con.getResponseCode();
-
 			String output="";
 
 			StringBuffer response = new StringBuffer();
-
 			BufferedReader in = new BufferedReader(
 				new InputStreamReader(con.getInputStream()));
 
