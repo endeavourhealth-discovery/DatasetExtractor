@@ -83,6 +83,8 @@ public class JpaRepository {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
         //CREATE PROCEDURE createDeltaTable
+        log.debug("Calling createDeltaTable");
+
         StoredProcedureQuery createDeltaTableQuery = entityManager.createStoredProcedureQuery( "createDeltaTable" );
         createDeltaTableQuery.registerStoredProcedureParameter("tableName", String.class, ParameterMode.IN);
         createDeltaTableQuery.registerStoredProcedureParameter("columnsToHash", String.class, ParameterMode.IN);
@@ -93,6 +95,8 @@ public class JpaRepository {
         createDeltaTableQuery.execute();
 
         //CREATE PROCEDURE populateDeltas (
+        
+
         StoredProcedureQuery populateDeltasQuery = entityManager.createStoredProcedureQuery( "populateDeltas" );
         populateDeltasQuery.registerStoredProcedureParameter("tableName", String.class, ParameterMode.IN);
         populateDeltasQuery.registerStoredProcedureParameter("uniqueIdentifier", String.class, ParameterMode.IN);
