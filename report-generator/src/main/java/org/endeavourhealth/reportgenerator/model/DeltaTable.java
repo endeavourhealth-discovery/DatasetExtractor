@@ -17,4 +17,8 @@ public class DeltaTable {
     private String columnsToHash;
 
     private String uniqueIdentifier = "id";
+
+    private Boolean deleteUniqueIdentifier = Boolean.TRUE;
+
+
 }
