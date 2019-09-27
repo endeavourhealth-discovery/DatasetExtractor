@@ -100,9 +100,11 @@ public class JpaRepository {
         StoredProcedureQuery populateDeltasQuery = entityManager.createStoredProcedureQuery( "populateDeltas" );
         populateDeltasQuery.registerStoredProcedureParameter("tableName", String.class, ParameterMode.IN);
         populateDeltasQuery.registerStoredProcedureParameter("uniqueIdentifier", String.class, ParameterMode.IN);
+        populateDeltasQuery.registerStoredProcedureParameter("deleteUniqueIdentifier", String.class, ParameterMode.IN);
 
         populateDeltasQuery.setParameter("tableName", deltaTable.getName());
         populateDeltasQuery.setParameter("uniqueIdentifier", deltaTable.getUniqueIdentifier());
+        populateDeltasQuery.setParameter("deleteUniqueIdentifier", deltaTable.getDeleteUniqueIdentifier());
 
         populateDeltasQuery.execute();
 
