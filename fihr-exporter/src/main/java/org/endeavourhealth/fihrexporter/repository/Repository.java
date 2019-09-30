@@ -389,11 +389,11 @@ public class Repository {
         ResultSet rs = preparedStatement.executeQuery();
 
         if (rs.next()) {
-            Integer nor = rs.getInt(2); String snomedcode = rs.getString(3); String orginalterm = rs.getString(4);
-            String result_value = rs.getString(5); String clineffdate = rs.getString(6); String resultvalunits = rs.getString(7);
+            Integer nor = rs.getInt("patient_id"); String snomedcode = rs.getString("snomed_code"); String orginalterm = rs.getString("original_term");
+            String result_value = rs.getString("result_value"); String clineffdate = rs.getString("clinical_effective_date"); String resultvalunits = rs.getString("result_value_units");
 
-            if (rs.getString(5) == null) {result_value="";}
-            if (rs.getString(7) == null) {resultvalunits="";}
+            if (rs.getString("result_value") == null) {result_value="";}
+            if (rs.getString("result_value_units") == null) {resultvalunits="";}
 
             result = nor.toString()+"~"+snomedcode+"~"+orginalterm+"~"+result_value+"~"+clineffdate+"~"+resultvalunits+"~"+rs.getInt("parent_observation_id");
         }
