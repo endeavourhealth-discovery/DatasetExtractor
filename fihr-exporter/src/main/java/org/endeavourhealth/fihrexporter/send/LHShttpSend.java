@@ -32,6 +32,10 @@ public class LHShttpSend {
                 try {
                     ( (X509Certificate) cert).checkValidity();
                     System.out.println("Certificate is active for current date");
+                    System.out.println(((X509Certificate) cert).getSigAlgName());
+                    System.out.println(((X509Certificate) cert).getVersion());
+                    System.out.println(((X509Certificate) cert).getSigAlgOID());
+                    System.out.println(cert);
                     return true;
                 } catch(CertificateExpiredException cee) {
                     System.out.println("Certificate is expired");
@@ -188,6 +192,56 @@ public class LHShttpSend {
 		}
 	}
 
+	public Integer DeleteTLS(Repository repository, Integer anId, String resource, Integer patientid, Integer typeid, String location)
+    {
+        try {
+
+            URL obj = new URL(repository.getBaseURL()+resource+"/"+location);
+            HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+            con.setRequestMethod("DELETE");
+
+            con.setRequestProperty("Content-Type","application/json");
+            con.setRequestProperty("Authorization","Bearer "+repository.token);
+
+            int responseCode = con.getResponseCode();
+
+            System.out.println("Response Code : " + responseCode);
+
+            return responseCode;
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        return 1;
+    }
+
+    public Integer Delete(Repository repository, Integer anId, String resource, Integer patientid, Integer typeid)
+    {
+        Integer responseCode = 0;
+        try
+        {
+            String loc = repository.getLocation(anId, resource);
+            if (loc.length() == 0) {
+                System.out.println("Unable to find location");
+                return 0;
+            }
+
+        responseCode = DeleteTLS(repository, anId, resource, patientid, typeid, loc);
+
+        if (responseCode == 401)  {
+            repository.token = GetToken(repository);
+            responseCode = DeleteTLS(repository, anId, resource, patientid, typeid, loc);
+        }
+
+        repository.Audit(anId, "", "DEL:"+resource, responseCode, loc, "", patientid, typeid);
+
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+        return 0;
+    }
+
 	public Integer Post(Repository repository, Integer anId, String strid, String url, String encoded, String resource, Integer patientid, Integer typeid)
 	{
 		try {
@@ -245,7 +299,7 @@ public class LHShttpSend {
 				}
 			}
 
-			if (method == "PUT") {repository.UpdateAudit(anId, strid, encoded, responseCode);}
+			if (method == "PUT") {repository.UpdateAudit(anId, strid, encoded, responseCode, resource);}
 
 			if (method == "POST") {
 

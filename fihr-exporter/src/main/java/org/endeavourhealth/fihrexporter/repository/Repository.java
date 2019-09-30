@@ -21,6 +21,7 @@ public class Repository {
     public String granttype;
     public String tokenurl;
     public String token;
+    public String runguid;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -69,6 +70,17 @@ public class Repository {
 
         preparedStatement.close();
 
+        // Has the resource been deleted?
+        if (location.length()>0) {
+            q = "SELECT * FROM data_extracts.references WHERE an_id='" + anid + "' AND resource='DEL:" + resource + "'";
+            preparedStatement = connection.prepareStatement(q);
+            rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                location = "";
+            }
+            preparedStatement.close();
+        }
+
         return location;
     }
 
@@ -103,7 +115,25 @@ public class Repository {
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         preparedStmt.execute();
     }
-    public boolean UpdateAudit(Integer anId, String strid, String encoded, Integer responseCode) throws SQLException
+
+    private void PurgetheQueue(Integer anId, String resource) throws SQLException
+    {
+        // purge the queues
+        String table = ""; String q = "";
+
+        if (resource=="Patient") {table="data_extracts.filteredpatientsdelta";}
+        if (resource=="Observation") {table="data_extracts.filteredobservationsdelta";}
+        if (resource=="MedicationStatement") {table="data_extracts.filteredmedicationsdelta";}
+        if (resource== "AllergyIntolerance") {table="data_extracts.filteredallergiesdelta";};
+
+        if (table.length()>0) {
+            q = "DELETE FROM " + table + " where id='" + anId + "'";
+            //PreparedStatement preparedStatement = connection.prepareStatement(q);
+            //ResultSet rs = preparedStatement.executeQuery();
+        }
+    }
+
+    public boolean UpdateAudit(Integer anId, String strid, String encoded, Integer responseCode, String resource) throws SQLException
     {
         long timeNow = Calendar.getInstance().getTimeInMillis();
         java.sql.Timestamp ts = new java.sql.Timestamp(timeNow);
@@ -113,6 +143,7 @@ public class Repository {
 
         if (anId != 0) {
             q = "update data_extracts.references set response = " + responseCode + ", datesent = '"+str+"', json = '"+encoded+"' where an_id = '"+anId+"'";
+            PurgetheQueue(anId, resource);
         }
 
         if (strid.length() > 0) {
@@ -130,7 +161,7 @@ public class Repository {
     public boolean Audit(Integer anId, String strid, String resource, Integer responseCode, String location, String encoded, Integer patientid, Integer typeid) throws SQLException
     {
 
-        String q = "insert into data_extracts.references (an_id,strid,resource,response,location,datesent,json,patient_id,type_id) values(?,?,?,?,?,?,?,?,?)";
+        String q = "insert into data_extracts.references (an_id,strid,resource,response,location,datesent,json,patient_id,type_id,runguid) values(?,?,?,?,?,?,?,?,?,?)";
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -152,9 +183,13 @@ public class Repository {
 
         preparedStmt.setInt(9, typeid);
 
+        preparedStmt.setString(10, this.runguid);
+
         preparedStmt.execute();
 
         preparedStmt.close();
+
+        if (anId != 0) {PurgetheQueue(anId, resource);}
 
         return true;
     }
@@ -679,6 +714,7 @@ public class Repository {
         granttype = props.getProperty("granttype");
         tokenurl = props.getProperty("tokenurl");
         token = props.getProperty("token");
+        runguid = props.getProperty("runguid");
 
         dataSource = new MysqlDataSource();
 

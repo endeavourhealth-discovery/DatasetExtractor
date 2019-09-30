@@ -27,6 +27,15 @@ import java.security.cert.Certificate;
 
 public class LHSTest {
 
+    public void TestDelete(Repository repository, Integer anid, String resource, Integer patientid, Integer type)
+    {
+        LHShttpSend send = new LHShttpSend();
+        String token = send.GetToken(repository);
+        repository.token = token;
+        // send.DeleteTLS(repository, 22232, "Organization");
+        send.Delete(repository, anid, resource, patientid, type);
+    }
+
     public String TestCert(String token, String url)
     {
         // test that the cert is valid (only done once at the start of the process)

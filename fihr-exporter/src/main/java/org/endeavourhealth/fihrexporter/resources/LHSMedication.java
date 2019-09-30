@@ -40,10 +40,11 @@ public class LHSMedication {
 		return encoded;
 	}
 
-	public String Run(Repository repository, String snomedcode, String drugname)  throws SQLException
+	public String Run(Repository repository, String snomedcode, String drugname, String baseURL)  throws SQLException
 	{
 		String encoded = "";
-		String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Medication";
+		//String url = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/Medication";
+		String url = baseURL+"Medication";
 
 		encoded = getMedicationResource(snomedcode, drugname);
 

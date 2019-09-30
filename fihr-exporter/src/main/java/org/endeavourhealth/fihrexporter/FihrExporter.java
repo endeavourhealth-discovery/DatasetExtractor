@@ -6,6 +6,7 @@ import org.endeavourhealth.fihrexporter.resources.LHSMedicationStatement;
 import org.endeavourhealth.fihrexporter.send.LHShttpSend;
 
 import java.util.Properties;
+import java.util.UUID;
 
 public class FihrExporter implements AutoCloseable {
 
@@ -33,6 +34,10 @@ public class FihrExporter implements AutoCloseable {
 
         //Integer httpResponse;
 
+        UUID uuid = UUID.randomUUID();
+        String uuidStr = uuid.toString();
+        this.repository.runguid = uuidStr;
+
         if (baseURL.contains("https:")) {
             LHShttpSend send = new LHShttpSend();
             repository.token = send.GetToken(this.repository);
@@ -46,24 +51,24 @@ public class FihrExporter implements AutoCloseable {
         //repository.token="expired";
 
         // ** TO DO put this back in
-        //this.repository.DeleteTracker();
+        this.repository.DeleteTracker();
 
         // ** TO DO put this back in
-        //this.repository.DeleteFileReferences();
+        this.repository.DeleteFileReferences();
 
-        //LHSPatient patient = new LHSPatient();
-        //patient.Run(this.repository, baseURL);
+        LHSPatient patient = new LHSPatient();
+        patient.Run(this.repository, baseURL);
 
-        //LHSMedicationStatement medicationStatement = new LHSMedicationStatement();
-        //medicationStatement.Run(this.repository, baseURL);
+        LHSMedicationStatement medicationStatement = new LHSMedicationStatement();
+        medicationStatement.Run(this.repository, baseURL);
 
-        //LHSAllergyIntolerance allergyIntolerance = new LHSAllergyIntolerance();
-        //allergyIntolerance.Run(this.repository, baseURL);
+        LHSAllergyIntolerance allergyIntolerance = new LHSAllergyIntolerance();
+        allergyIntolerance.Run(this.repository, baseURL);
 
         //gfg.gc();
 
-        //LHSObservation observation = new LHSObservation();
-        //observation.Run(this.repository, baseURL);
+        LHSObservation observation = new LHSObservation();
+        observation.Run(this.repository, baseURL);
 
         //LHSTest test = new LHSTest();
         //test.Run(this.repository);
@@ -73,6 +78,9 @@ public class FihrExporter implements AutoCloseable {
         //test.GetPatients(this.repository);
         //String token = test.GetToken(this.repository);
         //String response = test.TestCert(this.repository.token, "https://dhs-fhir-test.azurehealthcareapis.com/Patient/");
+
+        //test.TestDelete(this.repository, 22232, "Organization", 0, 0);
+
     }
 
     @Override

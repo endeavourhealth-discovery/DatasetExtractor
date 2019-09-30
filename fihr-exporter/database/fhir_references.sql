@@ -36,6 +36,7 @@ CREATE TABLE `references` (
   `json` text DEFAULT NULL,
   `patient_id` bigint(20) DEFAULT NULL,
   `type_id` tinyint(1) DEFAULT NULL,
+  `runguid` varchar(50) DEFAULT NULL,
   KEY `ix_references_an_id` (`an_id`),
   KEY  `ix_references_strid` (`strid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

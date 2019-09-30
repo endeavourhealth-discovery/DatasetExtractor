@@ -115,7 +115,7 @@ public class LHSMedicationStatement {
 				prev = repository.PreviouslyPostedCode(snomedcode,"Medication");
 				if (prev == false) {
 					LHSMedication medication = new LHSMedication();
-					medication.Run(repository, snomedcode, drugname);
+					medication.Run(repository, snomedcode, drugname, baseURL);
 				}
 
 				location = repository.getLocation(nor, "Patient");
