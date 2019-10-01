@@ -3,6 +3,7 @@ package org.endeavourhealth.reportgenerator.model;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.persistence.*;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -11,47 +12,52 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class Report {
+@Entity
+public class Report extends AbstractEntity {
 
     private LocalDateTime startTime = LocalDateTime.now();
 
     //Set to default in case report is not valid etc, so populate here, can be updated later
     private LocalDateTime endTime = LocalDateTime.now();
 
+    @Transient
     private Analytics analytics;
 
     @NotNull
     @Length(min = 3, max = 100)
     private String name;
 
-    //Validation
+    @Transient
     private Set<ConstraintViolation<Report>> constraintViolations;
 
-    //Database
     @Valid
+    @OneToOne(cascade = CascadeType.ALL)
     private StoredProcedureExecutor storedProcedureExecutor;
 
     private Boolean active = true;
+
     private String errorMessage;
 
+    @Valid
+    @OneToOne(cascade = CascadeType.ALL)
     private Schedule schedule;
 
-    //Extensions
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "report_id")
     private List<@Valid Extension> extensions;
 
     //Delta
+    @OneToOne(cascade = CascadeType.ALL)
     private Delta delta;
 
     //CSV
     @Valid
+    @OneToOne(cascade = CascadeType.ALL)
     private CSVExport csvExport;
-
-    //CSV
-    @Valid
-    private FihrExport fihrExport;
 
     //SFTP
     @Valid
+    @OneToOne(cascade = CascadeType.ALL)
     private SftpUpload sftpUpload;
 
     public boolean requiresDatabase() {

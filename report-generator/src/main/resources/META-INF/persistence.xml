@@ -4,9 +4,9 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
-            <property name="hbm2ddl.auto" value="none" />
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57Dialect" />
             <property name="hibernate.hbm2ddl.auto" value="validate" />
+            <property name="" value=""/>
         </properties>
     </persistence-unit>
     <persistence-unit name="coreDatabase" transaction-type="RESOURCE_LOCAL">
@@ -16,6 +16,16 @@
             <property name="hbm2ddl.auto" value="none" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
             <property name="hibernate.hbm2ddl.auto" value="validate" />
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="reportDatabase" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57Dialect" />
+            <property name="packagesToScan" value="org.endeavourhealth.reportgenerator.model" />
+            <property name="hibernate.hbm2ddl.auto" value="update" />
+            <property name="" value=""/>
         </properties>
     </persistence-unit>
 </persistence>

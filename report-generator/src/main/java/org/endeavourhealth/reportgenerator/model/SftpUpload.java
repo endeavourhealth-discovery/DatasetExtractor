@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -13,7 +14,8 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class SftpUpload {
+@Entity
+public class SftpUpload extends AbstractEntity {
 
     @NotNull
     private String privateKeyFile;

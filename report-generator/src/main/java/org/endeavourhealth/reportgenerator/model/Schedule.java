@@ -2,11 +2,14 @@ package org.endeavourhealth.reportgenerator.model;
 
 import lombok.Data;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
 import java.time.DayOfWeek;
 import java.util.List;
 
 @Data
-public class Schedule {
+@Entity
+public class Schedule extends AbstractEntity{
 
     private DayOfWeek dayOfWeek;
 
@@ -14,5 +17,6 @@ public class Schedule {
 
     private Integer dayOfMonth;
 
+    @ElementCollection
     private List<DayOfWeek> skipDays;
 }

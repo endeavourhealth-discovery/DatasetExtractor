@@ -3,12 +3,14 @@ package org.endeavourhealth.reportgenerator.model;
 import lombok.Data;
 import lombok.ToString;
 
+import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 
 
 @ToString
 @Data
-public class DeltaTable {
+@Entity
+public class DeltaTable extends AbstractEntity {
 
     @NotNull(message = "Delta Table name cannot be null")
     private String name;

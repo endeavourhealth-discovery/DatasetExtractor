@@ -2,6 +2,7 @@ package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.repository.ReportRepository;
 import org.endeavourhealth.reportgenerator.slack.SlackReporter;
 import org.endeavourhealth.reportgenerator.validator.ReportValidator;
 import org.yaml.snakeyaml.Yaml;
@@ -23,15 +24,23 @@ public class ReportRunner {
 
         List<Report> reports = loadReports( properties );
 
+        ReportRepository reportRepository = new ReportRepository( properties );
+
         try (  ReportGenerator reportGenerator = new ReportGenerator( properties ) ) {
 
             reportGenerator.generate( reports );
+
+            //Now persist
+            reportRepository.save( reports );
 
             log.info("Report generation all done!");
 
         } catch (Exception e) {
             log.error("Exception during report generator", e);
         }
+
+
+
 
         SlackReporter slackReporter = new SlackReporter( properties.getProperty("slack.url"), properties.getProperty("slack.switched.on") );
 

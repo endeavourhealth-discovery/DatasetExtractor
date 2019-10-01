@@ -9,6 +9,5 @@ public class Analytics {
 
     private Boolean switchedOn = true;
 
-    List<AnalyticItem> items;
-
+    private List<AnalyticItem> items;
 }

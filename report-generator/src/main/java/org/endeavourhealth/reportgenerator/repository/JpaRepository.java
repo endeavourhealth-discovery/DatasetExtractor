@@ -373,5 +373,6 @@ public class JpaRepository {
     }
 
 
-
+    public void save(List<Report> reports) {
+    }
 }
