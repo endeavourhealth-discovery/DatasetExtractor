@@ -80,7 +80,7 @@ public class FihrExporter implements AutoCloseable {
         //String response = test.TestCert(this.repository.token, "https://dhs-fhir-test.azurehealthcareapis.com/Patient/");
 
         //test.TestDelete(this.repository, 22232, "Organization", 0, 0);
-
+        //test.getConfig();
     }
 
     @Override

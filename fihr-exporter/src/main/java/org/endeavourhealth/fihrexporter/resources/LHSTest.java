@@ -2,6 +2,7 @@ package org.endeavourhealth.fihrexporter.resources;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.sun.org.apache.xml.internal.serialize.LineSeparator;
+import org.endeavourhealth.common.config.ConfigManager;
 import org.endeavourhealth.fihrexporter.repository.Repository;
 import org.hl7.fhir.dstu3.model.*;
 import java.io.BufferedReader;
@@ -26,6 +27,13 @@ import java.net.URL;
 import java.security.cert.Certificate;
 
 public class LHSTest {
+
+    public void getConfig()
+    {
+        String conStr = ConfigManager.getConfiguration("database","knowdiabetes");
+        //String conStr = ConfigManager.getConfiguration("global","slack");
+        System.out.println(conStr);
+    }
 
     public void TestDelete(Repository repository, Integer anid, String resource, Integer patientid, Integer type)
     {

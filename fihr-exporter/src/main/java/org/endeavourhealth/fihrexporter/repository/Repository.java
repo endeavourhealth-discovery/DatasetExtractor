@@ -1,6 +1,7 @@
 package org.endeavourhealth.fihrexporter.repository;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import org.endeavourhealth.common.config.ConfigManager;
 
 import java.sql.*;
 import java.util.*;
@@ -22,6 +23,7 @@ public class Repository {
     public String tokenurl;
     public String token;
     public String runguid;
+    public Integer scaletotal;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -628,13 +630,16 @@ public class Repository {
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
         ResultSet rs = preparedStatement.executeQuery();
         List<Integer> result = new ArrayList<>();
-        Integer id = 0;
+        Integer id = 0; Integer count = 0;
 
         while (rs.next()) {
             id = rs.getInt("id");
 
             List<Integer> row = new ArrayList<>();
             result.add(id);
+
+            count=count+1;
+            if (count > this.scaletotal) break;
         }
         preparedStatement.close();
 
@@ -654,7 +659,7 @@ public class Repository {
 
         List<Integer> result = new ArrayList<>();
 
-        Integer patient_id = 0;
+        Integer patient_id = 0; Integer count = 0;
 
         while (rs.next()) {
 
@@ -664,6 +669,8 @@ public class Repository {
             List<Integer> row = new ArrayList<>();
 
             result.add(patient_id);
+
+            if (count > this.scaletotal) break;
         }
 
         preparedStatement.close();
@@ -700,36 +707,67 @@ public class Repository {
         return baseURL;
     }
 
+    public String getConfig()
+    {
+        String conStr = ConfigManager.getConfiguration("database","knowdiabetes");
+        //String conStr = ConfigManager.getConfiguration("global","slack");
+        System.out.println(conStr);
+        return conStr;
+    }
+
     private void init(Properties props) throws SQLException {
 
         try {
-        System.out.println("initializing properties");
+            System.out.println("initializing properties");
 
-        baseURL = props.getProperty("baseurl");
-        outputFHIR = props.getProperty("outputFHIR");
-        dbschema = props.getProperty("dbschema");
-        clientid = props.getProperty("clientid");
-        clientsecret = props.getProperty("clientsecret");
-        scope = props.getProperty("scope");
-        granttype = props.getProperty("granttype");
-        tokenurl = props.getProperty("tokenurl");
-        token = props.getProperty("token");
-        runguid = props.getProperty("runguid");
+            String conStr = getConfig();
+            String[] ss = conStr.split("\\`");
 
-        dataSource = new MysqlDataSource();
+            // sqlurl~username~password~clientid~clientsecret~scope~tokenurl~baseurl
+            //String zsqlurl=ss[0]; String zsqlusername=ss[1]; String zsqlpass=ss[2];
+            //String zclientid=ss[3]; String zclientsecret= ss[4]; String zscope=ss[5];
+            //String ztokenurl =ss[6]; String zbaseurl = ss[7];
 
-        System.out.println(">> " + outputFHIR);
+            //baseURL = props.getProperty("baseurl");
+            baseURL = ss[7];
+            outputFHIR = props.getProperty("outputFHIR");
+            dbschema = props.getProperty("dbschema");
+            //clientid = props.getProperty("clientid");
+            clientid = ss[3];
+            //clientsecret = props.getProperty("clientsecret");
+            clientsecret = ss[4];
+            //scope = props.getProperty("scope");
+            scope = ss[5];
+            granttype = props.getProperty("granttype");
+            //tokenurl = props.getProperty("tokenurl");
+            tokenurl = ss[6];
+            token = props.getProperty("token");
+            runguid = props.getProperty("runguid");
 
-        dataSource.setURL(props.getProperty("url"));
-        dataSource.setUser(props.getProperty("user"));
-        dataSource.setPassword(props.getProperty("password"));
+            scaletotal = Integer.parseInt(props.getProperty("scaletotal"));
 
-        dataSource.setReadOnlyPropagatesToServer(true);
+            dataSource = new MysqlDataSource();
 
-        connection = dataSource.getConnection();
+            System.out.println(">> " + outputFHIR);
 
-        // connection.setReadOnly(true);
-        }catch(Exception e){ System.out.println(e);}
+            //dataSource.setURL(props.getProperty("url"));
+            //dataSource.setUser(props.getProperty("user"));
+            //dataSource.setPassword(props.getProperty("password"));
+
+            dataSource.setURL(ss[0]);
+            dataSource.setUser(ss[1]);
+            dataSource.setPassword(ss[2]);
+
+            dataSource.setReadOnlyPropagatesToServer(true);
+
+            connection = dataSource.getConnection();
+
+            // connection.setReadOnly(true);
+        }
+        catch(Exception e)
+        {
+            System.out.println(e);
+        }
     }
 
 
