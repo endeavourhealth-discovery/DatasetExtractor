@@ -44,6 +44,13 @@ public class ReportGeneratorTest extends AbstractTest {
         properties.put("db.pcr.user", "root" );
         properties.put("db.pcr.password", "admin" );
 
+        properties.put("report.yaml.directory", "/home/hal/dev/data_extracts/" );
+        properties.put("report.yaml.file", "reports.yaml" );
+        properties.put("csv.staging.directory", "admin" );
+
+        properties.put("slack.url", "url" );
+        properties.put("slack.switched.on", "/home/hal/dev/data_extracts/staging" );
+
         SFTPUploader sftpUploader = Mockito.mock(SFTPUploader.class);
 
         doNothing().when(sftpUploader);
