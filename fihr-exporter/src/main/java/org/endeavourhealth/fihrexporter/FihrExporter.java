@@ -23,16 +23,7 @@ public class FihrExporter implements AutoCloseable {
 
     public void export() throws Exception {
 
-        //Runtime gfg = Runtime.getRuntime();
-        //long memory1, memory2;
-        //Integer integer[] = new Integer[1000];
-
-        //String baseURL = "http://apidemo.discoverydataservice.net:8080/fhir/STU3/";
-
-        //System.out.println(">>>> " + this.repository.getBaseURL());
         String baseURL = this.repository.getBaseURL();
-
-        //Integer httpResponse;
 
         UUID uuid = UUID.randomUUID();
         String uuidStr = uuid.toString();
@@ -47,8 +38,6 @@ public class FihrExporter implements AutoCloseable {
                 return;
             }
         }
-
-        //repository.token="expired";
 
         // ** TO DO put this back in
         this.repository.DeleteTracker();
@@ -81,6 +70,9 @@ public class FihrExporter implements AutoCloseable {
 
         //test.TestDelete(this.repository, 22232, "Organization", 0, 0);
         //test.getConfig();
+        //test.DeleteObservation(this.repository);
+
+        //this.repository.TestConnection();
     }
 
     @Override

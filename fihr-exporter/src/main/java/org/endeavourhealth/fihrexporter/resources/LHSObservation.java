@@ -147,13 +147,14 @@ public class LHSObservation {
 		return encoded;
 	}
 
-	private void ObsAudit(Repository repository, String ids, Integer patientid) throws SQLException
+	private void ObsAudit(Repository repository, String ids, Integer patientid, String location) throws SQLException
 	{
 		String[] ss = ids.split("\\~");
 		String id = "";
 		for (int i = 0; i < ss.length; i++) {
 			id = ss[i];
 			repository.Audit(Integer.parseInt(id), "", "Tracker", 0, "dum", "", patientid, 0);
+			repository.Audit(Integer.parseInt(id), "", "Observation", 1234, location, "", patientid, 11);
 		}
 	}
 
@@ -239,7 +240,11 @@ public class LHSObservation {
 				httpResponse = send.Post(repository, id, "", url, encoded, "Observation", nor, typeid);
 				if (httpResponse == 401) {return "401, aborting";}
 
-				if (parentids.length() > 0) {ObsAudit(repository, parentids, nor);}
+				if (parentids.length() > 0) {
+					location = repository.getLocation(id, "Observation");
+					// location added so that we can delete a composite group
+					ObsAudit(repository, parentids, nor, location);
+				}
 
 				System.out.println(httpResponse.toString());
 

@@ -24,9 +24,44 @@ public class Repository {
     public String token;
     public String runguid;
     public Integer scaletotal;
+    public Integer counting;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
+    }
+
+    public String TestConnection()  throws SQLException {
+
+        try {
+            System.out.println("testing connection");
+
+            //dataSource.setURL("jdbc:mysql://localhost:3306/data_extracts");
+            //dataSource.setUser("root");
+            //dataSource.setPassword("1qaz1qaz");
+
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Enter table");
+            String table = sc.next();
+
+            System.out.println("Enter field");
+            String field = sc.next();
+
+            //String q = "SELECT * FROM config.config";
+            String q = "SELECT * FROM "+table;
+            PreparedStatement preparedStatement = connection.prepareStatement(q);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(rs.getString(field));
+            }
+
+            //this.connection.close();
+        }
+        catch(Exception e) {
+            System.out.println(e);
+        }
+
+        return "test";
     }
 
     public boolean PreviouslyPostedCode(String code, String resource) throws SQLException {
@@ -58,6 +93,45 @@ public class Repository {
         preparedStatement.close();
 
         return false;
+    }
+
+    public String getIdsForLocation(String location)  throws SQLException {
+        String ids ="";
+
+        String q = "SELECT * FROM data_extracts.references WHERE location='" + location + "'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            ids=ids+rs.getInt("an_id")+"~";
+        }
+
+        preparedStatement.close();
+        return ids;
+    }
+
+    public void InsertBackIntoObsQueue(Integer id) throws SQLException {
+        String q ="insert into data_extracts.filteredobservationsdelta (id) values(?)";
+        System.out.println("back into q "+q);
+        //PreparedStatement preparedStmt = connection.prepareStatement(q);
+        //preparedStmt.setInt(1, id);
+        //preparedStmt.execute();
+        //preparedStmt.close();
+    }
+
+    public String getLocationObsWithCheckingDeleted(Integer anid) throws SQLException {
+        String location = "";
+
+        String q = "SELECT * FROM data_extracts.references WHERE an_id='" + anid + "' AND resource='Observation'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) { location =  rs.getString("location"); }
+
+        preparedStatement.close();
+        return location;
     }
 
     public String getLocation(Integer anid, String resource) throws SQLException {
@@ -130,8 +204,32 @@ public class Repository {
 
         if (table.length()>0) {
             q = "DELETE FROM " + table + " where id='" + anId + "'";
-            //PreparedStatement preparedStatement = connection.prepareStatement(q);
-            //ResultSet rs = preparedStatement.executeQuery();
+            PreparedStatement preparedStmt = connection.prepareStatement(q);
+            preparedStmt.execute();
+            preparedStmt.close();
+        }
+    }
+
+    public void PurgeTheDeleteQueue(Integer anId, String resource) throws SQLException
+    {
+        //filteredDeletionsDelta (id, type)
+        //patient - 2
+        //observation - 11
+        //allergy - 4
+        //medication - 10
+
+        Integer type=0; String q="";
+
+        if (resource=="Patient") {type=2;}
+        if (resource=="Observation") {type=11;}
+        if (resource=="MedicationStatement") {type=10;}
+        if (resource=="AllergyIntolerance") {type=4;}
+
+        if (type !=0) {
+            q = "DELETE FROM filteredDeletionsDelta where id='"+anId+" AND type='"+type+"'";
+            //PreparedStatement preparedStmt = connection.prepareStatement(q);
+            //preparedStmt.execute();
+            //preparedStmt.close();
         }
     }
 
@@ -633,13 +731,13 @@ public class Repository {
         Integer id = 0; Integer count = 0;
 
         while (rs.next()) {
+            this.counting = this.counting + 1;
+            if (this.counting > this.scaletotal) break;
+
             id = rs.getInt("id");
 
             List<Integer> row = new ArrayList<>();
             result.add(id);
-
-            count=count+1;
-            if (count > this.scaletotal) break;
         }
         preparedStatement.close();
 
@@ -659,9 +757,12 @@ public class Repository {
 
         List<Integer> result = new ArrayList<>();
 
-        Integer patient_id = 0; Integer count = 0;
+        Integer patient_id = 0;
 
         while (rs.next()) {
+
+            this.counting = this.counting + 1;
+            if (this.counting > this.scaletotal) break;
 
             //patient_id = rs.getInt("patient_id");
             patient_id = rs.getInt("id");
@@ -670,7 +771,6 @@ public class Repository {
 
             result.add(patient_id);
 
-            if (count > this.scaletotal) break;
         }
 
         preparedStatement.close();
@@ -710,7 +810,6 @@ public class Repository {
     public String getConfig()
     {
         String conStr = ConfigManager.getConfiguration("database","knowdiabetes");
-        //String conStr = ConfigManager.getConfiguration("global","slack");
         System.out.println(conStr);
         return conStr;
     }
@@ -729,6 +828,7 @@ public class Repository {
             //String ztokenurl =ss[6]; String zbaseurl = ss[7];
 
             //baseURL = props.getProperty("baseurl");
+
             baseURL = ss[7];
             outputFHIR = props.getProperty("outputFHIR");
             dbschema = props.getProperty("dbschema");
@@ -758,11 +858,35 @@ public class Repository {
             dataSource.setUser(ss[1]);
             dataSource.setPassword(ss[2]);
 
+            System.out.println(ss[0]);
+            System.out.println(ss[1]);
+            System.out.println(ss[2]);
+
+            /* test
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Enter url");
+            String url = sc.next();
+
+            System.out.println("username");
+            String username = sc.next();
+
+            System.out.println("password");
+            String pass = sc.next();
+
+            dataSource.setURL(url);
+            System.out.println("1");
+            dataSource.setUser(username);
+            System.out.println("2");
+            dataSource.setPassword(pass);
+            System.out.println("3");
+            */
+
             dataSource.setReadOnlyPropagatesToServer(true);
 
             connection = dataSource.getConnection();
 
             // connection.setReadOnly(true);
+            counting =0;
         }
         catch(Exception e)
         {

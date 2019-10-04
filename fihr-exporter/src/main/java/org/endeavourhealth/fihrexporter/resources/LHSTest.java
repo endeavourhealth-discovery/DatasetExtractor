@@ -1,6 +1,7 @@
 package org.endeavourhealth.fihrexporter.resources;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import com.sun.org.apache.xml.internal.serialize.LineSeparator;
 import org.endeavourhealth.common.config.ConfigManager;
 import org.endeavourhealth.fihrexporter.repository.Repository;
@@ -42,6 +43,12 @@ public class LHSTest {
         repository.token = token;
         // send.DeleteTLS(repository, 22232, "Organization");
         send.Delete(repository, anid, resource, patientid, type);
+    }
+
+    public void DeleteObservation(Repository repository)
+    {
+        LHShttpSend send = new LHShttpSend();
+        send.DeleteObservation(repository,133722,"Observation",133675,11);
     }
 
     public String TestCert(String token, String url)

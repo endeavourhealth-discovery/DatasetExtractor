@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.endeavourhealth.configmanager</groupId>
             <artifactId>configmanager</artifactId>
             <version>1.26-SNAPSHOT</version>

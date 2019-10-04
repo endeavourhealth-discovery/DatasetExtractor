@@ -215,6 +215,43 @@ public class LHShttpSend {
         return 1;
     }
 
+    public Integer DeleteObservation(Repository repository, Integer anId, String resource, Integer patientid, Integer typeid)
+	{
+		// delete the observation in question
+		// check parents:
+		// get the location
+		// get the observation id's for the location
+		// add the ids back into the filtered table queue
+		try {
+
+			Integer responseCode=0;
+			responseCode = Delete(repository,anId,resource,patientid,typeid);
+			// need to check the response code
+			// purge the delete queue
+
+			String ids=""; String id="";
+			String loc = repository.getLocationObsWithCheckingDeleted(anId);
+
+			if (loc.length()==0) {return 0;}
+
+			ids = repository.getIdsForLocation(loc);
+
+			String[] ss = ids.split("\\~");
+			for (int i = 0; i < ss.length; i++) {
+				id = ss[i];
+				if (Integer.parseInt(id) == anId) continue;
+				// has the observation been deleted previously?
+				if (repository.getLocation(Integer.parseInt(id),"Observation").length()==0) continue;
+				repository.InsertBackIntoObsQueue(Integer.parseInt(id));
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println(e);
+		}
+		return 0;
+	}
+
     public Integer Delete(Repository repository, Integer anId, String resource, Integer patientid, Integer typeid)
     {
         Integer responseCode = 0;
@@ -236,10 +273,11 @@ public class LHShttpSend {
         repository.Audit(anId, "", "DEL:"+resource, responseCode, loc, "", patientid, typeid);
 
         }
-        catch(Exception e){
+        catch(Exception e)
+        {
             System.out.println(e);
         }
-        return 0;
+        return responseCode;
     }
 
 	public Integer Post(Repository repository, Integer anId, String strid, String url, String encoded, String resource, Integer patientid, Integer typeid)
