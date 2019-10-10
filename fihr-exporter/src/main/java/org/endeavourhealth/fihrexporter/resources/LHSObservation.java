@@ -45,7 +45,7 @@ public class LHSObservation {
 		return occ;
 	}
 
-	private String getObervationResource(Repository repository, Integer patientid, String snomedcode, String orginalterm, String resultvalue, String clineffdate, String resultvalunits, String PatientRef, String ids, Integer parent)
+	private String getObervationResource(Repository repository, Integer patientid, String snomedcode, String orginalterm, String resultvalue, String clineffdate, String resultvalunits, String PatientRef, String ids, Integer parent, Integer ddsid)
 	{
 		String id = "";
 
@@ -56,6 +56,10 @@ public class LHSObservation {
 		Observation observation = new Observation();
 
 		observation.setStatus(Observation.ObservationStatus.FINAL);
+
+        observation.addIdentifier()
+                .setSystem("https://discoverydataservice.net")
+                .setValue(ddsid.toString());
 
 		String ObsRec = ""; String noncoreconceptid = "";
 
@@ -190,7 +194,7 @@ public class LHSObservation {
 
             System.out.println(id);
 
-			if (id == 114870) {
+			if (id == 23185) {
 				System.out.println("test");
 			}
 
@@ -231,7 +235,7 @@ public class LHSObservation {
 					continue;
 				}
 
-				encoded = getObervationResource(repository, nor, snomedcode, orginalterm, result_value, clineffdate, resultvalunits, location, parentids, parent);
+				encoded = getObervationResource(repository, nor, snomedcode, orginalterm, result_value, clineffdate, resultvalunits, location, parentids, parent, id);
 
 				// post
 				Integer httpResponse;

@@ -69,7 +69,8 @@ public class LHSTest {
     public void GetPatients(Repository repository)
     {
         String token = GetToken(repository);
-        String url = "https://dhs-fhir-test.azurehealthcareapis.com/Patient/54a1580f-5fb7-4cc4-974f-76b071f2396e";
+        // String url = "https://dhs-fhir-test.azurehealthcareapis.com/Patient/bb1acdff-d9d9-4927-9769-1701ec9812e5";
+        String url = "https://dhs-fhir-test.azurehealthcareapis.com/Patient";
         String response = GetTLS(url, token, false);
         // System.out.println(response);
 
@@ -80,10 +81,34 @@ public class LHSTest {
             JSONObject jsonObj = new JSONObject(response);
             System.out.println("test");
 
-            String zurl = ""; String rel = "";
+            String zurl = ""; String rel = ""; String o = "";
+            Integer s = 0;
 
+            if (jsonObj.has("entry")==false) {
+                System.out.println("its not a bundle");
+                o = jsonObj.toString();
+                Patient patient = parser.parseResource(Patient.class, o);
+                List<Address> addresses = patient.getAddress();
+                Address address = addresses.get(0);
+                System.out.println(address.getLine().size());
+                s = address.getLine().size()-1;
+                for ( int i=0 ; i<=s; i++) {
+                    System.out.println(address.getLine().get(i).getValue());
+                }
+                return;
+            }
+
+            if (jsonObj.has("link")==true) {
+                JSONArray link = jsonObj.getJSONArray("link");
+                for (int it = 0; it < link.length(); it++) {
+                    String jstuff = link.get(it).toString();
+                    System.out.println(jstuff);
+                    JSONObject jsonObject = new JSONObject(jstuff);
+                    System.out.println(jsonObject.get("url"));
+                    System.out.println(jsonObject.get("relation"));
+                }
+            }
             JSONArray resources = jsonObj.getJSONArray("entry");
-            String o = "";
             for (int it = 0; it < resources.length(); it++) {
                 JSONObject resource = resources.getJSONObject(it).getJSONObject("resource");
                 o = resource.toString();
@@ -120,7 +145,12 @@ public class LHSTest {
 
                 System.out.println(patient.getId());
 
-                for ( int i=0 ; i<=(address.getLine().size()-1); i++) {
+                //for ( int i=0 ; i<=(address.getLine().size()-1); i++) {
+                //    System.out.println(address.getLine().get(i).getValue());
+                //}
+
+                s = address.getLine().size()-1;
+                for ( int i=0 ; i<=s; i++) {
                     System.out.println(address.getLine().get(i).getValue());
                 }
 

@@ -24,6 +24,10 @@ public class LHSPatient {
 
 		Patient patient = new Patient();
 
+		patient.addIdentifier()
+				.setSystem("https://discoverydataservice.net")
+				.setValue(PatId.toString());
+
 		patient.getMeta().addProfile("https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-Patient-1");
 
 		// nhsNumber

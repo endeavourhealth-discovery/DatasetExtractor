@@ -73,6 +73,9 @@ public class FihrExporter implements AutoCloseable {
         //test.DeleteObservation(this.repository);
 
         //this.repository.TestConnection();
+
+        //this.repository.getTerms();
+
     }
 
     @Override

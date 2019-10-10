@@ -13,13 +13,17 @@ import java.util.List;
 
 public class LHSAllergyIntolerance {
 
-	private String getAllergyResource(Integer patientid, String clineffdate, String allergyname, String snomedcode, String PatientRef)
+	private String getAllergyResource(Integer patientid, String clineffdate, String allergyname, String snomedcode, String PatientRef, Integer ddsid)
 	{
 		//AllergyIntolerance allergy = null;
 
 		FhirContext ctx = FhirContext.forDstu3();
 
 		AllergyIntolerance allergy = new AllergyIntolerance();
+
+		allergy.addIdentifier()
+				.setSystem("https://discoverydataservice.net")
+				.setValue(ddsid.toString());
 
 		allergy.getMeta().addProfile("https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-AllergyIntolerance-1");
 		allergy.setClinicalStatus(AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
@@ -92,7 +96,7 @@ public class LHSAllergyIntolerance {
 					continue;
 				}
 
-				encoded = getAllergyResource(nor,clineffdate,allergyname,snomedcode,location);
+				encoded = getAllergyResource(nor,clineffdate,allergyname,snomedcode,location,id);
 
 				LHShttpSend send = new LHShttpSend();
 				Integer httpResponse = send.Post(repository,id, "", url, encoded, "AllergyIntolerance", nor, typeid);

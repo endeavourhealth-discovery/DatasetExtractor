@@ -31,13 +31,17 @@ public class LHSMedicationStatement {
 		return dose;
 	}
 
-	private String GetMedicationStatementResource(Integer patientid, String dose, String quantityvalue, String quantityunit, String clinicaleffdate, String medicationname, String snomedcode, String PatientRef, String rxref)
+	private String GetMedicationStatementResource(Integer patientid, String dose, String quantityvalue, String quantityunit, String clinicaleffdate, String medicationname, String snomedcode, String PatientRef, String rxref, Integer ddsid)
 	{
 		FhirContext ctx = FhirContext.forDstu3();
 
 		// MedicationStatement rxstatement = null;
 
 		MedicationStatement rxstatement = new MedicationStatement();
+
+		rxstatement.addIdentifier()
+				.setSystem("https://discoverydataservice.net")
+				.setValue(ddsid.toString());
 
 		rxstatement.getMeta().addProfile("https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-MedicationStatement-1");
 
@@ -136,7 +140,7 @@ public class LHSMedicationStatement {
 
 				dose=ss[3]; quantityvalue=ss[4]; quantityunit=ss[5]; clinicaleffdate=ss[6]; id= Integer.parseInt(ss[7]);
 
-				encoded = GetMedicationStatementResource(nor, dose, quantityvalue, quantityunit, clinicaleffdate, drugname, snomedcode, location, rxref);
+				encoded = GetMedicationStatementResource(nor, dose, quantityvalue, quantityunit, clinicaleffdate, drugname, snomedcode, location, rxref, id);
 				System.out.println(encoded);
 
 				LHShttpSend send = new LHShttpSend();

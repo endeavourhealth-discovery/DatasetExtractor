@@ -192,15 +192,96 @@ public class Repository {
         preparedStmt.execute();
     }
 
+    private String getMap(String dbid)  throws SQLException
+    {
+        Integer legacy=0; Integer core=0; String r2="";
+
+        String q = "SELECT legacy,core FROM subscriber_pi.concept_map WHERE core=?";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        preparedStatement.setString(1,dbid);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        r2 = "";
+        while(rs.next()) {
+            legacy=rs.getInt("legacy");
+            core=rs.getInt("core");
+            if (legacy.intValue()==core.intValue()) { continue; }
+            r2=legacy.toString();
+            break;
+        }
+        return r2;
+    }
+
+    private String getConcept(String zcode) throws SQLException
+    {
+        String legacy=""; String code=""; String r2 =""; String dbid="";
+        String q = "SELECT dbid FROM subscriber_pi.concept WHERE code="+zcode;
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            dbid = rs.getString("dbid");
+            r2 = getMap(dbid);
+        }
+
+        preparedStatement.close();
+
+        return r2;
+    }
+
+    private String getCode(String r2) throws SQLException
+    {
+        String code =""; String desc="";
+        String q = "SELECT code,description FROM subscriber_pi.concept where dbid="+r2;
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            code = rs.getString("code");
+            desc = rs.getString("description");
+        }
+
+        preparedStatement.close();
+
+        return code+"~"+desc;
+    }
+
+    public void getTerms() throws SQLException
+    {
+        String code=""; String dbid=""; String r2=""; String str="";
+        String q ="SELECT * FROM data_extracts.snomed_code_set_codes";
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while(rs.next()) {
+            code = rs.getString("snomedCode");
+            r2=getConcept(code);
+            if (r2!="") {
+                str = getCode(r2);
+                System.out.println(str);
+            }
+            if (r2=="") {
+                System.out.println("? "+code+" "+r2);
+            }
+        }
+        preparedStatement.close();
+    }
+
     private void PurgetheQueue(Integer anId, String resource) throws SQLException
     {
         // purge the queues
         String table = ""; String q = "";
 
-        if (resource=="Patient") {table="data_extracts.filteredpatientsdelta";}
-        if (resource=="Observation") {table="data_extracts.filteredobservationsdelta";}
-        if (resource=="MedicationStatement") {table="data_extracts.filteredmedicationsdelta";}
-        if (resource== "AllergyIntolerance") {table="data_extracts.filteredallergiesdelta";};
+        if (resource=="Patient") {table="data_extracts.filteredPatientsDelta";}
+        //if (resource=="Observation") {table="data_extracts.filteredobservationsdelta";}
+        if (resource=="Observation") {table="data_extracts.filteredObservationsDelta";}
+        if (resource=="MedicationStatement") {table="data_extracts.filteredMedicationsDelta";}
+        if (resource== "AllergyIntolerance") {table="data_extracts.filteredAllergiesDelta";};
 
         if (table.length()>0) {
             q = "DELETE FROM " + table + " where id='" + anId + "'";
@@ -737,6 +818,13 @@ public class Repository {
             id = rs.getInt("id");
 
             List<Integer> row = new ArrayList<>();
+
+            // 10k testing!
+            //for (int i = 0; i < 14; i++) {
+            //    List<Integer> row = new ArrayList<>();
+            //    result.add(id);
+            //}
+
             result.add(id);
         }
         preparedStatement.close();
@@ -846,6 +934,18 @@ public class Repository {
 
             scaletotal = Integer.parseInt(props.getProperty("scaletotal"));
 
+            System.out.println("mysql url: "+ss[0]);
+            System.out.println("mysql user: "+ss[1]);
+            System.out.println("mysql pass: "+ss[2]);
+            System.out.println("mysql db: "+dbschema);
+            System.out.println("baseurl: "+baseURL);
+            System.out.println("scale tot: "+scaletotal);
+            System.out.println("disk: "+outputFHIR);
+
+            Scanner scan = new Scanner(System.in);
+            System.out.print("Press any key to continue . . . ");
+            scan.nextLine();
+
             dataSource = new MysqlDataSource();
 
             System.out.println(">> " + outputFHIR);
@@ -857,10 +957,6 @@ public class Repository {
             dataSource.setURL(ss[0]);
             dataSource.setUser(ss[1]);
             dataSource.setPassword(ss[2]);
-
-            System.out.println(ss[0]);
-            System.out.println(ss[1]);
-            System.out.println(ss[2]);
 
             /* test
             Scanner sc = new Scanner(System.in);

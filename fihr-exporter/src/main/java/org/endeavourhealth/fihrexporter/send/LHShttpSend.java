@@ -18,6 +18,7 @@ import org.json.*;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class LHShttpSend {
 
@@ -294,7 +295,12 @@ public class LHShttpSend {
 
 			if (repository.outputFHIR != null) {
 				String folder = repository.outputFHIR;
-				String file = folder+resource+"-"+anId+strid+".json";
+
+				UUID uuid = UUID.randomUUID();
+                String uuidStr = uuid.toString();
+
+				//String file = folder+resource+"-"+anId+strid+".json";
+                String file = folder+anId+"-"+resource+"-"+uuidStr+".json";
 
 				boolean FileExists = false;
 				Path path = Paths.get(file);
@@ -302,7 +308,8 @@ public class LHShttpSend {
 
 				Files.write(Paths.get(file), encoded.getBytes());
 
-				location = resource+"-"+anId+strid+".json";
+				//location = resource+"-"+anId+strid+".json";
+                location = anId+"-"+resource+"-"+uuidStr+".json";
 
 				//if (FileExists==false) repository.Audit(anId, strid, resource, 123, location, encoded, patientid, typeid);
 				repository.Audit(anId, strid, resource, 123, location, encoded, patientid, typeid);
@@ -313,8 +320,11 @@ public class LHShttpSend {
 			// decide if it's a post or a put?
 			if (anId != 0) {location = repository.getLocation(anId, resource);}
 
+			// 10k test
+            // location = "";
+
 			// snomed reference?
-			if (location.length() == 0) {
+			if ( (location.length() == 0) & (strid.length()>0) ) {
 				location = repository.GetMedicationReference(strid);
 			}
 
