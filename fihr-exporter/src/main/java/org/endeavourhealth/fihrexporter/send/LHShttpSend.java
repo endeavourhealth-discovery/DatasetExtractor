@@ -227,8 +227,6 @@ public class LHShttpSend {
 
 			Integer responseCode=0;
 			responseCode = Delete(repository,anId,resource,patientid,typeid);
-			// need to check the response code
-			// purge the delete queue
 
 			String ids=""; String id="";
 			String loc = repository.getLocationObsWithCheckingDeleted(anId);
@@ -245,6 +243,7 @@ public class LHShttpSend {
 				if (repository.getLocation(Integer.parseInt(id),"Observation").length()==0) continue;
 				repository.InsertBackIntoObsQueue(Integer.parseInt(id));
 			}
+			return responseCode;
 		}
 		catch(Exception e)
 		{
@@ -266,13 +265,17 @@ public class LHShttpSend {
 
         responseCode = DeleteTLS(repository, anId, resource, patientid, typeid, loc);
 
-        if (responseCode == 401)  {
+        if (responseCode.equals(401))  {
             repository.token = GetToken(repository);
             responseCode = DeleteTLS(repository, anId, resource, patientid, typeid, loc);
         }
 
-        repository.Audit(anId, "", "DEL:"+resource, responseCode, loc, "", patientid, typeid);
+        if (responseCode.equals(204)) {
+			repository.Audit(anId, "", "DEL:"+resource, responseCode, loc, "", patientid, typeid);
+			repository.PurgeTheDeleteQueue(anId, resource);
+		}
 
+		return responseCode;
         }
         catch(Exception e)
         {

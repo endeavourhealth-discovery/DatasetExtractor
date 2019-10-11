@@ -112,12 +112,28 @@ public class Repository {
     }
 
     public void InsertBackIntoObsQueue(Integer id) throws SQLException {
-        String q ="insert into data_extracts.filteredobservationsdelta (id) values(?)";
+        // does the id already exist in filteredobservationsdelta?
+        String q ="select id from data_extracts.filteredobservationsdelta where id="+id;
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        Boolean alreadyinq = false;
+        if (rs.next()) {
+            alreadyinq = true;
+        }
+
+        preparedStatement.close();
+
+        if (alreadyinq==true) return;
+
+        q ="insert into data_extracts.filteredobservationsdelta (id) values(?)";
         System.out.println("back into q "+q);
-        //PreparedStatement preparedStmt = connection.prepareStatement(q);
-        //preparedStmt.setInt(1, id);
-        //preparedStmt.execute();
-        //preparedStmt.close();
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        preparedStmt.setInt(1, id);
+        preparedStmt.execute();
+        preparedStmt.close();
     }
 
     public String getLocationObsWithCheckingDeleted(Integer anid) throws SQLException {
@@ -294,10 +310,7 @@ public class Repository {
     public void PurgeTheDeleteQueue(Integer anId, String resource) throws SQLException
     {
         //filteredDeletionsDelta (id, type)
-        //patient - 2
-        //observation - 11
-        //allergy - 4
-        //medication - 10
+        //patient - 2, observation - 11, allergy - 4, medication - 10
 
         Integer type=0; String q="";
 
@@ -307,10 +320,10 @@ public class Repository {
         if (resource=="AllergyIntolerance") {type=4;}
 
         if (type !=0) {
-            q = "DELETE FROM filteredDeletionsDelta where id='"+anId+" AND type='"+type+"'";
-            //PreparedStatement preparedStmt = connection.prepareStatement(q);
-            //preparedStmt.execute();
-            //preparedStmt.close();
+            q = "DELETE FROM filteredDeletionsDelta where record_id='"+anId+"' AND table_id='"+type+"'";
+            PreparedStatement preparedStmt = connection.prepareStatement(q);
+            preparedStmt.execute();
+            preparedStmt.close();
         }
     }
 
@@ -801,6 +814,65 @@ public class Repository {
         return result;
     }
 
+    private Integer getPatientId(String id, String tablename) throws SQLException {
+        Integer nor=0;
+
+        if (tablename.equals("patient")) {return Integer.parseInt(id);}
+
+        if (tablename.length()==0) return 0;
+
+        String preparedSql = "select patient_id from "+dbschema+"."+tablename+" where id="+id;
+
+        PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            nor = rs.getInt("patient_id");
+        }
+
+        preparedStatement.close();
+
+        return nor;
+    }
+
+    public List<List<String>> getDeleteRows() throws SQLException {
+        String preparedSql = "select * from data_extracts.filteredDeletionsDelta";
+        PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
+        ResultSet rs = preparedStatement.executeQuery();
+        List<List<String>> result = new ArrayList<>();
+
+        Integer recid=0; Integer tableid=0; Integer nor=0; String resource="";
+        String tablename="";
+
+        while (rs.next()) {
+            recid = rs.getInt("record_id");
+            tableid = rs.getInt("table_id");
+
+            // patient - 2, observation - 11, allergy - 4, medication - 10
+            tablename="";
+            if (tableid.equals(2)) {tablename="patient"; resource="Patient";}
+            if (tableid.equals(11)) {tablename="observation"; resource="Observation";}
+            if (tableid.equals(4)) {tablename="allergy_intolerance"; resource="AllergyIntolerance";}
+            if (tableid.equals(10)) {tablename="medication_statement"; resource="MedicationStatement";}
+
+            if (tablename.length()==0) continue;
+
+            nor = getPatientId(recid.toString(), tablename);
+
+            List<String> row = new ArrayList<>();
+            row.add(recid.toString());
+            row.add(tableid.toString());
+            row.add(nor.toString());
+            row.add(tablename);
+            row.add(resource);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+
+        return result;
+    }
+
     public List<Integer> getRows(String table) throws SQLException {
         String preparedSql = "select * from " + table;
 
@@ -834,6 +906,7 @@ public class Repository {
 
         return result;
     }
+
     public List<Integer> getPatientRows() throws SQLException {
 
         // String preparedSql = "select * from data_extracts.cohort";
