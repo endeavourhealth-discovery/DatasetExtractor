@@ -13,13 +13,17 @@ import java.util.List;
 
 public class LHSAllergyIntolerance {
 
-	private String getAllergyResource(Integer patientid, String clineffdate, String allergyname, String snomedcode, String PatientRef, Integer ddsid)
+	private String getAllergyResource(Integer patientid, String clineffdate, String allergyname, String snomedcode, String PatientRef, Integer ddsid, String putloc)
 	{
 		//AllergyIntolerance allergy = null;
 
 		FhirContext ctx = FhirContext.forDstu3();
 
 		AllergyIntolerance allergy = new AllergyIntolerance();
+
+		if (putloc.length()>0) {
+			allergy.setId(putloc);
+		}
 
 		allergy.addIdentifier()
 				.setSystem("https://discoverydataservice.net")
@@ -64,8 +68,8 @@ public class LHSAllergyIntolerance {
 		Integer id = 0; Integer j = 0;
 
 		Integer nor = 0;
-		String allergyname = ""; String snomedcode = ""; String clineffdate = "";
-		String location=""; Integer typeid = 4;
+		String allergyname =""; String snomedcode=""; String clineffdate="";
+		String location=""; Integer typeid = 4; String putloc="";
 
 		while (ids.size() > j) {
 
@@ -96,7 +100,9 @@ public class LHSAllergyIntolerance {
 					continue;
 				}
 
-				encoded = getAllergyResource(nor,clineffdate,allergyname,snomedcode,location,id);
+				putloc = repository.getLocation(id, "AllergyIntolerance");
+
+				encoded = getAllergyResource(nor,clineffdate,allergyname,snomedcode,location,id,putloc);
 
 				LHShttpSend send = new LHShttpSend();
 				Integer httpResponse = send.Post(repository,id, "", url, encoded, "AllergyIntolerance", nor, typeid);

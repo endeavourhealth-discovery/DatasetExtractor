@@ -45,7 +45,7 @@ public class LHSObservation {
 		return occ;
 	}
 
-	private String getObervationResource(Repository repository, Integer patientid, String snomedcode, String orginalterm, String resultvalue, String clineffdate, String resultvalunits, String PatientRef, String ids, Integer parent, Integer ddsid)
+	private String getObervationResource(Repository repository, Integer patientid, String snomedcode, String orginalterm, String resultvalue, String clineffdate, String resultvalunits, String PatientRef, String ids, Integer parent, Integer ddsid, String putloc)
 	{
 		String id = "";
 
@@ -55,6 +55,9 @@ public class LHSObservation {
 
 		Observation observation = new Observation();
 
+		if (putloc.length()>0) {
+			observation.setId(putloc);
+		}
 		observation.setStatus(Observation.ObservationStatus.FINAL);
 
         observation.addIdentifier()
@@ -181,7 +184,7 @@ public class LHSObservation {
 		String clineffdate = ""; String resultvalunits = ""; String location="";
 		Integer typeid = 11; String t = ""; Integer parent =0; String parentids = "";
 
-        String url = baseURL + "Observation";
+        String url = baseURL + "Observation"; String putloc="";
 
 		ResultSet rs; String result = "";
 
@@ -235,7 +238,9 @@ public class LHSObservation {
 					continue;
 				}
 
-				encoded = getObervationResource(repository, nor, snomedcode, orginalterm, result_value, clineffdate, resultvalunits, location, parentids, parent, id);
+				putloc = repository.getLocation(id, "Observation");
+
+				encoded = getObervationResource(repository, nor, snomedcode, orginalterm, result_value, clineffdate, resultvalunits, location, parentids, parent, id, putloc);
 
 				// post
 				Integer httpResponse;

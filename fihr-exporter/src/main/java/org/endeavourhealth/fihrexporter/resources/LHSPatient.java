@@ -18,11 +18,15 @@ import org.endeavourhealth.fihrexporter.resources.LHSOrganization;
 
 public class LHSPatient {
 
-	private static String getPatientResource(Integer PatId, String nhsNumber, String dob, String dod, String add1, String add2, String add3, String add4, String city, String startdate, String gender, String title, String firstname, String lastname, String telecom, String orglocation, String postcode)
+	private static String getPatientResource(Integer PatId, String nhsNumber, String dob, String dod, String add1, String add2, String add3, String add4, String city, String startdate, String gender, String title, String firstname, String lastname, String telecom, String orglocation, String postcode, String putloc)
 	{
 		FhirContext ctx = FhirContext.forDstu3();
 
 		Patient patient = new Patient();
+
+		if (putloc.length()>0) {
+			patient.setId(putloc);
+		}
 
 		patient.addIdentifier()
 				.setSystem("https://discoverydataservice.net")
@@ -134,7 +138,7 @@ public class LHSPatient {
 		String contacttype = ""; String contactuse = ""; String contactvalue = "";
 		String firstname =""; String lastname = ""; String telecom = ""; String query = "";
 		String odscode = ""; String orgname = ""; String orgpostcode = ""; Integer orgid = 0;
-		Integer typeid = 2; String encoded = ""; String postcode = "";
+		Integer typeid = 2; String encoded = ""; String postcode = ""; String putloc="";
 
 		boolean prev; String orglocation;
 
@@ -167,7 +171,9 @@ public class LHSPatient {
 			contacttype=ss[12]; contactuse=ss[13]; contactvalue=ss[14]; title=ss[15]; firstname=ss[16];
 			lastname=ss[17]; startdate=ss[18]; postcode=ss[21];
 
-			encoded = getPatientResource(nor, nhsno, dob, dod, add1, add2, add3, add4, city, startdate, gender, title, firstname, lastname, telecom, orglocation, postcode);
+			putloc = repository.getLocation(nor, "Patient");
+
+			encoded = getPatientResource(nor, nhsno, dob, dod, add1, add2, add3, add4, city, startdate, gender, title, firstname, lastname, telecom, orglocation, postcode, putloc);
 
 			LHShttpSend send = new LHShttpSend();
 			Integer httpResponse = send.Post(repository, nor, "", url, encoded, "Patient", nor, typeid);

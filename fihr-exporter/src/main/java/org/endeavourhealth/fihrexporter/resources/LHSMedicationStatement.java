@@ -31,13 +31,17 @@ public class LHSMedicationStatement {
 		return dose;
 	}
 
-	private String GetMedicationStatementResource(Integer patientid, String dose, String quantityvalue, String quantityunit, String clinicaleffdate, String medicationname, String snomedcode, String PatientRef, String rxref, Integer ddsid)
+	private String GetMedicationStatementResource(Integer patientid, String dose, String quantityvalue, String quantityunit, String clinicaleffdate, String medicationname, String snomedcode, String PatientRef, String rxref, Integer ddsid, String putloc)
 	{
 		FhirContext ctx = FhirContext.forDstu3();
 
 		// MedicationStatement rxstatement = null;
 
 		MedicationStatement rxstatement = new MedicationStatement();
+
+		if (putloc.length()>0) {
+			rxstatement.setId(putloc);
+		}
 
 		rxstatement.addIdentifier()
 				.setSystem("https://discoverydataservice.net")
@@ -92,7 +96,7 @@ public class LHSMedicationStatement {
 		String dose = ""; String quantityvalue; String quantityunit = "";
 		String clinicaleffdate = ""; String location = ""; Integer typeid = 10;
 
-		String url = baseURL + "MedicationStatement";
+		String url = baseURL + "MedicationStatement"; String putloc="";
 
 		Integer j = 0;
 
@@ -140,7 +144,9 @@ public class LHSMedicationStatement {
 
 				dose=ss[3]; quantityvalue=ss[4]; quantityunit=ss[5]; clinicaleffdate=ss[6]; id= Integer.parseInt(ss[7]);
 
-				encoded = GetMedicationStatementResource(nor, dose, quantityvalue, quantityunit, clinicaleffdate, drugname, snomedcode, location, rxref, id);
+				putloc = repository.getLocation(id, "MedicationStatement");
+
+				encoded = GetMedicationStatementResource(nor, dose, quantityvalue, quantityunit, clinicaleffdate, drugname, snomedcode, location, rxref, id, putloc);
 				System.out.println(encoded);
 
 				LHShttpSend send = new LHShttpSend();
