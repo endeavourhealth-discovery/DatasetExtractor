@@ -1,7 +1,6 @@
 package org.endeavourhealth.reportgenerator.model;
 
 import lombok.Data;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.ConstraintViolation;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-@ToString
 public class Report {
 
     @NotNull
@@ -28,6 +26,8 @@ public class Report {
 
     private Boolean active = true;
     private boolean success = false;
+
+    private Schedule schedule;
 
     //Extensions
     private List<@Valid Extension> extensions;
