@@ -24,7 +24,7 @@ public class SftpUpload {
     @NotNull
     private String username;
 
-    private Integer port = 22;
+    private Integer port = 990;
 
     @NotNull
     private String hostDirectory;
