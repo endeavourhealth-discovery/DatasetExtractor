@@ -8,10 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
-import org.endeavourhealth.reportgenerator.util.DeltaExecutor;
-import org.endeavourhealth.reportgenerator.util.ExtensionExecutor;
-import org.endeavourhealth.reportgenerator.util.FileEncrypter;
-import org.endeavourhealth.reportgenerator.util.SFTPUploader;
+import org.endeavourhealth.reportgenerator.util.*;
 import org.endeavourhealth.reportgenerator.validator.ReportValidator;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -163,7 +160,9 @@ public class ReportGenerator implements AutoCloseable {
 
         cleanOutputDirectory(stagingDirectory);
 
-        String filenameToSftp = zipDirectory(report);
+        FileZipper fileZipper = new FileZipper( properties );
+
+        String filenameToSftp = fileZipper.zip( report );
 
         File fileToSftp = new File(filenameToSftp);
 
@@ -207,30 +206,6 @@ public class ReportGenerator implements AutoCloseable {
         }
     }
 
-    public String zipDirectory(Report report) throws Exception {
-
-        CSVExport csvExport = report.getCsvExport();
-
-        File source = new File(csvExport.getOutputDirectory());
-        File staging = new File(properties.getProperty("csv.staging.directory"));
-
-        log.debug("Compressing contents of: " + source.getAbsolutePath());
-
-        String fileName = report.getSftpUpload().getZipFilename() == null ? source.getName() :  report.getSftpUpload().getZipFilename();
-
-        ZipFile zipFile = new ZipFile(staging + File.separator + fileName + ".zip");
-
-        log.info("Creating file: " + zipFile.getFile().getAbsolutePath());
-
-        ZipParameters parameters = new ZipParameters();
-        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-        parameters.setIncludeRootFolder(false);
-
-        zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
-
-        return zipFile.getFile().getAbsolutePath();
-    }
 
     private void cleanOutputDirectory(File directory) throws IOException {
       log.info("Deleting all files from directory {}", directory);
