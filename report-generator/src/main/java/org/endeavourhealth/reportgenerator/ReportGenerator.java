@@ -160,9 +160,9 @@ public class ReportGenerator implements AutoCloseable {
 
         cleanOutputDirectory(stagingDirectory);
 
-        FileZipper fileZipper = new FileZipper( properties );
+        FileZipper fileZipper = new FileZipper(report, properties );
 
-        String filenameToSftp = fileZipper.zip( report );
+        String filenameToSftp = fileZipper.zip();
 
         File fileToSftp = new File(filenameToSftp);
 

@@ -18,23 +18,24 @@ public class FileZipper {
 
     private final File staging;
 
-    private final Report report;
+    private String fileName;
 
     public FileZipper(Report report, Properties properties) {
         this.source = new File(report.getCsvExport().getOutputDirectory());
-        this.staging = new File(  properties.getProperty("csv.staging.directory") );
-        this.report = report;
+        this.staging = new File(properties.getProperty("csv.staging.directory"));
+        this.fileName = report.getSftpUpload().getZipFilename() == null ? source.getName() : report.getSftpUpload().getZipFilename();
+        this.fileName = checkForExpressions(this.fileName);
     }
 
     public String zip() throws Exception {
 
         log.debug("Compressing contents of: " + source.getAbsolutePath());
 
-        String fileName = getZipFilename();
-
         ZipFile zipFile = new ZipFile(staging + File.separator + fileName + ".zip");
 
-        log.info("Creating file: " + zipFile.getFile().getAbsolutePath());
+        String absolutePath = zipFile.getFile().getAbsolutePath();
+
+        log.info("Creating file: " + absolutePath);
 
         ZipParameters parameters = new ZipParameters();
         parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
@@ -43,26 +44,17 @@ public class FileZipper {
 
         zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
 
-        return zipFile.getFile().getAbsolutePath();
+        return absolutePath;
     }
 
-    private String getZipFilename() {
-
-        String filename = report.getSftpUpload().getZipFilename() == null ? source.getName() : report.getSftpUpload().getZipFilename();
-
-        filename = buildFilename(filename);
-
-        return filename;
-    }
-
-    private String buildFilename(String filename) {
-        if(filename.contains("{today}")) {
+    private String checkForExpressions(String filename) {
+        if (filename.contains("{today}")) {
 
             LocalDate localDate = LocalDate.now();
 
             String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-            return  filename.replace("{today}", today);
+            return filename.replace("{today}", today);
         }
 
         return filename;
