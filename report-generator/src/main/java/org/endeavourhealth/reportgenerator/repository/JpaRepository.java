@@ -61,7 +61,7 @@ public class JpaRepository {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery(storedProceduresName);
 
-        query.execute();
+        boolean execute = query.execute();
 
         entityManager.close();
     }

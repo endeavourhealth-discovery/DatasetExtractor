@@ -17,7 +17,7 @@ public class StoredProcedureExecutor {
 
     private List<String> postStoredProcedures;
 
-    private String smokeTestProcedures;
+    private String smokeTestProcedure;
 
     private Database database = Database.COMPASS;
 
