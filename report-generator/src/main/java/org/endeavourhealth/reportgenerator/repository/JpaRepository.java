@@ -53,7 +53,7 @@ public class JpaRepository {
     }
 
 
-    public void call(String storedProceduresName, StoredProcedureExecutor storedProcedureExecutor) {
+    public boolean call(String storedProceduresName, StoredProcedureExecutor storedProcedureExecutor) {
 
         log.info("Calling stored procedure {} with database {}", storedProceduresName, storedProcedureExecutor.getDatabase());
 
@@ -64,6 +64,8 @@ public class JpaRepository {
         boolean execute = query.execute();
 
         entityManager.close();
+
+        return execute;
     }
 
     /**
