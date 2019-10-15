@@ -18,6 +18,8 @@ public class SftpUpload {
     @NotNull
     private String privateKeyFile;
 
+    private String zipFilename;
+
     @NotNull
     private String hostname;
 

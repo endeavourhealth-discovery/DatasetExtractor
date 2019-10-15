@@ -6,7 +6,6 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
-import org.endeavourhealth.fihrexporter.FihrExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.DeltaExecutor;
@@ -17,13 +16,11 @@ import org.endeavourhealth.reportgenerator.validator.ReportValidator;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import javax.validation.ConstraintViolation;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 @Slf4j
 public class ReportGenerator implements AutoCloseable {
@@ -83,7 +80,7 @@ public class ReportGenerator implements AutoCloseable {
 
         exportToFihr(report);
 
-        uploadToSFTP(report);
+        zipAndUploadToSFTP(report);
 
         report.setSuccess(true);
 
@@ -148,7 +145,7 @@ public class ReportGenerator implements AutoCloseable {
         this.repository = new JpaRepository(properties, report.getStoredProcedureExecutor().getDatabase());
     }
 
-    private void uploadToSFTP(Report report) throws Exception {
+    private void zipAndUploadToSFTP(Report report) throws Exception {
 
         SftpUpload sftpUpload = report.getSftpUpload();
 
@@ -219,7 +216,9 @@ public class ReportGenerator implements AutoCloseable {
 
         log.debug("Compressing contents of: " + source.getAbsolutePath());
 
-        ZipFile zipFile = new ZipFile(staging + File.separator + source.getName() + ".zip");
+        String fileName = report.getSftpUpload().getZipFilename() == null ? source.getName() :  report.getSftpUpload().getZipFilename();
+
+        ZipFile zipFile = new ZipFile(staging + File.separator + fileName + ".zip");
 
         log.info("Creating file: " + zipFile.getFile().getAbsolutePath());
 
