@@ -13,6 +13,7 @@
         <module>csv-exporter</module>
         <module>report-generator</module>
         <module>fihr-exporter</module>
+        <module>mysql-exporter</module>
     </modules>
 
     <properties>
