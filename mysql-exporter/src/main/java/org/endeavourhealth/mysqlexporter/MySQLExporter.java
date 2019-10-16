@@ -22,7 +22,7 @@ public class MySQLExporter implements AutoCloseable {
    public void export() throws Exception {
         // create the allergy csv data from the reference table
         //LHSSQLAllergyIntolerance AllergySQL = new LHSSQLAllergyIntolerance();
-        //AllergySQL.Run(this.repository);
+        // AllergySQL.Run(this.repository);
 
         //LHSSQLMedicationStatement rx = new LHSSQLMedicationStatement();
         //rx.Run(this.repository);

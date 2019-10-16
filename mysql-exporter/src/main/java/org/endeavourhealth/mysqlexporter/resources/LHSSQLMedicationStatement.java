@@ -12,8 +12,6 @@ public class LHSSQLMedicationStatement {
 	{
 		String result="";
 
-		System.out.println("Running Allergy SQL");
-
 		List<Integer> ids = repository.getRows("MedicationStatement","filteredMedicationsDelta");
 
 		Integer id = 0; Integer j = 0;

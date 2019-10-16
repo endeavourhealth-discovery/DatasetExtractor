@@ -57,7 +57,9 @@ public class LHSSQLObservation {
 
 			nor = Integer.parseInt(ss[0]); snomedcode=ss[1]; orginalterm=ss[2]; result_value=ss[3]; clineffdate=ss[4]; resultvalunits=ss[5];
 
-			System.out.println(id+","+nor+","+clineffdate+","+snomedcode+","+orginalterm+","+resultvalue+","+resultvalunits);
+			if (parent==0) {
+                System.out.println(id + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits);
+            }
 
 			repository.Audit(id, "", "ReportTracker", 0, "dum", "", nor, 0);
 
@@ -65,11 +67,9 @@ public class LHSSQLObservation {
 				parentids = repository.getIdsFromParent(parent);
 
 				ObsRec= repository.getObservationRecord(Integer.toString(parent));
-
 				ss = ObsRec.split("\\~");
-
-				noncoreconceptid = ss[0]; orginalterm = ss[1];
-				if (noncoreconceptid.length()==0) noncoreconceptid = ss[5];
+                snomedcode = ss[0]; orginalterm = ss[1]; resultvalue = ss[2]; clineffdate = ss[3]; resultvalunits = ss[4];
+                System.out.println(parent + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits);
 
 				if (parentids.length() > 0)
 				{

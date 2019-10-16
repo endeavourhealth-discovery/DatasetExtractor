@@ -70,7 +70,7 @@ public class LHSObservation {
 		if (parent !=0) {
 			try {
 
-				ObsRec= repository.getObservationRecord(Integer.toString(parent));
+				ObsRec= repository.getObservationRecordNew(Integer.toString(parent));
 
 				String[] ss = ObsRec.split("\\~");
 
@@ -122,7 +122,7 @@ public class LHSObservation {
 				id = ss[i];
 				try {
 
-					ObsRec = repository.getObservationRecord(id);
+					ObsRec = repository.getObservationRecordNew(id);
 
 					if (ObsRec.length() == 0) {continue;}
 					String obs[] = ObsRec.split("\\~");
@@ -201,7 +201,7 @@ public class LHSObservation {
 				System.out.println("test");
 			}
 
-            result = repository.getObservationRS(id);
+            result = repository.getObservationRSNew(id);
 
             if (result.length()>0) {
 

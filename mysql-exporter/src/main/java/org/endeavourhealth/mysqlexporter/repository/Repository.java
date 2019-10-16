@@ -126,32 +126,31 @@ public class Repository {
 
         preparedStatement.close();
 
-        // needs to run a query to return read codes instead!
-        /*
-        select o.id,
-                o.patient_id,
-                c.code as snomed_code,
-        c.name as original_term,
-                o.result_value,
-                o.clinical_effective_date,
-                o.parent_observation_id,
-                o.result_value_units
-        from nwl_subscriber_pid.observation o
-        -- join nwl_subscriber_pid.concept_map cm on cm.legacy = o.non_core_concept_id
-                -- join nwl_subscriber_pid.concept c on c.dbid = cm.core
-                -- join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code
-        join  nwl_subscriber_pid.concept c on c.dbid = o.non_core_concept_id
-        where o.id = '471669'
-        */
-
         if (obsrec.length()==0) {
-            q = "select * from "+dbschema+".observation where id = "+id;
+
+            // q = "select * from "+dbschema+".observation where id = "+id;
+
+            q = "select ";
+            q = q + "o.id,\n\r"
+                    + "o.patient_id,\n\r"
+                    + "c.code as snomed_code,\n\r"
+                    + "c.name as original_term,\n\r"
+                    + "o.result_value,\n\r"
+                    + "o.clinical_effective_date,\n\r"
+                    + "o.parent_observation_id,\n\r"
+                    + "o.result_value_units,\n\r"
+                    + "o.non_core_concept_id \n\r"
+                    + "from "+dbschema+".observation o \n\r"
+                    + "join  "+dbschema+".concept c on c.dbid = o.non_core_concept_id "
+                    + "where o.id = '"+id+"'";
+
             preparedStatement = connection.prepareStatement(q);
             rs = preparedStatement.executeQuery();
             if (rs.next()) { ;
                 result_value = rs.getString("result_value"); clineffdate = rs.getString("clinical_effective_date"); resultvalunits = rs.getString("result_value_units");
-                noncoreconceptid = rs.getInt("non_core_concept_id");
-                obsrec = "~~"+result_value+"~"+clineffdate+"~"+resultvalunits+"~"+noncoreconceptid;
+                noncoreconceptid = rs.getInt("non_core_concept_id"); orginalterm=rs.getString("original_term");
+                snomedcode = rs.getString("snomed_code");
+                obsrec = snomedcode+"~"+orginalterm+"~"+result_value+"~"+clineffdate+"~"+resultvalunits+"~"+noncoreconceptid;
             }
             preparedStatement.close();
         }
@@ -211,13 +210,9 @@ public class Repository {
             result = nor.toString()+"~"+snomedcode+"~"+orginalterm+"~"+result_value+"~"+clineffdate+"~"+resultvalunits+"~"+rs.getInt("parent_observation_id");
         }
 
-        System.out.println(q);
-
-        /*
         if (result.length()==0) {
             System.out.println(q);
         }
-        */
 
         preparedStatement.close();
 
@@ -343,6 +338,47 @@ public class Repository {
         return result;
     }
 
+    public String getMedicationStatementRSOld(Integer record_id) throws SQLException {
+        String q = ""; String result = "";
+
+
+        q = "select " + "ms.id," + "ms.patient_id," + "ms.dose," + "ms.quantity_value," + "ms.quantity_unit," + "ms.clinical_effective_date,"
+                + "c.name as medication_name," + "c.code as snomed_code, c.name as drugname "
+                + "from "+dbschema+".medication_statement ms "
+                // + "join "+dbschema+".concept_map cm on cm.legacy = ms.non_core_concept_id "
+                // + "join "+dbschema+".concept c on c.dbid = cm.core "
+                + "join "+dbschema+".concept c on c.dbid = ms.non_core_concept_id "
+                + "where ms.id = '" + record_id + "'";
+
+        //System.out.println(q);
+        //Scanner scan = new Scanner(System.in);
+        //System.out.print("Press any key to continue . . . ");
+        //scan.nextLine();
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            Integer nor = rs.getInt("patient_id");
+            String snomedcode = rs.getString("snomed_code");
+            String drugname = rs.getString("drugname");
+            String dose = rs.getString("dose"); String quantityvalue = rs.getString("quantity_value");
+            String quantityunit = rs.getString("quantity_unit"); String clinicaleffdate = rs.getString("clinical_effective_date");
+            Integer id = rs.getInt(1);
+
+            if (rs.getString("dose")==null) {dose="";}
+            if (rs.getString("quantity_value")==null) {quantityvalue="";}
+            if (rs.getString("quantity_unit")==null) {quantityunit="";}
+
+            // dose contained a ~!
+            result = nor+"`"+snomedcode+"`"+drugname+"`"+dose+"`"+quantityvalue+"`"+quantityunit+"`"+clinicaleffdate+"`"+id;
+        }
+        preparedStatement.close();
+
+        return result;
+    }
+
     public String getMedicationStatementRS(Integer record_id) throws SQLException {
         String q = ""; String result = "";
 
@@ -381,7 +417,48 @@ public class Repository {
             // dose contained a ~!
             result = nor+"`"+snomedcode+"`"+drugname+"`"+dose+"`"+quantityvalue+"`"+quantityunit+"`"+clinicaleffdate+"`"+id;
         }
+
         preparedStatement.close();
+
+        if (result.length()==0) {
+            result = getMedicationStatementRSOld(record_id);
+        }
+
+        return result;
+    }
+
+    public String getAllergyIntoleranceRSOld(Integer record_id) throws SQLException {
+        String q = "select "; String result = "";
+
+        q =q + "ai.id,"
+                + "ai.patient_id,"
+                + "ai.clinical_effective_date,"
+                + "c.name as allergy_name,"
+                + "c.code as snomed_code "
+                + "from "+dbschema+".allergy_intolerance ai "
+                //+ "join "+dbschema+".concept_map cm on cm.legacy = ai.non_core_concept_id "
+                //+ "join "+dbschema+".concept c on c.dbid = cm.core "
+                + "join "+dbschema+".concept c on c.dbid = ai.non_core_concept_id "
+                + "where ai.id = '"+record_id+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            Integer nor = rs.getInt("patient_id");
+            String clineffdate = rs.getString(3);
+            String allergyname = rs.getString(4);
+            String snomedcode = rs.getString(5);
+            result = nor+"~"+clineffdate+"~"+allergyname+"~"+snomedcode;
+        }
+
+        preparedStatement.close();
+
+        if (result.length()==0) {
+            System.out.println("?"+record_id);
+            System.out.println(q);
+        }
 
         return result;
     }
@@ -416,6 +493,11 @@ public class Repository {
 
         preparedStatement.close();
 
+        if (result.length()==0)
+        {
+            result = getAllergyIntoleranceRSOld(record_id);
+        }
+
         return result;
     }
 
@@ -423,7 +505,7 @@ public class Repository {
         List<Integer> result = new ArrayList<>();
         // String preparedSql = "select distinct an_id from data_extracts.references where resource='"+resource+"'";
 
-        String preparedSql = "select * from data_extracts."+table+" LIMIT 10000";
+        String preparedSql = "select * from data_extracts."+table +" LIMIT 10000";
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
         ResultSet rs = preparedStatement.executeQuery();
