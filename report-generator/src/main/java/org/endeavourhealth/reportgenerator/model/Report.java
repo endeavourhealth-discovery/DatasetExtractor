@@ -17,7 +17,6 @@ public class Report {
     private String name;
 
     //Validation
-    private Boolean isValid;
     private Set<ConstraintViolation<Report>> constraintViolations;
 
     //Database
@@ -35,11 +34,6 @@ public class Report {
     //Delta
     private Delta delta;
 
-    //Schedule
-    private Boolean isDaily = false;
-    private String dayOfMonth;
-    private String dayOfWeek;
-
     //CSV
     @Valid
     private CSVExport csvExport;
@@ -51,6 +45,8 @@ public class Report {
     //SFTP
     @Valid
     private SftpUpload sftpUpload;
+
+    private String result;
 
     public boolean requiresDatabase() {
         //Filter not needed, but more explicit if declared here
@@ -70,6 +66,17 @@ public class Report {
         //Csv export uses own datasource, as was designed to be stand alone
 
         return false;
+    }
+
+    public boolean isValid() {
+        return constraintViolations.isEmpty() ? false : true;
+    }
+
+    public void setInvalidResult(String result) {
+
+        for (ConstraintViolation<Report> constraintViolation : constraintViolations) {
+            result = result + constraintViolation.getPropertyPath() + " : " + constraintViolation.getMessage();
+        }
     }
 
     //FHIR

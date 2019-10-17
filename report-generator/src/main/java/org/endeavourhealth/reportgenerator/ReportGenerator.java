@@ -52,8 +52,14 @@ public class ReportGenerator implements AutoCloseable {
 
         for (Report report : reports) {
 
-            if (!report.getActive()) continue;
-            if (!report.getIsValid()) continue;
+            if (!report.getActive()) {
+                report.setResult("Report not run as is not active");
+                continue;
+            }
+            if (!report.isValid()) {
+                report.setInvalidResult("Report not run as is report is not valid");
+                continue;
+            }
 
             executeReport(report);
         }
