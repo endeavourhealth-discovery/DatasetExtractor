@@ -55,7 +55,7 @@ public class LHSSQLObservation {
 			ss = result.split("\\~");
 			parent=Integer.parseInt(ss[6]);
 
-			nor = Integer.parseInt(ss[0]); snomedcode=ss[1]; orginalterm=ss[2]; result_value=ss[3]; clineffdate=ss[4]; resultvalunits=ss[5];
+			nor = Integer.parseInt(ss[0]); snomedcode=ss[1]; orginalterm=ss[2]; resultvalue=ss[3]; clineffdate=ss[4]; resultvalunits=ss[5];
 
 			if (parent==0) {
                 System.out.println(id + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits);
