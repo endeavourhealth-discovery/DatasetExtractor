@@ -4,6 +4,7 @@ report-generator/src/main/resources/discovery.cer
 csv-exporter/target/
 csv-exporter/src/main/resources/csv.exporter.properties
 report-generator/target/
+mysql-exporter/target/
 fihr-exporter/src/main/resources/fihr.exporter.properties
 fihr-exporter/target/
 .idea

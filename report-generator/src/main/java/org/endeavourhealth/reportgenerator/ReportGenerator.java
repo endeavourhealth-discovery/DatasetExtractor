@@ -6,24 +6,18 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
-import org.endeavourhealth.fihrexporter.FihrExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
-import org.endeavourhealth.reportgenerator.util.DeltaExecutor;
-import org.endeavourhealth.reportgenerator.util.ExtensionExecutor;
-import org.endeavourhealth.reportgenerator.util.FileEncrypter;
-import org.endeavourhealth.reportgenerator.util.SFTPUploader;
+import org.endeavourhealth.reportgenerator.util.*;
 import org.endeavourhealth.reportgenerator.validator.ReportValidator;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import javax.validation.ConstraintViolation;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 @Slf4j
 public class ReportGenerator implements AutoCloseable {
@@ -58,8 +52,14 @@ public class ReportGenerator implements AutoCloseable {
 
         for (Report report : reports) {
 
-            if (!report.getActive()) continue;
-            if (!report.getIsValid()) continue;
+            if (!report.getActive()) {
+                report.setResult("Report not run as is not active");
+                continue;
+            }
+            if (!report.isValid()) {
+                report.setInvalidResult("Report not run as is report is not valid");
+                continue;
+            }
 
             executeReport(report);
         }
@@ -83,7 +83,7 @@ public class ReportGenerator implements AutoCloseable {
 
         exportToFihr(report);
 
-        uploadToSFTP(report);
+        zipAndUploadToSFTP(report);
 
         report.setSuccess(true);
 
@@ -148,7 +148,7 @@ public class ReportGenerator implements AutoCloseable {
         this.repository = new JpaRepository(properties, report.getStoredProcedureExecutor().getDatabase());
     }
 
-    private void uploadToSFTP(Report report) throws Exception {
+    private void zipAndUploadToSFTP(Report report) throws Exception {
 
         SftpUpload sftpUpload = report.getSftpUpload();
 
@@ -166,7 +166,9 @@ public class ReportGenerator implements AutoCloseable {
 
         cleanOutputDirectory(stagingDirectory);
 
-        String filenameToSftp = zipDirectory(report);
+        FileZipper fileZipper = new FileZipper(report, properties );
+
+        String filenameToSftp = fileZipper.zip();
 
         File fileToSftp = new File(filenameToSftp);
 
@@ -210,28 +212,6 @@ public class ReportGenerator implements AutoCloseable {
         }
     }
 
-    public String zipDirectory(Report report) throws Exception {
-
-        CSVExport csvExport = report.getCsvExport();
-
-        File source = new File(csvExport.getOutputDirectory());
-        File staging = new File(properties.getProperty("csv.staging.directory"));
-
-        log.debug("Compressing contents of: " + source.getAbsolutePath());
-
-        ZipFile zipFile = new ZipFile(staging + File.separator + source.getName() + ".zip");
-
-        log.info("Creating file: " + zipFile.getFile().getAbsolutePath());
-
-        ZipParameters parameters = new ZipParameters();
-        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-        parameters.setIncludeRootFolder(false);
-
-        zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
-
-        return zipFile.getFile().getAbsolutePath();
-    }
 
     private void cleanOutputDirectory(File directory) throws IOException {
       log.info("Deleting all files from directory {}", directory);
