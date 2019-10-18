@@ -86,6 +86,7 @@ public class ReportGenerator implements AutoCloseable {
         zipAndUploadToSFTP(report);
 
         report.setSuccess(true);
+        report.setResult("Report generation successful!");
 
         //Not all reports have use of a database
         if(repository != null) repository.close();
