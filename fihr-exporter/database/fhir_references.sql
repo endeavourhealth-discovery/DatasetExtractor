@@ -31,7 +31,7 @@ CREATE TABLE `references` (
   `strid` varchar(255) DEFAULT NULL,
   `resource` varchar(255) DEFAULT NULL,
   `response` varchar(10) DEFAULT NULL,
-  `location` varchar(50) DEFAULT NULL,
+  `location` varchar(100) DEFAULT NULL,
   `datesent` datetime NOT NULL,
   `json` text DEFAULT NULL,
   `patient_id` bigint(20) DEFAULT NULL,
