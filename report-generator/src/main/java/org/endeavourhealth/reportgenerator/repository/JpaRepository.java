@@ -147,7 +147,7 @@ public class JpaRepository {
     public List<String> getPseudoIdsForWF(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
-        String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 3000";
+        String sql = "select distinct patient_id from dataset_wf limit " + offset + ", 3000";
         Query query = entityManager.createNativeQuery(sql);
 
         log.trace("Sql {}", sql);
@@ -283,7 +283,7 @@ public class JpaRepository {
         entityManagerCore.getTransaction().begin();
         entityManagerCompass.getTransaction().begin();
 
-        Query query = entityManagerCore.createNativeQuery("select s.pseudo_id," +
+        Query query = entityManagerCore.createNativeQuery("select s.enterprise_id," +
                 "p.nhs_number," +
                 "p.address_line_1," +
                 "p.address_line_2," +
@@ -295,8 +295,8 @@ public class JpaRepository {
                 "p.surname," +
                 "p.date_of_birth" +
                 " from eds.patient_search p " +
-                " join subscriber_transform_ceg_enterprise.pseudo_id_map s on p.patient_id = s.patient_id" +
-                " where s.pseudo_id in (:pseudoIds) and p.registered_practice_ods_code is not null and p.nhs_number is not null");
+                " join subscriber_transform_ceg_enterprise.enterprise_id_map s on p.patient_id = s.resource_id" +
+                " where s.enterprise_id in (:pseudoIds)");
 
         query.setParameter("pseudoIds", pseudoIds);
 
@@ -314,7 +314,7 @@ public class JpaRepository {
                 "d.Gender = ?," +
                 "d.FirstName = ?," +
                 "d.LastName = ?," +
-                "d.BirthDate = ? where d.pseudo_id = ?");
+                "d.BirthDate = ? where d.patient_id = ?");
 
         for(Object[] row : rows) {
 
