@@ -2,6 +2,8 @@ package org.endeavourhealth.reportgenerator.slack;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.common.utility.SlackHelper;
+import org.endeavourhealth.reportgenerator.model.AnalyticItem;
+import org.endeavourhealth.reportgenerator.model.Analytics;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.Table;
 
@@ -52,14 +54,22 @@ public class SlackReporter {
             }
             breakLine();
 
-            if(report.getAnalytics() != null && report.getAnalytics().getMessage() != null) {
-                append(report.getAnalytics().getMessage());
-            }
+            appendAnalytics( report.getAnalytics() );
+
 
             append("Delta ran? : " + report.isDeltaReport());
             breakLine();
         }
         builder.append("```");
+    }
+
+    private void appendAnalytics(Analytics analytics) {
+
+        if(analytics == null) return;
+
+        for (AnalyticItem item : analytics.getItems()) {
+            append(item.getMessage());
+        }
     }
 
     private void append(String message) {

@@ -2,16 +2,13 @@ package org.endeavourhealth.reportgenerator.model;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class Analytics {
 
     private Boolean switchedOn = true;
 
-    private String tableName;
+    List<AnalyticItem> items;
 
-    private AnalyticsType type = AnalyticsType.COUNT;
-
-    private String friendlyName;
-
-    private String message;
 }
