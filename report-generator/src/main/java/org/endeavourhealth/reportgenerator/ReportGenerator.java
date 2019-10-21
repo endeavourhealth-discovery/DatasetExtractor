@@ -1,9 +1,6 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.model.*;
@@ -15,7 +12,6 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -23,8 +19,6 @@ import java.util.Properties;
 public class ReportGenerator implements AutoCloseable {
 
     private JpaRepository repository;
-
-    private List<Report> reports = new ArrayList<>();
 
     private SFTPUploader sftpUploader;
 
@@ -38,8 +32,6 @@ public class ReportGenerator implements AutoCloseable {
 
         log.info("**** Booting org.endeavourhealth.reportgenerator.ReportGenerator, loading property file and db repository.....");
 
-        loadReports(properties);
-
         log.info("**** ReportGenerator successfully booted!!");
     }
 
@@ -48,7 +40,7 @@ public class ReportGenerator implements AutoCloseable {
         this.sftpUploader = sftpUploader;
     }
 
-    public void generate() throws Exception {
+    public List<Report> generate(List<Report> reports) throws Exception {
 
         for (Report report : reports) {
 
@@ -63,7 +55,10 @@ public class ReportGenerator implements AutoCloseable {
 
             executeReport(report);
         }
+
+        return reports;
     }
+
 
     private void executeReport(Report report) throws Exception {
 
@@ -282,30 +277,6 @@ public class ReportGenerator implements AutoCloseable {
         }
 
         log.info("Stored procedures all called");
-    }
-
-    private void loadReports(Properties properties) throws FileNotFoundException {
-
-        ReportValidator reportValidator = new ReportValidator();
-
-        Yaml yaml = new Yaml(new Constructor(Report.class));
-
-        String reportYamlFile = properties.getProperty("report.yaml.directory") + properties.getProperty("report.yaml.file");
-
-        log.info("Loading report from file : {}", reportYamlFile);
-
-        FileReader fileReader = new FileReader(new File( reportYamlFile ));
-
-        for (Object o : yaml.loadAll(fileReader)) {
-            Report report = (Report) o;
-
-            log.info("Loaded report from yaml : {}", report);
-
-            //Sets validation on bean
-            reportValidator.validate( report );
-
-            reports.add(report);
-        }
     }
 
     @Override
