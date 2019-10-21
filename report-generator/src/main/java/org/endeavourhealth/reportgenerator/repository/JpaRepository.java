@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.*;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.List;
 import java.util.Properties;
@@ -60,7 +61,7 @@ public class JpaRepository {
             log.debug("Processing {}", item);
             String sql = item.getSql();
             Query query = entityManager.createNativeQuery(sql);
-            Long count = (Long) query.getSingleResult();
+            BigInteger count = (BigInteger) query.getSingleResult();
             String message = item.getMessage().replace("{}", count.toString());
             item.setMessage( message );
         }
