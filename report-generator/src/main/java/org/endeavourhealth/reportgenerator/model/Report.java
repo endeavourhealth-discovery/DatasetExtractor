@@ -6,11 +6,17 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 @Data
 public class Report {
+
+
+    private LocalDateTime startTime = LocalDateTime.now();
+
+    private LocalDateTime endTime;
 
     @NotNull
     @Length(min = 3, max = 100)

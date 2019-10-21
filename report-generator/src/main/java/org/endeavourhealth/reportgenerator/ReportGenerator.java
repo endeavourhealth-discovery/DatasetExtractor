@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.*;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
 
@@ -54,10 +55,11 @@ public class ReportGenerator implements AutoCloseable {
             }
 
             try {
-
                 executeReport(report);
+                report.setEndTime(LocalDateTime.now());
             } catch (Exception e) {
                 log.error("Report " + report + " has thrown exception", e);
+                report.setEndTime(LocalDateTime.now());
                 report.setErrorMessage( e.getMessage() );
             }
         }

@@ -34,33 +34,38 @@ public class SlackReporter {
 
         for (Report report : reports) {
 
-            builder.append(report.getName());
-            breakLine();
+            append("*" + report.getName() + "*");
+
+            append("Start time : " + report.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            append("End time : " + report.getEndTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
             if(report.getErrorMessage() != null) {
-                builder.append("ERROR! : " + report.getErrorMessage());
+                append("ERROR! : " + report.getErrorMessage());
                 breakLine();
                 continue;
             }
 
-            builder.append("Sftp Switched On : " + report.getSftpUpload().getSwitchedOn());
-            breakLine();
+            append("Sftp Switched On : " + report.getSftpUpload().getSwitchedOn());
 
             for (Table table : report.getCsvExport().getTables()) {
                 builder.append("CSV Table : " + table.getName() + " with filename " + table.getFileName());
             }
             breakLine();
 
-            builder.append("Delta ran? : " + report.isDelta());
+            append("Delta ran? : " + report.isDelta());
             breakLine();
         }
         builder.append("```");
     }
 
+    private void append(String message) {
+        builder.append(message);
+        breakLine();
+    }
+
     private void appendTitle() {
         String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy hh:mm:ss"));
-        builder.append("*Report Scheduler has run at " + today + "*");
-        breakLine();
+        append("*Report Scheduler has run at " + today + "*");
     }
 
     private void sendSlackMessage(String message) {
@@ -69,7 +74,7 @@ public class SlackReporter {
 
         log.info(message);
 
-//        SlackHelper.sendSlackMessage(SlackHelper.Channel.ReportSchedulerAlerts, message);
+        SlackHelper.sendSlackMessage(SlackHelper.Channel.ReportSchedulerAlerts, message);
     }
 
     private void appendFullReport(List<Report> reports) {
@@ -98,15 +103,11 @@ public class SlackReporter {
         for (Report report : reports) {
             appendReportSummary(report);
         }
-        builder.append("```");
-
-        breakLine();
+        append("```");
     }
 
     private void appendReportSummary(Report report) {
-
-        builder.append("Report " + report.getName() + " : " + report.getStatus());
-        breakLine();
+        append("Report " + report.getName() + " : " + report.getStatus());
     }
 
     private void breakLine() {
@@ -115,7 +116,6 @@ public class SlackReporter {
 
     private void appendReport(Report report) {
         builder.append("Report " + report.getName());
-        builder.append(report.toString());
-        breakLine();
+        append(report.toString());
     }
 }
