@@ -13,7 +13,6 @@ import java.util.Set;
 @Data
 public class Report {
 
-
     private LocalDateTime startTime = LocalDateTime.now();
 
     private LocalDateTime endTime;
@@ -103,12 +102,10 @@ public class Report {
         return stringBuilder.toString();
     }
 
-    public boolean isDelta() {
+    public boolean isDeltaReport() {
 
         if(getDelta() != null && getDelta().getSwitchedOn()) return true;
 
         return false;
     }
-
-    //FHIR
 }

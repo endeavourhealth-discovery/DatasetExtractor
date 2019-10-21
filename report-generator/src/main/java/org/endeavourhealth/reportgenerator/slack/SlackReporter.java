@@ -29,8 +29,8 @@ public class SlackReporter {
 
     private void appendPartialReport(List<Report> reports) {
         breakLine();
-        builder.append("*Partial Report Details*");
-        builder.append("```");
+        append("*Partial Report Details*");
+        append("```");
 
         for (Report report : reports) {
 
@@ -56,7 +56,7 @@ public class SlackReporter {
                 append(report.getAnalytics().getMessage());
             }
 
-            append("Delta ran? : " + report.isDelta());
+            append("Delta ran? : " + report.isDeltaReport());
             breakLine();
         }
         builder.append("```");

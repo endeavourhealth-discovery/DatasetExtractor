@@ -12,12 +12,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Arrays;
 
 @Slf4j
 public class ReportRunner {
 
     public static void main(String... args) throws IOException, SQLException {
 
+
+
+      log.info("CONFIG_JDBC_USERNAME" + System.getProperty("CONFIG_JDBC_USERNAME"));
+  log.info("CONFIG_JDBC_CLASS" + System.getProperty("CONFIG_JDBC_CLASS"));
+  log.info(Arrays.toString(System.getenv().entrySet().toArray()) );
         Properties properties = loadProperties( args );
 
         List<Report> reports = loadReports( properties );
