@@ -79,5 +79,13 @@ public class Report {
         }
     }
 
+    public String getStatus() {
+        if(!isValid()) {
+            return result;
+        }
+
+        return "Success!";
+    }
+
     //FHIR
 }

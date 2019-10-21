@@ -26,6 +26,6 @@ public class ReportGeneratorTest extends AbstractTest {
 
         ReportGenerator reportGenerator = new ReportGenerator( properties );
 
-        reportGenerator.generate();
+//        reportGenerator.generate(reports);
     }
 }
