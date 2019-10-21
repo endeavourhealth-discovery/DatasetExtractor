@@ -6,9 +6,6 @@ import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.*;
-import org.endeavourhealth.reportgenerator.validator.ReportValidator;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -56,12 +53,13 @@ public class ReportGenerator implements AutoCloseable {
 
             try {
                 executeReport(report);
-                report.setEndTime(LocalDateTime.now());
+
             } catch (Exception e) {
                 log.error("Report " + report + " has thrown exception", e);
-                report.setEndTime(LocalDateTime.now());
                 report.setErrorMessage( e.getMessage() );
             }
+
+            report.setEndTime(LocalDateTime.now());
         }
 
         return reports;
@@ -88,8 +86,19 @@ public class ReportGenerator implements AutoCloseable {
 
         zipAndUploadToSFTP(report);
 
+        processAnalytics(report);
+
         //Not all reports have use of a database
         if(repository != null) repository.close();
+    }
+
+    private void processAnalytics(Report report) {
+        Analytics analytics = report.getAnalytics();
+        if(!analytics.getSwitchedOn()) {
+            log.info("Analytics switched off, nothing to do");
+        }
+
+        repository.processAnalytics(report.getAnalytics());
     }
 
     private void exportToFihr(Report report) throws Exception {
