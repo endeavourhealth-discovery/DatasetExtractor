@@ -17,8 +17,6 @@ public class StoredProcedureExecutor {
 
     private List<String> postStoredProcedures;
 
-    private String smokeTestProcedure;
-
     private Database database = Database.COMPASS;
 
     private Boolean switchedOn = true;

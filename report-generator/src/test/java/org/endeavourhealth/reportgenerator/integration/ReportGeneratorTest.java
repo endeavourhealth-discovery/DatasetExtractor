@@ -1,21 +1,14 @@
 package org.endeavourhealth.reportgenerator.integration;
 
 import org.endeavourhealth.reportgenerator.ReportGenerator;
-import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.SFTPUploader;
 import org.junit.*;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 import org.mockito.Mockito;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
 public class ReportGeneratorTest extends AbstractTest {
 
@@ -60,6 +53,6 @@ public class ReportGeneratorTest extends AbstractTest {
 
     @Test
     public void getRecords() throws Exception {
-        reportGenerator.generate();
+//        reportGenerator.generate(reports);
     }
 }
