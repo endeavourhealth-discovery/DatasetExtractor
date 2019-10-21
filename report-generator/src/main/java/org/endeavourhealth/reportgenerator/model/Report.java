@@ -24,7 +24,7 @@ public class Report {
     private StoredProcedureExecutor storedProcedureExecutor;
 
     private Boolean active = true;
-    private boolean success = false;
+    private String errorMessage;
 
     private Schedule schedule;
 
@@ -45,8 +45,6 @@ public class Report {
     //SFTP
     @Valid
     private SftpUpload sftpUpload;
-
-    private String result;
 
     public boolean requiresDatabase() {
         //Filter not needed, but more explicit if declared here
@@ -69,22 +67,39 @@ public class Report {
     }
 
     public boolean isValid() {
-        return constraintViolations.isEmpty() ? false : true;
-    }
-
-    public void setInvalidResult(String result) {
-
-        for (ConstraintViolation<Report> constraintViolation : constraintViolations) {
-            result = result + constraintViolation.getPropertyPath() + " : " + constraintViolation.getMessage();
-        }
+        return constraintViolations.isEmpty() ? true : false;
     }
 
     public String getStatus() {
-        if(!isValid()) {
-            return result;
+        if(!active) {
+            return "Inactive";
         }
 
-        return "Success!";
+        if(errorMessage != null){
+            return "Failure";
+        }
+
+        if(!isValid()) {
+            return "Invalid Configuration";
+        }
+
+        return "Success";
+    }
+
+    public String getErrors() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ConstraintViolation<Report> constraintViolation : constraintViolations) {
+            stringBuilder.append(constraintViolation.getPropertyPath() + " : " + constraintViolation.getMessage());
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public boolean isDelta() {
+
+        if(getDelta() != null && getDelta().getSwitchedOn()) return true;
+
+        return false;
     }
 
     //FHIR

@@ -45,15 +45,21 @@ public class ReportGenerator implements AutoCloseable {
         for (Report report : reports) {
 
             if (!report.getActive()) {
-                report.setResult("Report not run as is not active");
+                log.warn("Report is inactive");
                 continue;
             }
             if (!report.isValid()) {
-                report.setInvalidResult("Report not run as is report is not valid");
+                log.warn("Report is invalid {}", report.getErrors());
                 continue;
             }
 
-            executeReport(report);
+            try {
+
+                executeReport(report);
+            } catch (Exception e) {
+                log.error("Report " + report + " has thrown exception", e);
+                report.setErrorMessage( e.getMessage() );
+            }
         }
 
         return reports;
@@ -79,9 +85,6 @@ public class ReportGenerator implements AutoCloseable {
         exportToFihr(report);
 
         zipAndUploadToSFTP(report);
-
-        report.setSuccess(true);
-        report.setResult("Report generation successful!");
 
         //Not all reports have use of a database
         if(repository != null) repository.close();
