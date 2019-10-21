@@ -52,6 +52,10 @@ public class SlackReporter {
             }
             breakLine();
 
+            if(report.getAnalytics() != null && report.getAnalytics().getMessage() != null) {
+                append(report.getAnalytics().getMessage());
+            }
+
             append("Delta ran? : " + report.isDelta());
             breakLine();
         }

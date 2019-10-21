@@ -18,6 +18,8 @@ public class Report {
 
     private LocalDateTime endTime;
 
+    private Analytics analytics;
+
     @NotNull
     @Length(min = 3, max = 100)
     private String name;

@@ -1,6 +1,7 @@
 package org.endeavourhealth.reportgenerator.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.reportgenerator.model.Analytics;
 import org.endeavourhealth.reportgenerator.model.Database;
 import org.endeavourhealth.reportgenerator.model.DeltaTable;
 import org.endeavourhealth.reportgenerator.model.StoredProcedureExecutor;
@@ -50,6 +51,26 @@ public class JpaRepository {
 
     public void bootEntityManagerFactoryCore() {
         entityManagerFactorySecondary = getEntityManagerFactorySecondary();
+    }
+
+    public void processAnalytics(Analytics analytics) {
+
+        log.info("Calling analytics {}", analytics);
+
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        String sql = "select count(*) from " + analytics.getTableName();
+        Query query = entityManager.createNativeQuery(sql);
+
+        log.debug("Sql {}", sql);
+
+        Long count = (Long) query.getSingleResult();
+
+        entityManager.close();
+
+        String message = "Table " + analytics.getFriendlyName() + " has " + count + " rows";
+
+        analytics.setMessage( message );
     }
 
 
