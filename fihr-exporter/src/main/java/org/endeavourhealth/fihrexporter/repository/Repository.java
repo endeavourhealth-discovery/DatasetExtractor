@@ -113,7 +113,7 @@ public class Repository {
 
     public void InsertBackIntoObsQueue(Integer id) throws SQLException {
         // does the id already exist in filteredobservationsdelta?
-        String q ="select id from data_extracts.filteredobservationsdelta where id="+id;
+        String q ="select id from data_extracts.filteredObservationsDelta where id="+id;
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -127,7 +127,7 @@ public class Repository {
 
         if (alreadyinq==true) return;
 
-        q ="insert into data_extracts.filteredobservationsdelta (id) values(?)";
+        q ="insert into data_extracts.filteredObservationsDelta (id) values(?)";
         System.out.println("back into q "+q);
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
