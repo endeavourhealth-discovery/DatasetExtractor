@@ -1,6 +1,9 @@
 package org.endeavourhealth.mysqlexporter.resources;
 
 import org.endeavourhealth.mysqlexporter.repository.Repository;
+
+import java.io.File;
+import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -12,6 +15,16 @@ public class LHSSQLAllergyIntolerance {
 	{
 		String result="";
 
+		try {
+			String OS = System.getProperty("os.name").toLowerCase();
+			String file="//tmp//allery.txt";
+			if (OS.indexOf("win") >= 0) {file="D:\\TEMP\\allergy.txt";}
+			PrintStream o = new PrintStream(new File(file));
+			System.setOut(o);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
 		List<Integer> ids = repository.getRows("AllergyIntolerance","filteredAllergiesDelta");
 
 		Integer id = 0; Integer j = 0;
@@ -21,7 +34,11 @@ public class LHSSQLAllergyIntolerance {
 
 			result = repository.getAllergyIntoleranceRS(id);
 
-			System.out.println(result);
+			String[] ss = result.split("\\~");
+			String nor=ss[0]; String date=ss[1]; String term=ss[2]; String code=ss[3];
+			String out=id+","+nor+","+date+","+code+","+term;
+
+			System.out.println(out);
 			j++;
 		}
 

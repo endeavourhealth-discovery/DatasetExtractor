@@ -223,27 +223,32 @@ public class LHShttpSend {
 		// get the location
 		// get the observation id's for the location
 		// add the ids back into the filtered table queue
-		try {
+		try
+		{
+			Integer responseCode = 0;
+			responseCode = Delete(repository, anId, resource, patientid, typeid);
 
-			Integer responseCode=0;
-			responseCode = Delete(repository,anId,resource,patientid,typeid);
-
-			String ids=""; String id="";
+			String ids = "";
+			String id = "";
 			String loc = repository.getLocationObsWithCheckingDeleted(anId);
 
-			if (loc.length()==0) {return 0;}
-
-			ids = repository.getIdsForLocation(loc);
-
-			String[] ss = ids.split("\\~");
-			for (int i = 0; i < ss.length; i++) {
-				id = ss[i];
-				if (Integer.parseInt(id) == anId) continue;
-				// has the observation been deleted previously?
-				if (repository.getLocation(Integer.parseInt(id),"Observation").length()==0) continue;
-				repository.InsertBackIntoObsQueue(Integer.parseInt(id));
+			if (loc.length() == 0) {
+				return 0;
 			}
-			return responseCode;
+
+			if (responseCode.equals(204)) {
+				ids = repository.getIdsForLocation(loc);
+
+				String[] ss = ids.split("\\~");
+				for (int i = 0; i < ss.length; i++) {
+					id = ss[i];
+					if (Integer.parseInt(id) == anId) continue;
+					// has the observation been deleted previously?
+					if (repository.getLocation(Integer.parseInt(id), "Observation").length() == 0) continue;
+					repository.InsertBackIntoObsQueue(Integer.parseInt(id));
+				}
+				return responseCode;
+			}
 		}
 		catch(Exception e)
 		{
