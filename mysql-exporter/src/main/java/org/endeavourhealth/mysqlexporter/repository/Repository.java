@@ -1,6 +1,9 @@
 package org.endeavourhealth.mysqlexporter.repository;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+
+import java.io.File;
+import java.io.PrintStream;
 import java.sql.*;
 import org.endeavourhealth.common.config.ConfigManager;
 import java.util.*;
@@ -10,6 +13,7 @@ public class Repository {
     private Connection connection;
     private MysqlDataSource dataSource;
     public String dbschema;
+    public String params;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -501,15 +505,70 @@ public class Repository {
         return result;
     }
 
+    public void DumpRefs()
+    {
+        try
+        {
+            String OS = System.getProperty("os.name").toLowerCase();
+            String file="//tmp//dumprefs.txt";
+            if (OS.indexOf("win") >= 0) {file="D:\\TEMP\\dumprefs.txt";}
+            PrintStream o = new PrintStream(new File(file));
+            System.setOut(o);
+
+            String preparedSql = "select * from data_extracts.references";
+            PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                System.out.print(rs.getInt("an_id")+"~");
+                System.out.print(rs.getString("strid")+"~");
+                System.out.print(rs.getString("location")+"~");
+                System.out.print(rs.getString("resource")+"~");
+                System.out.println(rs.getString("patient_id")+"~");
+                //System.out.println(rs.getInt("patient_id"));
+            }
+
+            preparedStatement.close();
+
+            }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
     public List<Integer> getRows(String resource, String table) throws SQLException {
+        String zid = ""; Integer count = 0; Integer id=0;
+        String[] type;
         List<Integer> result = new ArrayList<>();
         // String preparedSql = "select distinct an_id from data_extracts.references where resource='"+resource+"'";
 
-        String preparedSql = "select * from data_extracts."+table +" LIMIT 10000";
+        // a list of specific ids the we want to report on ...
+        if (params.length() >0)
+        {
+            String[] ss = params.split("\\~");
+            for (int i = 0; i < ss.length; i++) {
+                zid = ss[i]; type = zid.split("\\:");
+                if (type[0].equals("o") && table.equals("filteredObservationsDelta")) {
+                    List<Integer> row = new ArrayList<>(); result.add(Integer.parseInt(type[1]));
+                }
+                if (type[0]=="m" && table.equals("filteredMedicationsDelta")) {
+                    List<Integer> row = new ArrayList<>(); result.add(Integer.parseInt(type[1]));
+                }
+                if (type[0]=="a" && table.equals("filteredAllergiesDelta")) {
+                    List<Integer> row = new ArrayList<>(); result.add(Integer.parseInt(type[1]));
+                }
+                if (type[0]=="p" && table.equals("filteredPatientsDelta")) {
+                    List<Integer> row = new ArrayList<>(); result.add(Integer.parseInt(type[1]));
+                }
+            }
+            return result;
+        }
+
+
+        String preparedSql = "select * from data_extracts."+table; // +" LIMIT 10000";
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
         ResultSet rs = preparedStatement.executeQuery();
-        Integer id = 0; Integer count = 0;
 
         while (rs.next()) {
             //id = rs.getInt("an_id");
@@ -532,6 +591,7 @@ public class Repository {
             String[] ss = conStr.split("\\`");
 
             dbschema = props.getProperty("dbschema");
+            params = props.getProperty("params");
 
             System.out.println("mysql url: "+ss[0]);
             System.out.println("mysql user: "+ss[1]);
