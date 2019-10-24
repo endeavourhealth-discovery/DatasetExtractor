@@ -3,6 +3,7 @@ package org.endeavourhealth.reportgenerator.model;
 import lombok.Data;
 
 import java.time.DayOfWeek;
+import java.util.List;
 
 @Data
 public class Schedule {
@@ -11,5 +12,7 @@ public class Schedule {
 
     private Boolean isDaily;
 
-    private Boolean isMonthly;
+    private Integer dayOfMonth;
+
+    private List<DayOfWeek> skipDays;
 }
