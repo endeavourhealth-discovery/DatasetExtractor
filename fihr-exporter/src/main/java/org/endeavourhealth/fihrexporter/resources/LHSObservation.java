@@ -15,27 +15,25 @@ import java.util.List;
 
 public class LHSObservation {
 
-	private CodeableConcept addCodeableConcept(String snomed, String term, String parent)
+	private CodeableConcept addCodeableConcept(String snomed, String term)
 	{
 		CodeableConcept code = new CodeableConcept();
 		code.addCoding()
 				.setCode(snomed)
 				.setDisplay(term)
-				.setSystem("http://snomed.info/sct")
-                .setId(parent);
+				.setSystem("http://snomed.info/sct");
 
 		return code;
 	}
 
-	private Observation.ObservationComponentComponent ObsCompComp(String coreconceptid, String term, String resultvalue, String resultvalueunits, String zid)
+	private Observation.ObservationComponentComponent ObsCompComp(String coreconceptid, String term, String resultvalue, String resultvalueunits)
 	{
 		Observation.ObservationComponentComponent occ= new Observation.ObservationComponentComponent();
 		CodeableConcept codecc = new CodeableConcept();
 		codecc.addCoding()
 				.setCode(coreconceptid)
 				.setSystem("http://snomed.info/sct")
-				.setDisplay(term)
-				.setId(zid);
+				.setDisplay(term);
 		occ.setCode(codecc);
 
 		Quantity q = new Quantity();
@@ -63,15 +61,8 @@ public class LHSObservation {
 		observation.setStatus(Observation.ObservationStatus.FINAL);
 
         observation.addIdentifier()
-                .setSystem("https://discoverydataservice.net/ddsid")
+                .setSystem("https://discoverydataservice.net")
                 .setValue(ddsid.toString());
-
-        // for reporting
-        if (parent!=0) {
-			observation.addIdentifier()
-					.setSystem("https://discoverydataservice.net/ddsparentid")
-					.setValue(parent.toString());
-		}
 
 		String ObsRec = ""; String noncoreconceptid = "";
 
@@ -86,7 +77,7 @@ public class LHSObservation {
 				noncoreconceptid = ss[0]; orginalterm = ss[1];
 				if (noncoreconceptid.length()==0) noncoreconceptid = ss[5];
 
-				CodeableConcept code = addCodeableConcept(noncoreconceptid, orginalterm, parent.toString());
+				CodeableConcept code = addCodeableConcept(noncoreconceptid, orginalterm);
 				observation.setCode(code);
 
 				//System.out.println(ObsRec);
@@ -95,7 +86,7 @@ public class LHSObservation {
 		}
 
 		if (parent == 0) {
-			CodeableConcept code = addCodeableConcept(snomedcode, orginalterm, "");
+			CodeableConcept code = addCodeableConcept(snomedcode, orginalterm);
 			observation.setCode(code);
 		}
 
@@ -138,7 +129,7 @@ public class LHSObservation {
 					snomedcode = obs[0]; orginalterm = obs[1]; resultvalue = obs[2]; clineffdate = obs[3]; resultvalunits = obs[4];
 					if (snomedcode.length() == 0) snomedcode = obs[5];
 					if (resultvalue.length() > 0 || resultvalunits.length() > 0) {
-                        Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits, id);
+                        Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits);
                         occs.add(ocs);
                         observation.setComponent(occs);
                     }
@@ -153,7 +144,7 @@ public class LHSObservation {
         System.out.println(resultvalue.length());
 
 		if (resultvalue.length()>0) {
-            Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits, ddsid.toString());
+            Observation.ObservationComponentComponent ocs = ObsCompComp(snomedcode, orginalterm, resultvalue, resultvalunits);
             occs.add(ocs);
             observation.setComponent(occs);
         }

@@ -8,20 +8,8 @@ import java.util.Properties;
 public class MySQLExporterRunner {
 
     public static void main(String... args) throws IOException, SQLException {
-        String params="";
 
         Properties properties = loadProperties( args );
-
-        // params is a list of filtered* table id's
-        for (String s: args) {
-            System.out.println(s);
-
-            String[] ss = s.split("\\:");
-
-            params=params+s+"~";
-        }
-
-        properties.setProperty("params",params);
 
         try (  MySQLExporter mysqlExporter = new MySQLExporter( properties  ) ) {
 

@@ -335,18 +335,14 @@ public class Repository {
 
         String q = "";
 
-        encoded = encoded.replaceAll("'","''");
-
         if (anId != 0) {
-            q = "update data_extracts.references set response = " + responseCode + ", datesent = '"+str+"', json = '"+encoded+"' where an_id = '"+anId+"' and resource='"+resource+"' and response<>'1234'";
+            q = "update data_extracts.references set response = " + responseCode + ", datesent = '"+str+"', json = '"+encoded+"' where an_id = '"+anId+"'";
             PurgetheQueue(anId, resource);
         }
 
         if (strid.length() > 0) {
-            q = "update data_extracts.references set response = " + responseCode + ", datesent = '" + str + "', json = '" + encoded + "' where strid = '"+strid+"' and resource='"+resource+"' and response<>'1234'";
+            q = "update data_extracts.references set response = " + responseCode + ", datesent = '" + str + "', json = '" + encoded + "' where strid = '"+strid+"'";
         }
-
-        //System.out.println(q);
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         preparedStmt.execute();

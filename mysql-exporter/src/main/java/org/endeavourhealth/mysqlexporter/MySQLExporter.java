@@ -20,25 +20,18 @@ public class MySQLExporter implements AutoCloseable {
     }
 
    public void export() throws Exception {
-
-        if (repository.params.indexOf("dumprefs") >=0)
-        {
-            repository.DumpRefs();
-            return;
-        }
-
         // create the allergy csv data from the reference table
-        LHSSQLAllergyIntolerance AllergySQL = new LHSSQLAllergyIntolerance();
-        AllergySQL.Run(this.repository);
+        //LHSSQLAllergyIntolerance AllergySQL = new LHSSQLAllergyIntolerance();
+        // AllergySQL.Run(this.repository);
 
-        LHSSQLMedicationStatement rx = new LHSSQLMedicationStatement();
-        rx.Run(this.repository);
+        //LHSSQLMedicationStatement rx = new LHSSQLMedicationStatement();
+        //rx.Run(this.repository);
 
-        LHSSQLPatient patient = new LHSSQLPatient();
-        patient.Run(this.repository);
+       //LHSSQLPatient patient = new LHSSQLPatient();
+       //patient.Run(this.repository);
 
-        LHSSQLObservation observation = new LHSSQLObservation();
-        observation.Run(this.repository);
+       LHSSQLObservation observation = new LHSSQLObservation();
+       observation.Run(this.repository);
    }
 
     @Override

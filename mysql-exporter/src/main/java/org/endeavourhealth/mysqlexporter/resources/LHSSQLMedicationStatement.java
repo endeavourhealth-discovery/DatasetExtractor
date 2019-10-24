@@ -1,9 +1,6 @@
 package org.endeavourhealth.mysqlexporter.resources;
 
 import org.endeavourhealth.mysqlexporter.repository.Repository;
-
-import java.io.File;
-import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -15,16 +12,6 @@ public class LHSSQLMedicationStatement {
 	{
 		String result="";
 
-		try {
-			String OS = System.getProperty("os.name").toLowerCase();
-			String file="//tmp//rx.txt";
-			if (OS.indexOf("win") >= 0) {file="D:\\TEMP\\rx.txt";}
-			PrintStream o = new PrintStream(new File(file));
-			System.setOut(o);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-
 		List<Integer> ids = repository.getRows("MedicationStatement","filteredMedicationsDelta");
 
 		Integer id = 0; Integer j = 0;
@@ -34,14 +21,7 @@ public class LHSSQLMedicationStatement {
 
 			result = repository.getMedicationStatementRS(id);
 
-            String[] ss = result.split("\\`");
-            String nor = ss[0]; String code=ss[1]; String drugname=ss[2]; String dosetxt=ss[3];
-            String qtyval=ss[4]; String qtyunit=ss[5]; String date=ss[6];
-
-            String out = id+","+qtyunit+","+qtyval+","+dosetxt+","+date+","+code+","+drugname;
-
-			System.out.println(out);
-
+			System.out.println(result);
 			j++;
 		}
 

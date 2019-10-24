@@ -20,12 +20,13 @@ public class LHSSQLObservation {
 		String noncoreconceptid=""; String ss[]; String orginalterm;
 		Integer nor=0; String snomedcode=""; String result_value="";
 		String clineffdate=""; String resultvalunits=""; String location="";
-		String zid =""; String resultvalue=""; String t="";
+		String zid =""; String resultvalue="";
 
 		List<Integer> ids = repository.getRows("Observation","filteredObservationsDelta");
 
 		Integer id = 0; Integer j = 0;
 
+		/*
 		try {
             String OS = System.getProperty("os.name").toLowerCase();
             String file="//tmp//obs.txt";
@@ -35,6 +36,7 @@ public class LHSSQLObservation {
 		} catch (Exception e) {
 			System.out.println(e);
 		}
+        */
 
 		while (ids.size() > j) {
 			id = ids.get(j);
@@ -56,65 +58,46 @@ public class LHSSQLObservation {
 			nor = Integer.parseInt(ss[0]); snomedcode=ss[1]; orginalterm=ss[2]; resultvalue=ss[3]; clineffdate=ss[4]; resultvalunits=ss[5];
 
 			if (parent==0) {
-                System.out.println(id + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits + "," + parent);
-                repository.Audit(id, "", "ReportTracker", 0, "dum", "", nor, 0);
+                System.out.println(id + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits);
             }
 
-			//repository.Audit(id, "", "ReportTracker", 0, "dum", "", nor, 0);
+			repository.Audit(id, "", "ReportTracker", 0, "dum", "", nor, 0);
 
 			if (parent != 0) {
-                parentids = repository.getIdsFromParent(parent);
+				parentids = repository.getIdsFromParent(parent);
 
-                ObsRec = repository.getObservationRecord(Integer.toString(parent));
-                ss = ObsRec.split("\\~");
-                snomedcode = ss[0];
-                orginalterm = ss[1];
-                resultvalue = ss[2];
-                clineffdate = ss[3];
-                resultvalunits = ss[4];
+				ObsRec= repository.getObservationRecord(Integer.toString(parent));
+				ss = ObsRec.split("\\~");
+                snomedcode = ss[0]; orginalterm = ss[1]; resultvalue = ss[2]; clineffdate = ss[3]; resultvalunits = ss[4];
+                System.out.println(parent + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits);
 
-                // System.out.println(id + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits + "," + parent);
+				if (parentids.length() > 0)
+				{
+					ss = parentids.split("\\~");
+					for (int i = 0; i < ss.length; i++)
+					{
+						zid = ss[i];
+						try {
 
-                if (parentids.length() > 0) {
-                    ss = parentids.split("\\~");
-                    for (int i = 0; i < ss.length; i++) {
-                        zid = ss[i];
+							ObsRec = repository.getObservationRecord(zid);
 
-                        // obs id sent in this run?  might have already been sent in a bp?
-                        //t = repository.getLocation(Integer.parseInt(zid));
-                        //if (t.length() > 0) {
-                        //    System.out.println("Obs" + id + " has been processed");
-                        //    j++;
-                        //    continue;
-                        //}
+							if (ObsRec.length() == 0) {continue;}
 
-                        try {
+							String obs[] = ObsRec.split("\\~");
 
-                            ObsRec = repository.getObservationRecord(zid);
+							snomedcode = obs[0]; orginalterm = obs[1]; resultvalue = obs[2]; clineffdate = obs[3]; resultvalunits = obs[4];
+							if (snomedcode.length() == 0) snomedcode = obs[5];
 
-                            if (ObsRec.length() == 0) {
-                                continue;
-                            }
+							System.out.println(zid+","+nor+","+clineffdate+","+snomedcode+","+orginalterm+","+resultvalue+","+resultvalunits);
 
-                            String obs[] = ObsRec.split("\\~");
+							repository.Audit(Integer.parseInt(zid), "", "ReportTracker", 0, "dum", "", nor, 0);
 
-                            snomedcode = obs[0];
-                            orginalterm = obs[1];
-                            resultvalue = obs[2];
-                            clineffdate = obs[3];
-                            resultvalunits = obs[4];
-                            if (snomedcode.length() == 0) snomedcode = obs[5];
-
-                            System.out.println(zid + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits + "," + parent);
-
-                            repository.Audit(Integer.parseInt(zid), "", "ReportTracker", 0, "dum", "", nor, 0);
-
-                        } catch (Exception e) {
-                            System.out.println(e);
-                        }
-                    }
-                }
-            }
+							} catch (Exception e) {
+								System.out.println(e);
+							}
+						}
+					}
+				}
 			j++;
 		}
 
