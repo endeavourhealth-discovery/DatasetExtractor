@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
@@ -227,18 +228,13 @@ public class ReportGenerator implements AutoCloseable {
     private void cleanOutputDirectory(File directory) throws IOException {
       log.info("Deleting all files from directory {}", directory);
 
-        for (File file : directory.listFiles()) {
-            if (file.isFile()) {
-                log.debug("Deleting file: " + file.getName());
-                file.delete();
-            }
-            if (file.isDirectory()) {
-                log.debug("Deleting directory: " + file.getName());
-                Path path = Paths.get(file.getAbsolutePath());
-                Files.deleteIfExists( path );
-//                FileUtils.deleteDirectory(file);
-            }
-        }
+        Path pathToBeDeleted = Paths.get(directory.getAbsolutePath());
+
+        Files.walk(pathToBeDeleted)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .filter(f -> !f.getAbsolutePath().equals(directory.getAbsolutePath()))//Don't delete parent
+                .forEach(File::delete);
     }
 
     private Properties getCSVExporterProperties(Report report, Table table) {

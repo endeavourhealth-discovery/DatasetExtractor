@@ -14,15 +14,20 @@ public class SlackReporter {
 
     private final String slackUrl;
 
+    private boolean switchedOn  = true;
+
     private StringBuilder builder = new StringBuilder();
 
-    public SlackReporter(String slackUrl) {
+    public SlackReporter(String slackUrl, String switchedOn) {
         super();
         this.slackUrl = slackUrl;
+        if (switchedOn != null && switchedOn.equals("false")) this.switchedOn = false;
     }
 
 
     public void report(List<Report> reports) {
+
+        if (!switchedOn) return;
 
         appendTitle();
 
