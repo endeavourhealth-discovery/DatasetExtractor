@@ -15,7 +15,8 @@ public class Report {
 
     private LocalDateTime startTime = LocalDateTime.now();
 
-    private LocalDateTime endTime;
+    //Set to default in case report is not valid etc, so populate here, can be updated later
+    private LocalDateTime endTime = LocalDateTime.now();
 
     private Analytics analytics;
 

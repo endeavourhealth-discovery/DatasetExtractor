@@ -33,7 +33,7 @@ public class ReportRunner {
             log.error("Exception during report generator", e);
         }
 
-        SlackReporter slackReporter = new SlackReporter();
+        SlackReporter slackReporter = new SlackReporter( properties.getProperty("slack.url"));
 
         slackReporter.report( reports );
     }

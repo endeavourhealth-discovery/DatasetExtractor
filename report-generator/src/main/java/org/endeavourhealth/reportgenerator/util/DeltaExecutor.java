@@ -1,15 +1,10 @@
 package org.endeavourhealth.reportgenerator.util;
 
-import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 
-import java.io.File;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Vector;
 
 @Slf4j
 public class DeltaExecutor implements AutoCloseable {

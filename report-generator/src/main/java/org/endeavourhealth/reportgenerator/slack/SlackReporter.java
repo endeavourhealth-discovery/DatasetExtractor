@@ -1,11 +1,9 @@
 package org.endeavourhealth.reportgenerator.slack;
 
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.common.utility.SlackHelper;
-import org.endeavourhealth.reportgenerator.model.AnalyticItem;
-import org.endeavourhealth.reportgenerator.model.Analytics;
-import org.endeavourhealth.reportgenerator.model.Report;
-import org.endeavourhealth.reportgenerator.model.Table;
+import net.gpedro.integrations.slack.SlackApi;
+import net.gpedro.integrations.slack.SlackMessage;
+import org.endeavourhealth.reportgenerator.model.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +12,15 @@ import java.util.List;
 @Slf4j
 public class SlackReporter {
 
+    private final String slackUrl;
+
     private StringBuilder builder = new StringBuilder();
+
+    public SlackReporter(String slackUrl) {
+        super();
+        this.slackUrl = slackUrl;
+    }
+
 
     public void report(List<Report> reports) {
 
@@ -47,6 +53,8 @@ public class SlackReporter {
                 continue;
             }
 
+            appendSchedule(report.getSchedule());
+
             append("Sftp Switched On : " + report.getSftpUpload().getSwitchedOn());
 
             for (Table table : report.getCsvExport().getTables()) {
@@ -56,11 +64,25 @@ public class SlackReporter {
 
             appendAnalytics( report.getAnalytics() );
 
-
             append("Delta ran? : " + report.isDeltaReport());
             breakLine();
         }
         builder.append("```");
+    }
+
+    private void appendSchedule(Schedule schedule) {
+        if(schedule == null) {
+            append("No schedule configured, default run");
+            return;
+        }
+
+        append("Is daily : " + schedule.getIsDaily());
+
+        append("skipDays : " + schedule.getSkipDays());
+
+        append("Day of week : " + schedule.getDayOfWeek());
+
+        append("Day of month : " + schedule.getDayOfMonth());
     }
 
     private void appendAnalytics(Analytics analytics) {
@@ -88,7 +110,14 @@ public class SlackReporter {
 
         log.info(message);
 
-        SlackHelper.sendSlackMessage(SlackHelper.Channel.ReportSchedulerAlerts, message);
+        SlackMessage slackMessage = new SlackMessage(message);
+
+        try {
+            SlackApi slackApi = new SlackApi(slackUrl);
+            slackApi.call(slackMessage);
+        } catch (Exception e) {
+            log.error("Cannot send message to slack", e);
+        }
     }
 
     private void appendFullReport(List<Report> reports) {

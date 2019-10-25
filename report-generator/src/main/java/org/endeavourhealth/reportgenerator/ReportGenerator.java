@@ -1,13 +1,15 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,32 +24,31 @@ public class ReportGenerator implements AutoCloseable {
 
     private final Properties properties;
 
-    public ReportGenerator(Properties properties) throws Exception {
+    private final Scheduler scheduler;
+
+    public ReportGenerator(Properties properties) {
 
         this.properties = properties;
 
         this.sftpUploader = new SFTPUploader();
+
+        this.scheduler = new Scheduler();
 
         log.info("**** Booting org.endeavourhealth.reportgenerator.ReportGenerator, loading property file and db repository.....");
 
         log.info("**** ReportGenerator successfully booted!!");
     }
 
-    public ReportGenerator(Properties properties, SFTPUploader sftpUploader) throws Exception {
+    public ReportGenerator(Properties properties, SFTPUploader sftpUploader) {
         this(properties);
         this.sftpUploader = sftpUploader;
     }
 
-    public List<Report> generate(List<Report> reports) throws Exception {
+    public List<Report> generate(List<Report> reports) {
 
         for (Report report : reports) {
 
-            if (!report.getActive()) {
-                log.warn("Report is inactive");
-                continue;
-            }
-            if (!report.isValid()) {
-                log.warn("Report is invalid {}", report.getErrors());
+            if( !reportIsRunnable( report ) ) {
                 continue;
             }
 
@@ -63,6 +64,24 @@ public class ReportGenerator implements AutoCloseable {
         }
 
         return reports;
+    }
+
+    private boolean reportIsRunnable(Report report) {
+
+        if (!report.getActive()) {
+            log.warn("Report is inactive");
+            return false;
+        }
+        if (!report.isValid()) {
+            log.warn("Report is invalid {}", report.getErrors());
+            return false;
+        }
+        if(!scheduler.isScheduled( report.getSchedule() )) {
+            log.info("Report is not scheduled");
+            return false;
+        }
+
+        return true;
     }
 
 
@@ -82,8 +101,6 @@ public class ReportGenerator implements AutoCloseable {
 
         exportToCSVFile(report);
 
-        exportToFihr(report);
-
         zipAndUploadToSFTP(report);
 
         processAnalytics(report);
@@ -99,22 +116,6 @@ public class ReportGenerator implements AutoCloseable {
         }
 
         repository.processAnalytics(report.getAnalytics());
-    }
-
-    private void exportToFihr(Report report) throws Exception {
-        FihrExport fihrExport = report.getFihrExport();
-
-        if (fihrExport == null) {
-            log.info("No configuration for fihr export found, nothing to do here");
-            return;
-        }
-
-        if (!fihrExport.getSwitchedOn()) {
-            log.info("Fihr switched off, nothing to do here");
-            return;
-        }
-
-        log.warn("Fihr exporter not implemented yet!!!!!!");
     }
 
     private void executeDeltas(Report report) {
@@ -150,7 +151,7 @@ public class ReportGenerator implements AutoCloseable {
 
     private void bootRepository(Report report) throws SQLException {
 
-        if(report.requiresDatabase() == false) {
+        if(!report.requiresDatabase()) {
             log.info("Report doesn't required database, not booting repository");
             return;
         }
@@ -233,7 +234,9 @@ public class ReportGenerator implements AutoCloseable {
             }
             if (file.isDirectory()) {
                 log.debug("Deleting directory: " + file.getName());
-                FileUtils.deleteDirectory(file);
+                Path path = Paths.get(file.getAbsolutePath());
+                Files.deleteIfExists( path );
+//                FileUtils.deleteDirectory(file);
             }
         }
     }

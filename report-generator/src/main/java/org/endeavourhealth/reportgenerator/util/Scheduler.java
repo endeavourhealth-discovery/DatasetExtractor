@@ -14,24 +14,31 @@ public class Scheduler {
     private LocalDateTime now = LocalDateTime.now();
 
 
-    public boolean isScheduled(Report report) {
+    public boolean isScheduled(Schedule schedule) {
 
-        Schedule schedule = report.getSchedule();
+        if(schedule == null) {
+            log.warn("No scheduler configured, default behaviour is to run report");
+            return true;
+        }
 
-        if(schedule.getIsDaily()) {
+        log.info("Running scheduler for time {}", now);
+
+        log.debug(schedule.toString());
+
+        if(schedule.getIsDaily() != null) {
             return checkDaily( schedule );
         }
 
         if(schedule.getDayOfWeek() != null) {
-            return checkWeekly(schedule);
+            return checkWeekly( schedule );
         }
 
         if(schedule.getDayOfMonth() != null) {
-            return checkMonthly(schedule);
+            return checkMonthly( schedule );
         }
 
         //Should never get here
-        throw new ReportGeneratorException("Scheduler config is messed up, fix the validator! " + report.toString());
+        throw new ReportGeneratorException("Scheduler config is messed up, fix the validator! " + schedule.toString());
     }
 
     private boolean checkWeekly(Schedule schedule) {
