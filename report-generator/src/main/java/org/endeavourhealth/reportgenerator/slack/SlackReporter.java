@@ -76,18 +76,19 @@ public class SlackReporter {
     }
 
     private void appendSchedule(Schedule schedule) {
+        
         if(schedule == null) {
             append("No schedule configured, default run");
             return;
         }
 
-        append("Is daily : " + schedule.getIsDaily());
+        if(schedule.getIsDaily() != null) append("Is Daily? : " + schedule.getIsDaily());
 
-        append("skipDays : " + schedule.getSkipDays());
+        if(schedule.getSkipDays() != null) append("Skip days : " + schedule.getSkipDays());
 
-        append("Day of week : " + schedule.getDayOfWeek());
+        if(schedule.getDayOfWeek() != null) append("Day of week : " + schedule.getDayOfWeek());
 
-        append("Day of month : " + schedule.getDayOfMonth());
+        if(schedule.getDayOfMonth() != null) append("Day of month : " + schedule.getDayOfMonth());
     }
 
     private void appendAnalytics(Analytics analytics) {
