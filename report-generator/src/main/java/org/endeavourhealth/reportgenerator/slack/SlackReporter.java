@@ -105,7 +105,7 @@ public class SlackReporter {
     }
 
     private void appendTitle() {
-        String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy hh:mm:ss"));
+        String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss"));
         append("*Report Scheduler has run at " + today + "*");
     }
 
