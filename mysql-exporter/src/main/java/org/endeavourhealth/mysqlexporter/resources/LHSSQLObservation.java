@@ -56,7 +56,7 @@ public class LHSSQLObservation {
 			nor = Integer.parseInt(ss[0]); snomedcode=ss[1]; orginalterm=ss[2]; resultvalue=ss[3]; clineffdate=ss[4]; resultvalunits=ss[5];
 
 			if (parent==0) {
-                System.out.println(id + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits + "," + parent);
+                System.out.println(id + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits + "," + parent + "," + id);
                 repository.Audit(id, "", "ReportTracker", 0, "dum", "", nor, 0);
             }
 
@@ -105,7 +105,7 @@ public class LHSSQLObservation {
                             resultvalunits = obs[4];
                             if (snomedcode.length() == 0) snomedcode = obs[5];
 
-                            System.out.println(zid + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits + "," + parent);
+                            System.out.println(zid + "," + nor + "," + clineffdate + "," + snomedcode + "," + orginalterm + "," + resultvalue + "," + resultvalunits + "," + parent + "," +id);
 
                             repository.Audit(Integer.parseInt(zid), "", "ReportTracker", 0, "dum", "", nor, 0);
 

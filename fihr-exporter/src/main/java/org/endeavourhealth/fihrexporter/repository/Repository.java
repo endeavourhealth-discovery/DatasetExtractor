@@ -14,17 +14,11 @@ public class Repository {
 
     private String baseURL;
 
-    public String outputFHIR;
-    public String dbschema;
-    public String clientid;
-    public String clientsecret;
-    public String scope;
-    public String granttype;
-    public String tokenurl;
-    public String token;
-    public String runguid;
-    public Integer scaletotal;
-    public Integer counting;
+    public String outputFHIR; public String dbschema; public String clientid;
+    public String clientsecret; public String scope; public String granttype;
+    public String tokenurl; public String token; public String runguid;
+    public Integer scaletotal; public Integer counting;
+    public String config; public String dbreferences;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -65,7 +59,7 @@ public class Repository {
     }
 
     public boolean PreviouslyPostedCode(String code, String resource) throws SQLException {
-        String q = "SELECT * FROM data_extracts.references WHERE strid='" + code + "' AND resource='" + resource +" '";
+        String q = "SELECT * FROM "+dbreferences+".references WHERE strid='" + code + "' AND resource='" + resource +" '";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -80,7 +74,7 @@ public class Repository {
 
     public boolean PreviouslyPostedId(Integer id, String resource) throws SQLException {
 
-        String q = "SELECT * FROM data_extracts.references WHERE an_id='" + id.toString() + "' AND resource='" + resource + " '";
+        String q = "SELECT * FROM "+dbreferences+".references WHERE an_id='" + id.toString() + "' AND resource='" + resource + " '";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -98,7 +92,7 @@ public class Repository {
     public String getIdsForLocation(String location)  throws SQLException {
         String ids ="";
 
-        String q = "SELECT * FROM data_extracts.references WHERE location='" + location + "'";
+        String q = "SELECT * FROM "+dbreferences+".references WHERE location='" + location + "'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -113,7 +107,7 @@ public class Repository {
 
     public void InsertBackIntoObsQueue(Integer id) throws SQLException {
         // does the id already exist in filteredobservationsdelta?
-        String q ="select id from data_extracts.filteredObservationsDelta where id="+id;
+        String q ="select id from "+dbreferences+".filteredObservationsDelta where id="+id;
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -127,7 +121,7 @@ public class Repository {
 
         if (alreadyinq==true) return;
 
-        q ="insert into data_extracts.filteredObservationsDelta (id) values(?)";
+        q ="insert into "+dbreferences+".filteredObservationsDelta (id) values(?)";
         System.out.println("back into q "+q);
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
@@ -139,7 +133,7 @@ public class Repository {
     public String getLocationObsWithCheckingDeleted(Integer anid) throws SQLException {
         String location = "";
 
-        String q = "SELECT * FROM data_extracts.references WHERE an_id='" + anid + "' AND resource='Observation'";
+        String q = "SELECT * FROM "+dbreferences+".references WHERE an_id='" + anid + "' AND resource='Observation'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -153,7 +147,7 @@ public class Repository {
     public String getLocation(Integer anid, String resource) throws SQLException {
         String location = "";
 
-        String q = "SELECT * FROM data_extracts.references WHERE an_id='" + anid + "' AND resource='" + resource + "'";
+        String q = "SELECT * FROM "+dbreferences+".references WHERE an_id='" + anid + "' AND resource='" + resource + "'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -164,7 +158,7 @@ public class Repository {
 
         // Has the resource been deleted?
         if (location.length()>0) {
-            q = "SELECT * FROM data_extracts.references WHERE an_id='" + anid + "' AND resource='DEL:" + resource + "'";
+            q = "SELECT * FROM "+dbreferences+".references WHERE an_id='" + anid + "' AND resource='DEL:" + resource + "'";
             preparedStatement = connection.prepareStatement(q);
             rs = preparedStatement.executeQuery();
             if (rs.next()) {
@@ -179,7 +173,7 @@ public class Repository {
     public String GetMedicationReference(String snomedcode) throws SQLException {
         String location = "";
 
-        String q = "SELECT * FROM data_extracts.references WHERE strid='" + snomedcode + "' AND resource='Medication'";
+        String q = "SELECT * FROM "+dbreferences+".references WHERE strid='" + snomedcode + "' AND resource='Medication'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -192,7 +186,7 @@ public class Repository {
 
     public void DeleteTracker() throws SQLException
     {
-        String q ="DELETE FROM data_extracts.references where resource ='Tracker'";
+        String q ="DELETE FROM "+dbreferences+".references where resource ='Tracker'";
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         preparedStmt.execute();
@@ -202,7 +196,7 @@ public class Repository {
 
     public void DeleteFileReferences() throws SQLException
     {
-        String q ="DELETE FROM data_extracts.references where response = 123";
+        String q ="DELETE FROM "+dbreferences+".references where response = 123";
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         preparedStmt.execute();
@@ -269,7 +263,7 @@ public class Repository {
     public void getTerms() throws SQLException
     {
         String code=""; String dbid=""; String r2=""; String str="";
-        String q ="SELECT * FROM data_extracts.snomed_code_set_codes";
+        String q ="SELECT * FROM "+dbreferences+".snomed_code_set_codes";
         PreparedStatement preparedStatement = connection.prepareStatement(q);
 
         ResultSet rs = preparedStatement.executeQuery();
@@ -293,11 +287,11 @@ public class Repository {
         // purge the queues
         String table = ""; String q = "";
 
-        if (resource=="Patient") {table="data_extracts.filteredPatientsDelta";}
+        if (resource=="Patient") {table=dbreferences+".filteredPatientsDelta";}
         //if (resource=="Observation") {table="data_extracts.filteredobservationsdelta";}
-        if (resource=="Observation") {table="data_extracts.filteredObservationsDelta";}
-        if (resource=="MedicationStatement") {table="data_extracts.filteredMedicationsDelta";}
-        if (resource== "AllergyIntolerance") {table="data_extracts.filteredAllergiesDelta";};
+        if (resource=="Observation") {table=dbreferences+".filteredObservationsDelta";}
+        if (resource=="MedicationStatement") {table=dbreferences+".filteredMedicationsDelta";}
+        if (resource== "AllergyIntolerance") {table=dbreferences+".filteredAllergiesDelta";};
 
         if (table.length()>0) {
             q = "DELETE FROM " + table + " where id='" + anId + "'";
@@ -338,12 +332,12 @@ public class Repository {
         encoded = encoded.replaceAll("'","''");
 
         if (anId != 0) {
-            q = "update data_extracts.references set response = " + responseCode + ", datesent = '"+str+"', json = '"+encoded+"' where an_id = '"+anId+"' and resource='"+resource+"' and response<>'1234'";
+            q = "update "+dbreferences+".references set response = " + responseCode + ", datesent = '"+str+"', json = '"+encoded+"' where an_id = '"+anId+"' and resource='"+resource+"' and response<>'1234'";
             PurgetheQueue(anId, resource);
         }
 
         if (strid.length() > 0) {
-            q = "update data_extracts.references set response = " + responseCode + ", datesent = '" + str + "', json = '" + encoded + "' where strid = '"+strid+"' and resource='"+resource+"' and response<>'1234'";
+            q = "update "+dbreferences+".references set response = " + responseCode + ", datesent = '" + str + "', json = '" + encoded + "' where strid = '"+strid+"' and resource='"+resource+"' and response<>'1234'";
         }
 
         //System.out.println(q);
@@ -359,7 +353,7 @@ public class Repository {
     public boolean Audit(Integer anId, String strid, String resource, Integer responseCode, String location, String encoded, Integer patientid, Integer typeid) throws SQLException
     {
 
-        String q = "insert into data_extracts.references (an_id,strid,resource,response,location,datesent,json,patient_id,type_id,runguid) values(?,?,?,?,?,?,?,?,?,?)";
+        String q = "insert into "+dbreferences+".references (an_id,strid,resource,response,location,datesent,json,patient_id,type_id,runguid) values(?,?,?,?,?,?,?,?,?,?)";
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -554,7 +548,7 @@ public class Repository {
                 + "from "+dbschema+".observation o \n\r"
                 + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id \n\r"
                 + "join "+dbschema+".concept c on c.dbid = cm.core \n\r"
-                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code \n\r"
+                + "join "+dbreferences+".snomed_code_set_codes scs on scs.snomedCode = c.code \n\r"
                 + "where o.id = '"+id+"'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -621,7 +615,7 @@ public class Repository {
                 + "from "+dbschema+".observation o "
                 + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id "
                 + "join "+dbschema+".concept c on c.dbid = cm.core "
-                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
+                + "join "+dbreferences+".snomed_code_set_codes scs on scs.snomedCode = c.code "
                 + "where o.id = '"+id+"'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -688,7 +682,7 @@ public class Repository {
                 + "from "+dbschema+".observation o \n\r"
                 + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id \n\r"
                 + "join "+dbschema+".concept c on c.dbid = cm.core \n\r"
-                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code \n\r"
+                + "join "+dbreferences+".snomed_code_set_codes scs on scs.snomedCode = c.code \n\r"
                 ////+ "join "+dbschema+".concept c on c.dbid = o.non_core_concept_id " // <= returns read codes
                 + "where scs.codeSetId = 2 and o.id = '"+record_id+"'";
         ////+ "where o.id = '"+record_id+"'";
@@ -731,7 +725,7 @@ public class Repository {
                 + "from "+dbschema+".observation o "
                 + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id "
                 + "join "+dbschema+".concept c on c.dbid = cm.core "
-                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code "
+                + "join "+dbreferences+".snomed_code_set_codes scs on scs.snomedCode = c.code "
                 + "where scs.codeSetId = 2 and o.id = '"+record_id+"'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -903,7 +897,7 @@ public class Repository {
                 + "join "+dbschema+".observation o on o.patient_id = p.id \r\n"
                 + "join "+dbschema+".concept_map cm on cm.legacy = o.non_core_concept_id \r\n"
                 + "join "+dbschema+".concept c on c.dbid = cm.core \r\n"
-                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code \r\n"
+                + "join "+dbreferences+".snomed_code_set_codes scs on scs.snomedCode = c.code \r\n"
                 + "where scs.codeSetId = 1 and p.id ='" + patient_id.toString() + "'";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -984,7 +978,7 @@ public class Repository {
     }
 
     public List<List<String>> getDeleteRows() throws SQLException {
-        String preparedSql = "select * from data_extracts.filteredDeletionsDelta";
+        String preparedSql = "select * from "+dbreferences+".filteredDeletionsDelta";
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
         ResultSet rs = preparedStatement.executeQuery();
         List<List<String>> result = new ArrayList<>();
@@ -1058,7 +1052,7 @@ public class Repository {
     public List<Integer> getPatientRows() throws SQLException {
 
         // String preparedSql = "select * from data_extracts.cohort";
-        String preparedSql = "select * from data_extracts.filteredPatientsDelta";
+        String preparedSql = "select * from "+dbreferences+".filteredPatientsDelta";
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
 
@@ -1118,7 +1112,8 @@ public class Repository {
 
     public String getConfig()
     {
-        String conStr = ConfigManager.getConfiguration("database","knowdiabetes");
+        //String conStr = ConfigManager.getConfiguration("database","knowdiabetes");
+        String conStr = ConfigManager.getConfiguration("database",config);
         System.out.println(conStr);
         return conStr;
     }
@@ -1127,6 +1122,8 @@ public class Repository {
 
         try {
             System.out.println("initializing properties");
+
+            config = props.getProperty("config");
 
             String conStr = getConfig();
             String[] ss = conStr.split("\\`");
@@ -1155,6 +1152,8 @@ public class Repository {
 
             scaletotal = Integer.parseInt(props.getProperty("scaletotal"));
 
+            dbreferences = props.getProperty("dbreferences");
+
             System.out.println("mysql url: "+ss[0]);
             System.out.println("mysql user: "+ss[1]);
             System.out.println("mysql pass: "+ss[2]);
@@ -1162,6 +1161,8 @@ public class Repository {
             System.out.println("baseurl: "+baseURL);
             System.out.println("scale tot: "+scaletotal);
             System.out.println("disk: "+outputFHIR);
+            System.out.println("dbreferences: "+dbreferences);
+            System.out.println("config: "+config);
 
             Scanner scan = new Scanner(System.in);
             System.out.print("Press any key to continue . . . ");
