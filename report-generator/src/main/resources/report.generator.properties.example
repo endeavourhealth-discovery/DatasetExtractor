@@ -20,4 +20,4 @@ report.yaml.file=reports.known.yaml
 csv.staging.directory=/home/hal/dev/data_extracts/staging
 
 slack.url=https://hooks.slack.com/services/blah/blah/blah
-slack.switched.on=true
+slack.switched.on=false

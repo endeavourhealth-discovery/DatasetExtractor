@@ -104,19 +104,19 @@ public class ReportGenerator implements AutoCloseable {
 
         zipAndUploadToSFTP(report);
 
-        processAnalytics(report);
+        processAnalytics( report.getAnalytics() );
 
         //Not all reports have use of a database
         if(repository != null) repository.close();
     }
 
-    private void processAnalytics(Report report) {
-        Analytics analytics = report.getAnalytics();
+    private void processAnalytics(Analytics analytics) {
+
         if(!analytics.getSwitchedOn()) {
             log.info("Analytics switched off, nothing to do");
         }
 
-        repository.processAnalytics(report.getAnalytics());
+        repository.processAnalytics( analytics );
     }
 
     private void executeDeltas(Report report) {

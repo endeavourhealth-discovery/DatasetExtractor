@@ -42,7 +42,8 @@ public class FileZipper {
         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
         parameters.setIncludeRootFolder(false);
 
-        zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
+        zipFile.createZipFileFromFolder(source, parameters, false, -1);
+        // zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
 
         return absolutePath;
     }
@@ -60,4 +61,3 @@ public class FileZipper {
         return filename;
     }
 }
-
