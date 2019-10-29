@@ -21,6 +21,8 @@ public class FileEncrypter {
 
     public void encryptFile(File file) throws Exception {
 
+        log.info("Encrypting {}", file);
+
         X509Certificate certificate = getCertificate();
 
         byte[] data = IOUtils.toByteArray(new FileInputStream(file));
@@ -56,4 +58,3 @@ public class FileEncrypter {
         return certificate;
     }
 }
-

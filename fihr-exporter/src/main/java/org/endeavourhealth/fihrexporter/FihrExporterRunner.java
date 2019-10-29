@@ -11,8 +11,20 @@ public class FihrExporterRunner {
 
         Properties properties = loadProperties( args );
 
-        try (  FihrExporter csvExporter = new FihrExporter( properties  ) ) {
+        for (String s: args) {
+            System.out.println(s);
 
+            String[] ss = s.split("\\:");
+
+            if (ss[0].equals("dbschema")) {
+                properties.setProperty("dbschema", ss[1]);
+            }
+            if (ss[0].equals("dbreferences")) {properties.setProperty("dbreferences", ss[1]);}
+            if (ss[0].equals("config")) {properties.setProperty("config", ss[1]);}
+
+        }
+
+        try (  FihrExporter csvExporter = new FihrExporter( properties  ) ) {
             csvExporter.export();
 
         } catch (Exception e) {
