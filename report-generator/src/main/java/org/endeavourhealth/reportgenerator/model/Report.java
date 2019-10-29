@@ -112,4 +112,9 @@ public class Report {
 
         return false;
     }
+
+    public boolean isStfpSwitchedOn() {
+        if(getSftpUpload() != null && getSftpUpload().getSwitchedOn()) return true;
+        return false;
+    }
 }

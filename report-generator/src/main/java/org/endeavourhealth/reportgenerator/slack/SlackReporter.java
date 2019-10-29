@@ -60,10 +60,15 @@ public class SlackReporter {
 
             appendSchedule(report.getSchedule());
 
-            append("Sftp Switched On : " + report.getSftpUpload().getSwitchedOn());
+            if( report.isStfpSwitchedOn() ) {
+                append("Sftp Sent To : " + report.getSftpUpload().getUsername());
+            } else {
+                append("Sftp Switched Off");
+            }
+
 
             for (Table table : report.getCsvExport().getTables()) {
-                builder.append("CSV Table : " + table.getName() + " with filename " + table.getFileName());
+                builder.append("CSV Table : " + table.getFileName());
             }
             breakLine();
 
@@ -76,7 +81,7 @@ public class SlackReporter {
     }
 
     private void appendSchedule(Schedule schedule) {
-        
+
         if(schedule == null) {
             append("No schedule configured, default run");
             return;
