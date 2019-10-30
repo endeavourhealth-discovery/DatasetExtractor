@@ -39,6 +39,8 @@ CREATE TABLE `references` (
   `runguid` varchar(50) DEFAULT NULL,
   KEY `ix_references_an_id` (`an_id`),
   KEY  `ix_references_strid` (`strid`),
-  KEY  `ix_references_location` (`location`)
+  KEY  `ix_references_location` (`location`),
+  KEY  `ix_references_resource` (`resource`),
+  KEY  `ix_references_response` (`response`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
