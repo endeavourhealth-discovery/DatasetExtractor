@@ -38,7 +38,7 @@ public class LHSSQLMedicationStatement {
             String nor = ss[0]; String code=ss[1]; String drugname=ss[2]; String dosetxt=ss[3];
             String qtyval=ss[4]; String qtyunit=ss[5]; String date=ss[6];
 
-            String out = id+","+qtyunit+","+qtyval+","+dosetxt+","+date+","+code+","+drugname;
+            String out = id+","+nor+","+qtyunit+","+qtyval+","+dosetxt+","+date+","+code+","+drugname;
 
 			System.out.println(out);
 

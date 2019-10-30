@@ -117,10 +117,11 @@ MEDS(MEDS) ;
  QUIT
  
 RX ;
- N IDS,DDSE,DATES,REFS
+ N IDS,DDSE,DATES,REFS,PATS
  S E=""
  F  S E=$O(^B("entry",E)) Q:E=""  D
  .D GETDDSID(E,.IDS)
+ .D OBSPAT(E,.PATS)
  .D GETDSEQTY(E,.DDSE)
  .D DATES(E,.DATES)
  .D REF(E,.REFS)
@@ -140,8 +141,9 @@ RX ;
  .S DDSE=DDSE(ID)
  .S DATE=$P(DATES(ID),"T",1)
  .S REF=$P(REFS(ID),"/",2)
- .W !,ZID,",",DDSE,",",DATE,",",MEDS(REF)
- .S ^OUT("RX",C)=ZID_","_DDSE_","_DATE_","_MEDS(REF)_","_REF_","_GUIDS(ID)
+ .S NOR=$GET(PATS(ID))
+ .W !,ZID,",",NOR,",",DDSE,",",DATE,",",MEDS(REF)
+ .S ^OUT("RX",C)=ZID_","_NOR_","_DDSE_","_DATE_","_MEDS(REF)_","_REF_","_GUIDS(ID)
  .S C=C+1
  .QUIT
  
@@ -333,7 +335,14 @@ GO ;
  k ^token,^DDS,^OUT,^tdone
  
  s ^token=$$STT()
- 
+
+ D GET(^DSYSTEM("FHIR","FHIRENDPOINT")_"Patient")
+ K ^B M ^B=B
+ D PAT
+ F  S NEXT=$$NEXT() Q:NEXT=""  D GET(NEXT) K ^B M ^B=B D PAT
+
+ ZWR ^B
+
  D GET(^DSYSTEM("FHIR","FHIRENDPOINT")_"Medication")
  K ^B M ^B=B
  D MEDS(.MEDS)
@@ -352,13 +361,6 @@ GO ;
  ;S A=""
  ;F  S A=$O(^OUT("RX",A)) Q:A=""  U F W ^(A),!
  ;CLOSE F
- 
- D GET(^DSYSTEM("FHIR","FHIRENDPOINT")_"Patient")
- K ^B M ^B=B
- D PAT
- F  S NEXT=$$NEXT() Q:NEXT=""  D GET(NEXT) K ^B M ^B=B D PAT
- 
- ZWR ^B
  
  D GET(^DSYSTEM("FHIR","FHIRENDPOINT")_"AllergyIntolerance")
  K ^B M ^B=B

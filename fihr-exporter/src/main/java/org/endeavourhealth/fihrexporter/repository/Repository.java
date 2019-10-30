@@ -413,6 +413,36 @@ public class Repository {
 
     }
 
+    public String GetOtherAddresses(Integer patientid, String curraddid) throws SQLException {
+        String addresses="";
+
+        String q = "select * from "+dbschema+".patient_address where id <> "+curraddid+" AND patient_id="+patientid.toString();
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while(rs.next())
+        {
+            String add1=""; String add2=""; String add3=""; String add4="";
+            String city=""; String postcode=""; String useconceptid="";
+
+            if (rs.getString("address_line_1")!=null) {add1 = rs.getString("address_line_1");}
+            if (rs.getString("address_line_2")!=null) {add2 = rs.getString("address_line_2");}
+            if (rs.getString("address_line_3")!=null) {add3 = rs.getString("address_line_3");}
+            if (rs.getString("address_line_4")!=null) {add4 = rs.getString("address_line_4");}
+            if (rs.getString("city")!=null) {city = rs.getString("city");}
+            if (rs.getString("postcode")!=null) {postcode = rs.getString("postcode");}
+            if (rs.getString("use_concept_id")!=null) {useconceptid=rs.getString("use_concept_id");}
+
+            addresses=addresses+add1+"`"+add2+"`"+add3+"`";
+            addresses=addresses+add4+"`"+city+"`"+postcode+"`"+useconceptid+"|";
+        }
+
+        preparedStatement.close();
+
+        return addresses;
+    }
+
     public String GetTelecom(Integer patientid) throws SQLException {
         String telecom ="";
 
@@ -826,7 +856,6 @@ public class Repository {
 
         String q = "select distinct ";
 
-        /*
         q = q + "p.id as patient_id,\r\n"
                 + "p.nhs_number,\r\n"
                 + "p.title,\r\n"
@@ -843,47 +872,12 @@ public class Repository {
                 + "pa.city,\r\n"
                 + "pa.start_date,\r\n"
                 + "pa.end_date,\r\n"
+                + "pa.use_concept_id,\r\n" // change
                 + "cctype.name as contact_type,\r\n"
                 + "ccuse.name as contact_use,\r\n"
                 + "pc.value as contact_value,\r\n"
                 + "p.organization_id,\r\n"
-                + "org.ods_code,\r\n"
-                + "org.name as org_name,\r\n"
-                + "org.postcode as org_postcode\r\n "
-                + "from subscriber_pi.patient p \r\n"
-                + "left outer join subscriber_pi.patient_address pa on pa.id = p.current_address_id \r\n"
-                + "left outer join subscriber_pi.patient_contact pc on pc.patient_id = p.id \r\n"
-                + "left outer join subscriber_pi.concept ccuse on ccuse.dbid = pc.use_concept_id \r\n"
-                + "left outer join subscriber_pi.concept cctype on cctype.dbid = pc.type_concept_id \r\n"
-                + "left outer join subscriber_pi.concept gc on gc.dbid = p.gender_concept_id \r\n"
-                + "left outer join subscriber_pi.organization org on org.id = p.organization_id \r\n"
-                + "join subscriber_pi.observation o on o.patient_id = p.id \r\n"
-                + "join subscriber_pi.concept_map cm on cm.legacy = o.non_core_concept_id \r\n"
-                + "join subscriber_pi.concept c on c.dbid = cm.core \r\n"
-                + "join data_extracts.snomed_code_set_codes scs on scs.snomedCode = c.code \r\n"
-                + "where scs.codeSetId = 1 and p.id ='" + patient_id.toString() + "'";
-         */
-
-        q = q + "p.id as patient_id,\r\n"
-                + "p.nhs_number,\r\n"
-                + "p.title,\r\n"
-                + "p.first_names,\r\n"
-                + "p.last_name,\r\n"
-                + "gc.name as gender,\r\n"
-                + "p.date_of_birth,\r\n"
-                + "p.date_of_death,\r\n"
-                + "pa.address_line_1,\r\n"
-                + "pa.address_line_2,\r\n"
-                + "pa.address_line_3,\r\n"
-                + "pa.address_line_4,\r\n"
-                + "pa.postcode,\r\n"
-                + "pa.city,\r\n"
-                + "pa.start_date,\r\n"
-                + "pa.end_date,\r\n"
-                + "cctype.name as contact_type,\r\n"
-                + "ccuse.name as contact_use,\r\n"
-                + "pc.value as contact_value,\r\n"
-                + "p.organization_id,\r\n"
+                + "p.current_address_id,\r\n" // change
                 + "org.ods_code,\r\n"
                 + "org.name as org_name,\r\n"
                 + "org.postcode as org_postcode\r\n "
@@ -945,10 +939,15 @@ public class Repository {
 
             String startdate = rs.getString("start_date"); // date added to the cohort?
             Integer orgid = rs.getInt("organization_id");
-            ;
+
+            String useconceptid = rs.getString("use_concept_id");
+            String curraddid = rs.getString("current_address_id");
+
+            String addresses = GetOtherAddresses(patient_id, curraddid);
 
             result = nhsno + "~" + odscode + "~" + orgname + "~" + orgpostcode + "~" + telecom + "~" + dod + "~" + add1 + "~" + add2 + "~" + add3 + "~" + add4 + "~" + city + "~";
             result = result + gender + "~" + contacttype + "~" + contactuse + "~" + contactvalue + "~" + title + "~" + firstname + "~" + lastname + "~" + startdate + "~" + orgid + "~" + dob + "~" + postcode + "~";
+            result = result + useconceptid + "~" + curraddid + "~" + addresses + "~";
         }
 
         preparedStatement.close();
@@ -1016,7 +1015,7 @@ public class Repository {
     }
 
     public List<Integer> getRows(String table) throws SQLException {
-        String preparedSql = "select * from " + table;
+        String preparedSql = "select * from "+ dbreferences+"."+table;
 
         // preparedSql = preparedSql + " where id>14189471 order by id asc";
 
