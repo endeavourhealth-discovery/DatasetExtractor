@@ -20,6 +20,8 @@ public class SftpUpload {
 
     private String zipFilename;
 
+    private String hostfilename;
+
     @NotNull
     private String hostname;
 

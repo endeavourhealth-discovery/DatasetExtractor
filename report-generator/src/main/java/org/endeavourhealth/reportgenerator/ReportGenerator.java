@@ -112,6 +112,11 @@ public class ReportGenerator implements AutoCloseable {
 
     private void processAnalytics(Analytics analytics) {
 
+        if(analytics == null) {
+            log.info("No analytics found, nothing to do here");
+            return;
+        }
+        
         if(!analytics.getSwitchedOn()) {
             log.info("Analytics switched off, nothing to do");
         }
