@@ -64,6 +64,8 @@ public class FihrExporter implements AutoCloseable {
             }
         }
 
+        this.repository.Audit(0,"","Start",0,"dum","",0,0);
+
         // ** TO DO put this back in
         this.repository.DeleteTracker();
 
@@ -87,6 +89,8 @@ public class FihrExporter implements AutoCloseable {
 
         LHSObservation observation = new LHSObservation();
         observation.Run(this.repository, baseURL);
+
+        this.repository.Audit(0,"","End",0,"dum","",0,0);
 
         //LHSTest test = new LHSTest();
         //test.Run(this.repository);
