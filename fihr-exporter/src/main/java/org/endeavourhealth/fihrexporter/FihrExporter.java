@@ -5,6 +5,8 @@ import org.endeavourhealth.fihrexporter.resources.*;
 import org.endeavourhealth.fihrexporter.resources.LHSMedicationStatement;
 import org.endeavourhealth.fihrexporter.send.LHShttpSend;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -20,8 +22,31 @@ public class FihrExporter implements AutoCloseable {
         this.repository = repository;
     }
 
+    private Integer IsRunning()
+    {
+        Integer runcount = 0;
+        // if windows then return false
+        String OS = System.getProperty("os.name").toLowerCase();
+        if (OS.indexOf("win") >= 0) {return 0;}
+        try {
+            String process;
+            Process p = Runtime.getRuntime().exec("ps -few");
+            BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            while ((process = input.readLine()) != null) {
+                //System.out.println(process);
+                if (process.indexOf("FihrExporter-") >=0) {runcount=runcount+1;}
+            }
+            input.close();
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+        return runcount;
+    }
 
     public void export() throws Exception {
+
+        Integer runcount = IsRunning();
+        if (runcount>1) {System.out.println("already running"); return;}
 
         String baseURL = this.repository.getBaseURL();
 
