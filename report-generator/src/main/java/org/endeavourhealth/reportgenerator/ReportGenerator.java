@@ -116,7 +116,7 @@ public class ReportGenerator implements AutoCloseable {
             log.info("No analytics found, nothing to do here");
             return;
         }
-        
+
         if(!analytics.getSwitchedOn()) {
             log.info("Analytics switched off, nothing to do");
         }
