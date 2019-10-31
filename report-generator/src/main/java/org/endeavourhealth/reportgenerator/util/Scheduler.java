@@ -23,7 +23,7 @@ public class Scheduler {
 
         log.info("Running scheduler for time {}", now);
 
-        log.debug(schedule.toString());
+        log.info(schedule.toString());
 
         if(schedule.getIsDaily() != null) {
             return checkDaily( schedule );
