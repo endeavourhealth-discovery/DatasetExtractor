@@ -92,17 +92,17 @@ public class ReportGenerator implements AutoCloseable {
 
         bootRepository(report);
 
-        callStoredProcedures(report.getStoredProcedureExecutor().getPreStoredProcedures(), report.getStoredProcedureExecutor());
+        callStoredProcedures( report, true );
 
         executeExtensions( report );
 
         executeDeltas( report );
 
-        callStoredProcedures(report.getStoredProcedureExecutor().getPostStoredProcedures(), report.getStoredProcedureExecutor());
+        callStoredProcedures( report, false );
 
-        exportToCSVFile(report);
+        exportToCSVFile( report );
 
-        zipAndUploadToSFTP(report);
+        zipAndUploadToSFTP( report );
 
         processAnalytics( report.getAnalytics() );
 
@@ -116,7 +116,7 @@ public class ReportGenerator implements AutoCloseable {
             log.info("No analytics found, nothing to do here");
             return;
         }
-        
+
         if(!analytics.getSwitchedOn()) {
             log.info("Analytics switched off, nothing to do");
         }
@@ -276,11 +276,26 @@ public class ReportGenerator implements AutoCloseable {
         return p;
     }
 
-    private void callStoredProcedures(List<String> storedProcedures, StoredProcedureExecutor storedProcedureExecutor) {
+    private void callStoredProcedures(Report report, boolean isPre) {
+
+        StoredProcedureExecutor storedProcedureExecutor = report.getStoredProcedureExecutor();
+
+        if(storedProcedureExecutor == null) {
+            log.info("Stored procedure execution is turned off");
+            return;
+        }
 
         if(!storedProcedureExecutor.getSwitchedOn()) {
             log.info("Stored procedure execution is turned off");
             return;
+        }
+
+        List<String> storedProcedures;
+
+        if(isPre) {
+          storedProcedures = storedProcedureExecutor.getPreStoredProcedures();
+        } else {
+          storedProcedures = storedProcedureExecutor.getPostStoredProcedures();
         }
 
         if (storedProcedures == null) {
