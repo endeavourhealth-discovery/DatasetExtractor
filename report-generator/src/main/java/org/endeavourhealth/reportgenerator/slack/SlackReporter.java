@@ -61,9 +61,9 @@ public class SlackReporter {
             appendSchedule(report.getSchedule());
 
             if( report.isStfpSwitchedOn() ) {
-                append("Sftp Sent To : " + report.getSftpUpload().getUsername());
+                append("Sftp uploaded to : " + report.getSftpUpload().getUsername());
             } else {
-                append("Sftp Switched Off");
+                append("Sftp switched Off");
             }
 
 
