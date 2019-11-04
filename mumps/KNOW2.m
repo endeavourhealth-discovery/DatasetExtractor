@@ -196,9 +196,20 @@ GETGENDER(E,GENDER)
  S G=^B("entry",E,"resource","gender")
  S GENDER(E)=G
  QUIT
- 
+
+GETTELECOM(E)
+ N N,REC
+ S N="",REC=""
+ F  S N=$O(^B("entry",E,"resource","telecom",N)) Q:N=""  DO
+ .S USE=$GET(^B("entry",E,"resource","telecom",N,"use"))
+ .S VALUE=$GET(^B("entry",E,"resource","telecom",N,"value"))
+ .S SYSTEM=$GET(^B("entry",E,"resource","telecom",N,"system"))
+ .S REC=REC_VALUE_"`"_SYSTEM_"`"_USE_"|"
+ .QUIT
+ QUIT REC
+
 PAT ;
- N E,PATREF,IDS,ADD,DOBS,NAMES,GENDERS,NHSNO
+ N E,PATREF,IDS,ADD,DOBS,NAMES,GENDERS,NHSNO,TELECOM
  S E=""
  F  S E=$O(^B("entry",E)) Q:E=""  D
  .D GETDDSID(E,.IDS)
@@ -206,6 +217,8 @@ PAT ;
  .D GETDOB(E,.DOBS)
  .D GETNAME(E,.NAMES)
  .D GETGENDER(E,.GENDERS)
+ .S TELECOM=$$GETTELECOM(E)
+ .S TELECOM(E)=TELECOM
  .;S ^DDS
  .S PATREF=^B("entry",E,"resource","id")
  .S ^DDS("PAT",PATREF)=IDS(E)
@@ -220,8 +233,9 @@ PAT ;
  .S DOB=DOBS(ZID)
  .S NAME=NAMES(ZID)
  .S GENDER=GENDERS(ZID)
- .W !,ID,",",ADD,",",DOB,",",NAME,",",GENDER
- .S ^OUT("PAT",C)=ID_","_ADD_","_DOB_","_NAME_","_GENDER_","_NHSNO(ZID)_","_PATREF(ZID)
+ .S TELECOM=TELECOM(ZID)
+ .W !,ID,",",ADD,",",DOB,",",NAME,",",GENDER,",",NHSNO(ZID),",",TELECOM
+ .S ^OUT("PAT",C)=ID_","_ADD_","_DOB_","_NAME_","_GENDER_","_NHSNO(ZID)_","_TELECOM_","_PATREF(ZID)
  .S C=C+1
  .Q
  Q
