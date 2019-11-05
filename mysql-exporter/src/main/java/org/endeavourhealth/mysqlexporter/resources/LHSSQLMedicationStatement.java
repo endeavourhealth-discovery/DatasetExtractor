@@ -29,6 +29,9 @@ public class LHSSQLMedicationStatement {
 
 		Integer id = 0; Integer j = 0;
 
+		String headings="dds_id,patient_id,qty_unit,qty_value,dose_txt,date,code,drugname";
+		System.out.println(headings);
+
 		while (ids.size() > j) {
 			id = ids.get(j);
 

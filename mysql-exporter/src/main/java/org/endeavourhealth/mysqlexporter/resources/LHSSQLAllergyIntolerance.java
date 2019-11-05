@@ -29,6 +29,9 @@ public class LHSSQLAllergyIntolerance {
 
 		Integer id = 0; Integer j = 0;
 
+		String headings="dds_id,patient_id,date,code,term";
+		System.out.println(headings);
+
 		while (ids.size() > j) {
 			id = ids.get(j);
 

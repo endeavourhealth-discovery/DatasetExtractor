@@ -29,6 +29,9 @@ public class LHSSQLPatient {
 
 		Integer id = 0; Integer j = 0;
 
+		String headings="dds_id,add1,add2,add3,add4,city,postcode,dob,last,first,title,gender,nhsno,telecom";
+		System.out.println(headings);
+
 		while (ids.size() > j) {
 			id = ids.get(j);
 
