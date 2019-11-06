@@ -36,6 +36,9 @@ public class LHSSQLObservation {
 			System.out.println(e);
 		}
 
+		String headings="dds_id,patient_id,date,code,term,result_value,result_unints,dds_parent_id,dds_child_id";
+		System.out.println(headings);
+
 		while (ids.size() > j) {
 			id = ids.get(j);
 
