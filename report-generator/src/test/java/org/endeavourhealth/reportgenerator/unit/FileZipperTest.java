@@ -5,7 +5,6 @@ import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.SftpUpload;
 import org.endeavourhealth.reportgenerator.model.Zipper;
 import org.endeavourhealth.reportgenerator.util.FileZipper;
-import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,6 @@ public class FileZipperTest extends AbstractTest {
         properties.put("csv.staging.directory", "/home/hal/dev/data_extracts/file_zipper_output/");
     }
 
-    @NotNull
     private Report getReport() {
         Report report = new Report();
 
