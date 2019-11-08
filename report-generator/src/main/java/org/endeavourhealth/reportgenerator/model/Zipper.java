@@ -13,4 +13,6 @@ public class Zipper extends AbstractEntity {
     private String sourceDirectory;
 
     private String zipFilename;
+
+    private Boolean switchedOn = Boolean.TRUE;
 }
