@@ -46,6 +46,9 @@ public class Report extends AbstractEntity {
     @JoinColumn(name = "report_id")
     private List<@Valid Extension> extensions;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private Zipper zipper;
+
     //Delta
     @OneToOne(cascade = CascadeType.ALL)
     private Delta delta;
