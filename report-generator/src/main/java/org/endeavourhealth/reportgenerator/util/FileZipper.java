@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.endeavourhealth.reportgenerator.model.CSVExport;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.Zipper;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -18,13 +20,50 @@ public class FileZipper {
 
     private final File staging;
 
+    private final Boolean splitFiles;
+
     private String fileName;
 
     public FileZipper(Report report, Properties properties) {
-        this.source = new File(report.getCsvExport().getOutputDirectory());
+        this.source = getSource( report, properties);
         this.staging = new File(properties.getProperty("csv.staging.directory"));
-        this.fileName = report.getSftpUpload().getZipFilename() == null ? source.getName() : report.getSftpUpload().getZipFilename();
-        this.fileName = checkForExpressions(this.fileName);
+        this.fileName = getFileName( report, properties );
+
+        if(report.getZipper() != null) {
+            this.splitFiles = report.getZipper().getSplitFiles();
+        } else {
+            this.splitFiles = Boolean.FALSE;
+        }
+    }
+
+    private String getFileName(Report report, Properties properties) {
+
+        String filename = source.getName();
+
+        if(report.getZipper() != null && report.getZipper().getZipFilename() != null) {
+            filename = report.getZipper().getZipFilename();
+        }
+
+        return checkForExpressions(filename);
+    }
+
+    private File getSource(Report report, Properties properties) {
+        Zipper zipper = report.getZipper();
+        CSVExport csvExport = report.getCsvExport();
+
+        String source = null;
+
+        if(csvExport != null && report.getCsvExport().getOutputDirectory() != null) {
+             source = report.getCsvExport().getOutputDirectory();
+        }
+
+        if(zipper != null && zipper.getSourceDirectory() != null) {
+            source = zipper.getSourceDirectory();
+        }
+
+        //No null check as validation should catch any errors
+
+        return new File( source );
     }
 
     public String zip() throws Exception {
@@ -42,8 +81,11 @@ public class FileZipper {
         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
         parameters.setIncludeRootFolder(false);
 
-        // zipFile.createZipFileFromFolder(source, parameters, false, -1);
-        zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
+        if(splitFiles) {
+            zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
+        } else {
+            zipFile.createZipFileFromFolder(source, parameters, false, -1);
+        }
 
         return absolutePath;
     }
