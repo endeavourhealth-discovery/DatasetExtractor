@@ -19,6 +19,13 @@ import java.security.cert.X509Certificate;
 public class FileEncrypter {
 
 
+    public void encryptDirectory(File directory) throws Exception {
+
+      for (File file : directory.listFiles()) {
+        encryptFile( file );
+      }
+    }
+
     public void encryptFile(File file) throws Exception {
 
         log.info("Encrypting {}", file);
