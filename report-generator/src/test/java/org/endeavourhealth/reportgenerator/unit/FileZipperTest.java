@@ -61,10 +61,9 @@ public class FileZipperTest extends AbstractTest {
 
         zipFile = new File(filePath);
 
-        assertThat( zipFile  )
-                .exists()
-                .isFile();
+        assertThat(zipFile.getName()).matches("zipit_\\d{8}.zip");
 
+        assertThat( zipFile  ).exists().isFile();
     }
 
 
@@ -86,10 +85,7 @@ public class FileZipperTest extends AbstractTest {
 
         zipFile = new File(filePath);
 
-        assertThat( zipFile  )
-                .exists()
-                .isFile();
-
+        assertThat( zipFile  ).exists().isFile();
     }
 
     @Test
@@ -104,10 +100,7 @@ public class FileZipperTest extends AbstractTest {
 
         zipFile = new File(filePath);
 
-        assertThat( zipFile  )
-                .exists()
-                .isFile();
-
+        assertThat( zipFile  ).exists().isFile();
     }
 }
 
