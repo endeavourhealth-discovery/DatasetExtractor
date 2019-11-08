@@ -191,7 +191,7 @@ public class ReportGenerator implements AutoCloseable {
 
         FileEncrypter fileEncrypter = new FileEncrypter();
 
-        fileEncrypter.encryptFile(fileToSftp);
+        fileEncrypter.encryptDirectory( stagingDirectory );
 
         sftpUploader.uploadDirectory(sftpUpload, stagingDirectory);
     }
