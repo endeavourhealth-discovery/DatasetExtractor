@@ -192,7 +192,7 @@ public class ReportGenerator implements AutoCloseable {
 
         File stagingDirectory = new File(properties.getProperty("csv.staging.directory"));
 
-        cleanOutputDirectory(stagingDirectory);
+        cleanDirectory(stagingDirectory);
 
         FileZipper fileZipper = new FileZipper(report, properties );
 
@@ -225,7 +225,7 @@ public class ReportGenerator implements AutoCloseable {
 
         File outputDirectory = new File(csvExport.getOutputDirectory());
 
-        cleanOutputDirectory(outputDirectory);
+        cleanDirectory(outputDirectory);
 
         for (Table table : csvExport.getTables()) {
 
@@ -238,7 +238,7 @@ public class ReportGenerator implements AutoCloseable {
     }
 
 
-    private void cleanOutputDirectory(File directory) throws IOException {
+    private void cleanDirectory(File directory) throws IOException {
       log.info("Deleting all files from directory {}", directory);
 
         Path pathToBeDeleted = Paths.get(directory.getAbsolutePath());
