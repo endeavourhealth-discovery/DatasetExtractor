@@ -86,6 +86,9 @@ public class FileZipperTest extends AbstractTest {
         zipFile = new File(filePath);
 
         assertThat( zipFile  ).exists().isFile();
+
+        //Clean up
+        zipFile.delete();
     }
 
     @Test
