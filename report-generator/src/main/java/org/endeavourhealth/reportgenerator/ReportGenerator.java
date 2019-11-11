@@ -102,13 +102,17 @@ public class ReportGenerator implements AutoCloseable {
 
         exportToCSVFile( report );
 
-        zipAndUploadToSFTP( report );
+        zipAndEncrypt( report );
+
+        uploadToSftp( report );
 
         processAnalytics( report.getAnalytics() );
 
         //Not all reports have use of a database
         if(repository != null) repository.close();
     }
+
+
 
     private void processAnalytics(Analytics analytics) {
 
@@ -165,7 +169,7 @@ public class ReportGenerator implements AutoCloseable {
         this.repository = new JpaRepository(properties, report.getStoredProcedureExecutor().getDatabase());
     }
 
-    private void zipAndUploadToSFTP(Report report) throws Exception {
+    private void uploadToSftp(Report report) throws Exception {
 
         SftpUpload sftpUpload = report.getSftpUpload();
 
@@ -181,19 +185,23 @@ public class ReportGenerator implements AutoCloseable {
 
         File stagingDirectory = new File(properties.getProperty("csv.staging.directory"));
 
+        sftpUploader.uploadDirectory(sftpUpload, stagingDirectory);
+    }
+
+    private void zipAndEncrypt(Report report) throws Exception {
+
+        File stagingDirectory = new File(properties.getProperty("csv.staging.directory"));
+
         cleanOutputDirectory(stagingDirectory);
 
         FileZipper fileZipper = new FileZipper(report, properties );
 
-        String filenameToSftp = fileZipper.zip();
-
-        File fileToSftp = new File(filenameToSftp);
+        fileZipper.zip();
 
         FileEncrypter fileEncrypter = new FileEncrypter();
 
         fileEncrypter.encryptDirectory( stagingDirectory );
 
-        sftpUploader.uploadDirectory(sftpUpload, stagingDirectory);
     }
 
     private void exportToCSVFile(Report report) throws Exception {
