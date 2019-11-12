@@ -58,7 +58,7 @@ public class Scheduler {
     private boolean checkDaily(Schedule schedule) {
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
-        if(schedule.getSkipDays().contains( dayOfWeek ))
+        if(schedule.getSkipDays() != null && schedule.getSkipDays().contains( dayOfWeek ))
             return false;
 
         return true;
