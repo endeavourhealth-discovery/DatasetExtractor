@@ -79,6 +79,7 @@ public class ReportGenerator implements AutoCloseable {
         }
         if(!scheduler.isScheduled( report.getSchedule() )) {
             log.info("Report {} is not scheduled", report.getName());
+            report.setStatus("Not scheduled");
             return false;
         }
 
