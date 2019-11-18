@@ -1,0 +1,1 @@
+mysqldump -d -uroot -p data_extracts CSVExport CSVExport_Table CSVExport_db_table Delta DeltaTable Delta_DeltaTable Extension Report Schedule Schedule_skipDays SftpUpload StoredProcedureExecutor StoredProcedureExecutor_postStoredProcedures StoredProcedureExecutor_preStoredProcedures Zipper > reports.sql
