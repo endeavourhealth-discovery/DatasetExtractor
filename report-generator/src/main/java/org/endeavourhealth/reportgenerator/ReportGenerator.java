@@ -70,15 +70,16 @@ public class ReportGenerator implements AutoCloseable {
     private boolean reportIsRunnable(Report report) {
 
         if (!report.getActive()) {
-            log.warn("Report is inactive");
+            log.warn("Report {} is inactive", report.getName());
             return false;
         }
         if (!report.isValid()) {
-            log.warn("Report is invalid {}", report.getErrors());
+            log.warn("Report {} is invalid {}", report.getName(), report.getErrors());
             return false;
         }
         if(!scheduler.isScheduled( report.getSchedule() )) {
-            log.info("Report is not scheduled");
+            log.info("Report {} is not scheduled", report.getName());
+            report.setStatus("Not scheduled");
             return false;
         }
 

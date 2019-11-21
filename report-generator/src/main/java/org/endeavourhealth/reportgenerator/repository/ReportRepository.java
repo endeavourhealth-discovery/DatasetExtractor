@@ -20,9 +20,9 @@ public class ReportRepository implements AutoCloseable {
 
         this();
 
-        properties.put("javax.persistence.jdbc.password", properties.get("db.compass.password"));
-        properties.put("javax.persistence.jdbc.user", properties.getProperty("db.compass.user"));
-        properties.put("javax.persistence.jdbc.url", properties.getProperty("db.compass.url"));
+        properties.put("javax.persistence.jdbc.password", properties.get("db.report.password"));
+        properties.put("javax.persistence.jdbc.user", properties.getProperty("db.report.user"));
+        properties.put("javax.persistence.jdbc.url", properties.getProperty("db.report.url"));
 
         entityManagerFactory = Persistence.createEntityManagerFactory("reportDatabase", properties);
     }

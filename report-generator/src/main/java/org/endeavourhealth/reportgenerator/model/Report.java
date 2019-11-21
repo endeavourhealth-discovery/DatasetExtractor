@@ -53,6 +53,8 @@ public class Report extends AbstractEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private Delta delta;
 
+    private String status;
+
     //CSV
     @Valid
     @OneToOne(cascade = CascadeType.ALL)
@@ -87,10 +89,12 @@ public class Report extends AbstractEntity {
     }
 
     public boolean isValid() {
-        return constraintViolations.isEmpty() ? true : false;
+        return constraintViolations == null || constraintViolations.isEmpty() ? true : false;
     }
 
     public String getStatus() {
+        if(status != null) return status;
+
         if(!active) {
             return "Inactive";
         }
