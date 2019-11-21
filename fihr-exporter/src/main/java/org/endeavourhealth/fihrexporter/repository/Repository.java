@@ -19,6 +19,7 @@ public class Repository {
     public String tokenurl; public String token; public String runguid;
     public Integer scaletotal; public Integer counting;
     public String config; public String dbreferences;
+    public String organization;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -1017,6 +1018,20 @@ public class Repository {
     public List<Integer> getRows(String table) throws SQLException {
         String preparedSql = "select * from "+ dbreferences+"."+table;
 
+        //String prepareOrgSQL = "select t.id, j.organization_id from "+dbreferences+"."+table+ "t ";
+
+        String j ="";
+        if (table.equals("filteredObservationsDelta")) {j=" join "+dbschema+".observation j on t.id=j.id";}
+        if (table.equals("filteredMedicationsDelta")) {j=" join "+dbschema+".medication_statement j on t.id=j.id";}
+        if (table.equals("filteredAllergiesDelta")) {j=" join "+dbschema+".allergy_intolerance j on t.id=j.id";}
+
+        if (!organization.isEmpty()) {
+            preparedSql = "select t.id, j.organization_id from "+dbreferences+"."+table+ " t";
+            preparedSql = preparedSql + j + " WHERE j.organization_id="+organization;
+        }
+
+        System.out.println(preparedSql);
+
         // preparedSql = preparedSql + " where id>14189471 order by id asc";
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
@@ -1052,6 +1067,8 @@ public class Repository {
 
         // String preparedSql = "select * from data_extracts.cohort";
         String preparedSql = "select * from "+dbreferences+".filteredPatientsDelta";
+
+        if (!organization.isEmpty()) {preparedSql ="SELECT p.id, p.organization_id FROM data_extracts.filteredPatientsDelta f join subscriber_pi.patient p on p.id = f.id where p.organization_id="+organization;}
 
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
 
@@ -1153,6 +1170,8 @@ public class Repository {
 
             dbreferences = props.getProperty("dbreferences");
 
+            organization = props.getProperty("organization");
+
             System.out.println("mysql url: "+ss[0]);
             System.out.println("mysql user: "+ss[1]);
             System.out.println("mysql pass: "+ss[2]);
@@ -1162,6 +1181,7 @@ public class Repository {
             System.out.println("disk: "+outputFHIR);
             System.out.println("dbreferences: "+dbreferences);
             System.out.println("config: "+config);
+            System.out.println("organization: "+organization);
 
             Scanner scan = new Scanner(System.in);
             System.out.print("Press any key to continue . . . ");
