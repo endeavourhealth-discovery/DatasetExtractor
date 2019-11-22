@@ -92,6 +92,13 @@
             <version>1.25</version>
         </dependency>
 
+        <!-- Learning health -->
+        <dependency>
+            <groupId>org.endeavourhealth.common</groupId>
+            <artifactId>security</artifactId>
+            <version>1.52-SNAPSHOT</version>
+        </dependency>
+
         <!-- Hibernate Validator -->
 
         <dependency>
