@@ -255,7 +255,7 @@ public class ReportGenerator implements AutoCloseable {
 
         Properties p = new Properties();
 
-        switch (report.getStoredProcedureExecutor().getDatabase()) {
+        switch ( report.getCsvExport().getDatabase() ) {
             case COMPASS:
                 p.put("url", properties.getProperty("db.compass.url"));
                 p.put("user", properties.getProperty("db.compass.user"));

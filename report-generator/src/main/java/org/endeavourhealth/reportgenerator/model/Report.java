@@ -89,7 +89,7 @@ public class Report extends AbstractEntity {
     }
 
     public boolean isValid() {
-        return constraintViolations.isEmpty() ? true : false;
+        return constraintViolations == null || constraintViolations.isEmpty() ? true : false;
     }
 
     public String getStatus() {
