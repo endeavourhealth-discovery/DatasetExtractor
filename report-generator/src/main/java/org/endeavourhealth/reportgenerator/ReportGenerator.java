@@ -1,8 +1,15 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.common.security.datasharingmanagermodel.models.DAL.SecurityProjectDAL;
+import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.ExtractTechnicalDetailsEntity;
+import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.OrganisationEntity;
+import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.ProjectScheduleEntity;
+import org.endeavourhealth.common.security.datasharingmanagermodel.models.enums.MapType;
 import org.endeavourhealth.csvexporter.CSVExporter;
+import org.endeavourhealth.reportgenerator.beans.DSMConfiguration;
 import org.endeavourhealth.reportgenerator.model.*;
+import org.endeavourhealth.reportgenerator.repository.DSMRepository;
 import org.endeavourhealth.reportgenerator.repository.JpaRepository;
 import org.endeavourhealth.reportgenerator.util.*;
 
@@ -55,7 +62,6 @@ public class ReportGenerator implements AutoCloseable {
 
             try {
                 executeReport(report);
-
             } catch (Exception e) {
                 log.error("Report " + report + " has thrown exception", e);
                 report.setErrorMessage( e.getMessage() );
@@ -67,19 +73,38 @@ public class ReportGenerator implements AutoCloseable {
         return reports;
     }
 
+    private void populateFromDSM(Report report) throws Exception {
+        String projectId = report.getDsmProjectId();
+
+        DSMRepository dsmRepository = new DSMRepository();
+
+        ProjectScheduleEntity scheduleEntity =  dsmRepository.getSchedule(projectId);
+
+        List<OrganisationEntity> organisations = dsmRepository.getOrganisations(projectId);
+
+        ExtractTechnicalDetailsEntity extractTechnicalDetailsEntity = dsmRepository.getExtractTechnicalDetailsEntity(projectId);
+
+        DSMConfiguration dsmConfiguration = new DSMConfiguration();
+
+        dsmConfiguration.setProjectScheduleEntity( scheduleEntity );
+        dsmConfiguration.setOrganisations(organisations);
+        dsmConfiguration.setExtractTechnicalDetailsEntity(extractTechnicalDetailsEntity);
+
+        report.setDsmConfiguration( dsmConfiguration );
+    }
+
     private boolean reportIsRunnable(Report report) {
 
         if (!report.getActive()) {
-            log.warn("Report {} is inactive", report.getName());
+            log.warn("Report is inactive");
             return false;
         }
         if (!report.isValid()) {
-            log.warn("Report {} is invalid {}", report.getName(), report.getErrors());
+            log.warn("Report is invalid {}", report.getErrors());
             return false;
         }
         if(!scheduler.isScheduled( report.getSchedule() )) {
-            log.info("Report {} is not scheduled", report.getName());
-            report.setStatus("Not scheduled");
+            log.info("Report is not scheduled");
             return false;
         }
 
@@ -90,6 +115,8 @@ public class ReportGenerator implements AutoCloseable {
     private void executeReport(Report report) throws Exception {
 
         log.info("Generating report {}", report);
+
+        populateFromDSM( report );
 
         bootRepository(report);
 

@@ -1,6 +1,7 @@
 package org.endeavourhealth.reportgenerator.model;
 
 import lombok.Data;
+import org.endeavourhealth.reportgenerator.beans.DSMConfiguration;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -22,6 +23,10 @@ public class Report extends AbstractEntity {
 
     @Transient
     private Analytics analytics;
+
+    private String dsmProjectId;
+
+    private DSMConfiguration dsmConfiguration;
 
     @NotNull
     @Length(min = 3, max = 100)
@@ -53,6 +58,7 @@ public class Report extends AbstractEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private Delta delta;
 
+    @Transient
     private String status;
 
     //CSV
@@ -120,7 +126,6 @@ public class Report extends AbstractEntity {
     }
 
     public boolean isDeltaReport() {
-
         if(getDelta() != null && getDelta().getSwitchedOn()) return true;
 
         return false;

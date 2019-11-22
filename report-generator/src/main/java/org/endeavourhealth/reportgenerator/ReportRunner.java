@@ -39,9 +39,6 @@ public class ReportRunner {
             log.error("Exception during report generator", e);
         }
 
-
-
-
         SlackReporter slackReporter = new SlackReporter( properties.getProperty("slack.url"), properties.getProperty("slack.switched.on") );
 
         slackReporter.report( reports );
