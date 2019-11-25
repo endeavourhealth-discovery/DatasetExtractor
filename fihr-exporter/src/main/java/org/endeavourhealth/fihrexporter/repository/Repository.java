@@ -1134,6 +1134,91 @@ public class Repository {
         return conStr;
     }
 
+    public boolean CreateFilteredTables() throws SQLException {
+
+        // #1
+        String q = "call initialiseSnomedCodeSetTablesDelta();";
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("initialiseSnomedCodeSetTablesDelta "+rs);
+
+        // #2
+        q = "call buildCohortCodeSetDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("buildCohortCodeSetDelta "+rs);
+
+        // #3
+        q = "call buildKnowDiabetesObservationCodeSetDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("buildKnowDiabetesObservationCodeSetDelta "+rs);
+
+        // #4
+        q = "call createCohortKnowDiabetesDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("createCohortKnowDiabetesDelta" +rs);
+
+        // #5
+        q = "call getKnowDiabetesPatientDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("getKnowDiabetesPatientDelta "+rs);
+
+        // #6
+        q = "call getKnowDiabetesObservationsDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("getKnowDiabetesObservationsDelta "+rs);
+
+        // #7
+        q = "call getKnowDiabetesAllergiesDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("getKnowDiabetesAllergiesDelta "+rs);
+
+        // #8
+        q = "call getKnowDiabetesMedicationsDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("getKnowDiabetesMedicationsDelta "+rs);
+
+        // #9
+        q = "call getKnowDiabetesDeletionsDelta();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("getKnowDiabetesDeletionsDelta "+rs);
+
+        // #10
+        q = "call finaliseExtract();";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        System.out.println("finaliseExtract "+rs);
+
+        return true;
+    }
+
     private void init(Properties props) throws SQLException {
 
         try {
@@ -1183,10 +1268,6 @@ public class Repository {
             System.out.println("config: "+config);
             System.out.println("organization: "+organization);
 
-            Scanner scan = new Scanner(System.in);
-            System.out.print("Press any key to continue . . . ");
-            scan.nextLine();
-
             dataSource = new MysqlDataSource();
 
             System.out.println(">> " + outputFHIR);
@@ -1221,6 +1302,12 @@ public class Repository {
             dataSource.setReadOnlyPropagatesToServer(true);
 
             connection = dataSource.getConnection();
+
+            boolean ok = CreateFilteredTables();
+
+            Scanner scan = new Scanner(System.in);
+            System.out.print("Press any key to continue . . . ");
+            scan.nextLine();
 
             // connection.setReadOnly(true);
             counting =0;
