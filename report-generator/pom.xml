@@ -21,13 +21,7 @@
         <jsch.version>0.1.55</jsch.version>
     </properties>
 
-
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.commons</groupId>-->
-<!--            <artifactId>commons-csv</artifactId>-->
-<!--            <version>1.6</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
@@ -96,7 +90,7 @@
         <dependency>
             <groupId>org.endeavourhealth.common</groupId>
             <artifactId>security</artifactId>
-            <version>1.52-SNAPSHOT</version>
+            <version>1.55-SNAPSHOT</version>
         </dependency>
 
         <!-- Hibernate Validator -->
