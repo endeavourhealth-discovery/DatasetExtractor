@@ -371,8 +371,4 @@ public class JpaRepository {
 
         return entityManagerFactoryCore;
     }
-
-
-    public void save(List<Report> reports) {
-    }
 }
