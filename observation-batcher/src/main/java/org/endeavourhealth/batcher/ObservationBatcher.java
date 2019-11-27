@@ -30,13 +30,13 @@ public class ObservationBatcher implements AutoCloseable{
 
         while(!observationsFromRemote.isEmpty()) {
 
-            List<LocalObservation> localObservations = observationsFromRemote.stream().map(LocalObservation::new).collect(Collectors.toList());
-
-            jpaRepository.insertObservations( observationsFromRemote );
-
-            observationsFromRemote = jpaRepository.getObservationsFromRemote(offset);
-
-            offset += observationsFromRemote.size();
+            // List<LocalObservation> localObservations = observationsFromRemote.stream().map(LocalObservation::new).collect(Collectors.toList());
+            //
+            // jpaRepository.insertObservations( observationsFromRemote );
+            //
+            // observationsFromRemote = jpaRepository.getObservationsFromRemote(offset);
+            //
+            // offset += observationsFromRemote.size();
         }
     }
 
