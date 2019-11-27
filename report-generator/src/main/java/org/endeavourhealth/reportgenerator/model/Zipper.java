@@ -18,5 +18,5 @@ public class Zipper extends AbstractEntity {
     private Boolean switchedOn = Boolean.TRUE;
 
     @Transient
-    private char[] password;
+    private String password;
 }

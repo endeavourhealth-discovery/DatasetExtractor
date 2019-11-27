@@ -27,7 +27,7 @@ public class FileZipper {
 
     private String fileName;
 
-    private char[] password;
+    private String password;
 
     public FileZipper(Report report, Properties properties) {
         this.source = getSource( report, properties);
@@ -76,11 +76,9 @@ public class FileZipper {
 
         log.debug("Compressing contents of: " + source.getAbsolutePath());
 
-        ZipFile zipFile = new ZipFile(staging + File.separator + fileName + ".zip");
+        String zipFileDirectory = staging + File.separator + fileName + ".zip";
 
-        String absolutePath = zipFile.getFile().getAbsolutePath();
-
-        log.info("Creating file: " + absolutePath);
+        ZipFile zipFile;
 
         ZipParameters zipParameters = new ZipParameters();
         zipParameters.setCompressionMethod(CompressionMethod.DEFLATE);
@@ -88,10 +86,19 @@ public class FileZipper {
         zipParameters.setIncludeRootFolder(false);
 
         if(password != null) {
+           log.info("Using password with AES256");
            zipParameters.setEncryptFiles(true);
            zipParameters.setEncryptionMethod(EncryptionMethod.AES);
            zipParameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
+           zipFile = new ZipFile(zipFileDirectory, password.toCharArray());
+        } else {
+           log.info("No password required");
+           zipFile = new ZipFile(zipFileDirectory);
         }
+
+        String absolutePath = zipFile.getFile().getAbsolutePath();
+
+        log.info("Creating file: " + absolutePath);
 
         if(splitFiles) {
             zipFile.createSplitZipFileFromFolder(source, zipParameters, true, 10485760); // using 10MB in this example

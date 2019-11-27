@@ -116,7 +116,7 @@ public class ReportGenerator implements AutoCloseable {
 
         log.info("Generating report {}", report);
 
-        populateFromDSM( report );
+        // populateFromDSM( report );
 
         bootRepository(report);
 
