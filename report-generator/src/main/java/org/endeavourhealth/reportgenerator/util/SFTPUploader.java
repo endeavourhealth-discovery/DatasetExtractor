@@ -37,7 +37,10 @@ public class SFTPUploader implements AutoCloseable {
     private void initSession(SftpUpload sftpUpload) throws JSchException {
         JSch jSch = new JSch();
 
-        jSch.addIdentity( sftpUpload.getPrivateKeyFile() );
+        String privateKeyFile = sftpUpload.getPrivateKeyFile();
+        log.debug("Using privateKeyFile {}", privateKeyFile);
+
+        jSch.addIdentity( privateKeyFile );
 
         log.debug("Opening sftp channel {} {}", sftpUpload.getHostname(), sftpUpload.getUsername());
 
