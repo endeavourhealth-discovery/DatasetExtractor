@@ -149,6 +149,7 @@ CREATE TABLE `Report` (
   `storedProcedureExecutor_id` bigint(20) DEFAULT NULL,
   `sftpUpload_id` bigint(20) DEFAULT NULL,
   `zipper_id` bigint(20) DEFAULT NULL,
+  `dsmProjectId` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK99y4jwbn4nrju2gdwp3x0awi` (`delta_id`),
   KEY `FKbrpd196inl0nrqhmvr3akb704` (`schedule_id`),
