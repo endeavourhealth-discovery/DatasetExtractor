@@ -81,6 +81,10 @@ public class FileZipper {
         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
         parameters.setIncludeRootFolder(false);
 
+        if() {
+          zipParameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256); 
+        }
+
         if(splitFiles) {
             zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
         } else {

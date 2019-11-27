@@ -26,6 +26,7 @@ public class Report extends AbstractEntity {
 
     private String dsmProjectId;
 
+    @Transient
     private DSMConfiguration dsmConfiguration;
 
     @NotNull
