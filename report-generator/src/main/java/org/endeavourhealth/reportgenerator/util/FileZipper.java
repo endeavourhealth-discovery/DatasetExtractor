@@ -1,9 +1,12 @@
 package org.endeavourhealth.reportgenerator.util;
 
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
+import net.lingala.zip4j.model.enums.AesKeyStrength;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
 import org.endeavourhealth.reportgenerator.model.CSVExport;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.Zipper;
@@ -24,6 +27,8 @@ public class FileZipper {
 
     private String fileName;
 
+    private char[] password;
+
     public FileZipper(Report report, Properties properties) {
         this.source = getSource( report, properties);
         this.staging = new File(properties.getProperty("csv.staging.directory"));
@@ -31,6 +36,7 @@ public class FileZipper {
 
         if(report.getZipper() != null) {
             this.splitFiles = report.getZipper().getSplitFiles();
+            this.password = report.getZipper().getPassword();
         } else {
             this.splitFiles = Boolean.FALSE;
         }
@@ -76,19 +82,21 @@ public class FileZipper {
 
         log.info("Creating file: " + absolutePath);
 
-        ZipParameters parameters = new ZipParameters();
-        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-        parameters.setIncludeRootFolder(false);
+        ZipParameters zipParameters = new ZipParameters();
+        zipParameters.setCompressionMethod(CompressionMethod.DEFLATE);
+        zipParameters.setCompressionLevel(CompressionLevel.NORMAL);
+        zipParameters.setIncludeRootFolder(false);
 
-        if() {
-          zipParameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256); 
+        if(password != null) {
+           zipParameters.setEncryptFiles(true);
+           zipParameters.setEncryptionMethod(EncryptionMethod.AES);
+           zipParameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
         }
 
         if(splitFiles) {
-            zipFile.createZipFileFromFolder(source, parameters, true, 10485760);
+            zipFile.createSplitZipFileFromFolder(source, zipParameters, true, 10485760); // using 10MB in this example
         } else {
-            zipFile.createZipFileFromFolder(source, parameters, false, -1);
+            zipFile.addFolder(source, zipParameters);
         }
 
         return absolutePath;
