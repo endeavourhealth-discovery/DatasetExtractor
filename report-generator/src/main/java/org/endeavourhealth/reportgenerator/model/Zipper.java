@@ -3,6 +3,7 @@ package org.endeavourhealth.reportgenerator.model;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 @Data
 @Entity
