@@ -6,7 +6,6 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
-import net.lingala.zip4j.model.enums.EncryptionMethod;
 import org.endeavourhealth.reportgenerator.model.CSVExport;
 import org.endeavourhealth.reportgenerator.model.Report;
 import org.endeavourhealth.reportgenerator.model.Zipper;
@@ -23,26 +22,20 @@ public class FileZipper {
 
     private final File staging;
 
-    private final Boolean splitFiles;
-
     private String fileName;
 
-    private String password;
+    private final Zipper zipper;
 
     public FileZipper(Report report, Properties properties) {
-        this.source = getSource( report, properties);
+        this.source = getSource( report );
         this.staging = new File(properties.getProperty("csv.staging.directory"));
-        this.fileName = getFileName( report, properties );
+        this.fileName = getFileName( report );
 
-        if(report.getZipper() != null) {
-            this.splitFiles = report.getZipper().getSplitFiles();
-            this.password = report.getZipper().getPassword();
-        } else {
-            this.splitFiles = Boolean.FALSE;
-        }
+        this.zipper = report.getZipper();
+
     }
 
-    private String getFileName(Report report, Properties properties) {
+    private String getFileName(Report report) {
 
         String filename = source.getName();
 
@@ -53,7 +46,7 @@ public class FileZipper {
         return checkForExpressions(filename);
     }
 
-    private File getSource(Report report, Properties properties) {
+    private File getSource(Report report) {
         Zipper zipper = report.getZipper();
         CSVExport csvExport = report.getCsvExport();
 
@@ -85,12 +78,12 @@ public class FileZipper {
         zipParameters.setCompressionLevel(CompressionLevel.NORMAL);
         zipParameters.setIncludeRootFolder(false);
 
-        if(password != null) {
-           log.info("Using password with AES256");
+        if(zipper.requiresPassword()) {
+           log.info("Using password with {} ", zipper.getEncryptionMethod());
            zipParameters.setEncryptFiles(true);
-           zipParameters.setEncryptionMethod(EncryptionMethod.AES);
+           zipParameters.setEncryptionMethod(zipper.getEncryptionMethod());
            zipParameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
-           zipFile = new ZipFile(zipFileDirectory, password.toCharArray());
+           zipFile = new ZipFile(zipFileDirectory, zipper.getPassword().toCharArray());
         } else {
            log.info("No password required");
            zipFile = new ZipFile(zipFileDirectory);
@@ -100,7 +93,7 @@ public class FileZipper {
 
         log.info("Creating file: " + absolutePath);
 
-        if(splitFiles) {
+        if(zipper.getSplitFiles()) {
             zipFile.createSplitZipFileFromFolder(source, zipParameters, true, 10485760); // using 10MB in this example
         } else {
             zipFile.addFolder(source, zipParameters);
