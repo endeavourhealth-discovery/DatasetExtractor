@@ -17,23 +17,30 @@ import java.util.Properties;
 
 public class ReportRepository extends Repository implements AutoCloseable {
 
-    private  EntityManagerFactory entityManagerFactory;
+    private EntityManagerFactory entityManagerFactory;
 
-    ReportRepository() {
-
-    }
+    ReportRepository() {}
 
     public ReportRepository(Properties properties) {
         this();
 
-        properties.put("javax.persistence.jdbc.password", properties.get("db.report.password"));
-        properties.put("javax.persistence.jdbc.user", properties.getProperty("db.report.user"));
-        properties.put("javax.persistence.jdbc.url", properties.getProperty("db.report.url"));
+        properties.put("javax.persistence.jdbc.password", properties.get("db.compass.password"));
+        properties.put("javax.persistence.jdbc.user", properties.getProperty("db.compass.user"));
+        properties.put("javax.persistence.jdbc.url", properties.getProperty("db.compass.url"));
 
-        List<Class> managedClasses = List.of(Report.class);Á
-
-        entityManagerFactory = getEntityManagerFactory( getClass().getSimpleName(), properties);
+        entityManagerFactory = Persistence.createEntityManagerFactory("reportDatabase", properties);
     }
+
+
+//    public ReportRepository(Properties properties) {
+//        this();
+//
+//        properties.put("javax.persistence.jdbc.password", properties.get("db.report.password"));
+//        properties.put("javax.persistence.jdbc.user", properties.getProperty("db.report.user"));
+//        properties.put("javax.persistence.jdbc.url", properties.getProperty("db.report.url"));
+//
+//        entityManagerFactory = getEntityManagerFactory( getClass().getSimpleName(), null, properties);
+//    }
 
     public void save(List<Report> reports) {
 
@@ -42,7 +49,7 @@ public class ReportRepository extends Repository implements AutoCloseable {
         entityManager.getTransaction().begin();
 
         for (Report report : reports) {
-            entityManager.persist( report );
+            entityManager.persist(report);
         }
 
         entityManager.getTransaction().commit();
