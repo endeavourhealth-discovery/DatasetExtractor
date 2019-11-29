@@ -32,7 +32,6 @@ public class FileZipper {
         this.fileName = getFileName( report );
 
         this.zipper = report.getZipper();
-
     }
 
     private String getFileName(Report report) {
