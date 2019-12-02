@@ -1,3 +1,4 @@
+report-generator\src\main\resources\report.generator-rdp.properties
 observation-batcher/target/
 observation-batcher/src/main/resources/batch.properties
 report-generator/src/test/resources/report.generator.properties
