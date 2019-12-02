@@ -274,6 +274,7 @@ CREATE TABLE `Zipper` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `sourceDirectory` varchar(255) DEFAULT NULL,
   `splitFiles` bit(1) DEFAULT NULL,
+  `encryptionMethod` varchar(20) DEFAULT NULL,
   `switchedOn` bit(1) DEFAULT NULL,
   `zipFilename` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
