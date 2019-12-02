@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+      <file>/datagenerator/reports/logs/rg.log</file>
+      <append>true</append>
+      <!-- set immediateFlush to false for much higher logging throughput -->
+      <immediateFlush>true</immediateFlush>
+      <!-- encoders are assigned the type
+           ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+      <encoder>
+        <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+      </encoder>
+  </appender>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
         </layout>
     </appender>
 
-    <logger name="org.endeavourhealth" level="DEBUG"/>
+    <logger name="org.endeavourhealth" level="debug">
+      <appender-ref ref="FILE" />
+    </logger>
 
 
     <root level="info">
