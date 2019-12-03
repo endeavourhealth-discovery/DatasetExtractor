@@ -7,11 +7,10 @@ report-generator/src/main/resources/report.prod.generator.properties
 report-generator/src/main/resources/report.generator.properties
 report-generator/src/main/resources/discovery.cer
 /target
-csv-exporter/target/
-csv-exporter/src/main/resources/csv.exporter.properties
-csv-exporter/src/test/resources/csv.exporter.properties
+exporter/target/
+exporter/src/main/resources/csv.exporter.properties
+exporter/src/test/resources/csv.exporter.properties
 report-generator/target/
-mysql-exporter/target/
 .idea
 src/main/etc/output/*
 src/test/etc/output/*
