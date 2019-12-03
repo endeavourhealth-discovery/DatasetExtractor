@@ -12,8 +12,6 @@ csv-exporter/src/main/resources/csv.exporter.properties
 csv-exporter/src/test/resources/csv.exporter.properties
 report-generator/target/
 mysql-exporter/target/
-fihr-exporter/src/main/resources/fihr.exporter.properties
-fihr-exporter/target/
 .idea
 src/main/etc/output/*
 src/test/etc/output/*
