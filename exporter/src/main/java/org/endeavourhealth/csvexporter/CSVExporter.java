@@ -17,25 +17,9 @@ import java.util.Properties;
 @Slf4j
 public class CSVExporter extends Exporter {
 
-    private final Repository repository;
-
     private BufferedWriter writer;
 
     private CSVPrinter csvPrinter;
-
-    private final String outputDirectory;
-
-    private int fileCount = 0;
-
-    private final int noOfRowsInEachOutputFile;
-
-    private final int noOfRowsInEachDatabaseFetch;
-
-    private final int pageSize;
-
-    private final String dbTableName;
-
-    private final String csvFilename;
 
     public CSVExporter(Properties properties) throws Exception {
         this(properties, new Repository(properties));
@@ -49,7 +33,7 @@ public class CSVExporter extends Exporter {
 
         outputDirectory = properties.getProperty("outputDirectory");
 
-        csvFilename = buildFilename( properties.getProperty("csvFilename") );
+        buildFilename( properties.getProperty("filename") );
 
         dbTableName = properties.getProperty("dbTableName");
 
@@ -63,7 +47,7 @@ public class CSVExporter extends Exporter {
           pageSize = noOfRowsInEachDatabaseFetch;
         }
 
-        log.info("Exporting db table {} to file {} to directory", dbTableName, csvFilename, outputDirectory);
+        log.info("Exporting db table {} to file {} to directory  {}", dbTableName, filename, outputDirectory);
 
         log.info("noOfRowsInEachDatabaseFetch = {}", noOfRowsInEachDatabaseFetch);
         log.info("noOfRowsInEachOutputFile = {}", noOfRowsInEachOutputFile);
@@ -112,7 +96,7 @@ public class CSVExporter extends Exporter {
 
     private void bootNewPrintWriter() throws Exception {
 
-        String outputFileName = fileCount == 0 ?  outputDirectory + csvFilename + ".csv" : outputDirectory  + csvFilename + fileCount + ".csv";
+        String outputFileName = fileCount == 0 ?  outputDirectory + filename + ".csv" : outputDirectory  + filename + fileCount + ".csv";
 
         log.info("Opening file {} for writing.....", outputFileName);
 

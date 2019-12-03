@@ -31,11 +31,11 @@ public class ExcelExporter extends Exporter {
 
         this.repository = repository;
 
-        log.info("**** Booting CSVExporter, loading property file and db repository.....");
+        log.info("**** Booting ExcelExporter, loading property file and db repository.....");
 
         outputDirectory = properties.getProperty("outputDirectory");
 
-        filename = buildFilename( properties.getProperty("csvFilename") );
+        buildFilename( properties.getProperty("filename") );
 
         dbTableName = properties.getProperty("dbTableName");
 
@@ -49,12 +49,12 @@ public class ExcelExporter extends Exporter {
           pageSize = noOfRowsInEachDatabaseFetch;
         }
 
-        log.info("Exporting db table {} to file {} to directory", dbTableName, filename, outputDirectory);
+        log.info("Exporting db table {} to file {} to directory {}", dbTableName, filename, outputDirectory);
 
         log.info("noOfRowsInEachDatabaseFetch = {}", noOfRowsInEachDatabaseFetch);
         log.info("noOfRowsInEachOutputFile = {}", noOfRowsInEachOutputFile);
 
-        log.info("**** CSVExporter successfully booted!!");
+        log.info("**** ExcelExporter successfully booted!!");
     }
 
     public void export() throws Exception {
@@ -75,8 +75,9 @@ public class ExcelExporter extends Exporter {
                 List<String> values = result.get(i);
                 Row row = sheet.createRow( rowCount++ );
 
-                for(String s : values) {
-                    row.createCell(i).setCellValue(s);
+                for (int j = 0; j < values.size(); j++) {
+                  log.info("{} at j {}", values.get(j), j);
+                    row.createCell(j).setCellValue( values.get( j ) );
                 }
             }
 
@@ -99,13 +100,7 @@ public class ExcelExporter extends Exporter {
             log.info("No of rows processed {}", offset);
         }
 
-    // Write the output to a file
-        FileOutputStream fileOut = new FileOutputStream("poi-generated-file.xlsx");
-        workbook.write(fileOut);
-        fileOut.close();
-
-        // Closing the workbook
-        workbook.close();
+        saveWorkbookToFile();
 
         log.info("Finished writing csv");
     }
@@ -114,7 +109,7 @@ public class ExcelExporter extends Exporter {
 
         workbook = new XSSFWorkbook();
 
-        Sheet sheet = workbook.createSheet("report");
+        sheet = workbook.createSheet("report");
 
         attachHeaderRow( sheet );
     }
@@ -124,7 +119,7 @@ public class ExcelExporter extends Exporter {
 
         log.info("Opening file {} for writing.....", outputFileName);
 
-        FileOutputStream fileOut = new FileOutputStream("poi-generated-file.xlsx");
+        FileOutputStream fileOut = new FileOutputStream( outputFileName );
         workbook.write(fileOut);
 
         fileOut.close();

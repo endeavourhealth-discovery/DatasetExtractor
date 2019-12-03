@@ -239,8 +239,6 @@ public class ReportGenerator implements AutoCloseable {
         exporter.export();
     }
 
-
-
     private void callStoredProcedures(Report report, boolean isPre) {
 
         StoredProcedureExecutor storedProcedureExecutor = report.getStoredProcedureExecutor();
@@ -276,6 +274,18 @@ public class ReportGenerator implements AutoCloseable {
 
         log.info("Stored procedures all called");
     }
+
+    private void cleanDirectory(File directory) throws IOException {
+        log.info("Deleting all files from directory {}", directory);
+
+        Path pathToBeDeleted = Paths.get(directory.getAbsolutePath());
+
+        Files.walk(pathToBeDeleted)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .filter(f -> !f.getAbsolutePath().equals(directory.getAbsolutePath()))//Don't delete parent
+                .forEach(File::delete);
+    }    
 
     @Override
     public void close() throws Exception {

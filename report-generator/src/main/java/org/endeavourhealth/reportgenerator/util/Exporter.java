@@ -3,10 +3,7 @@ package org.endeavourhealth.reportgenerator.util;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.csvexporter.ExcelExporter;
-import org.endeavourhealth.reportgenerator.model.CSVExport;
-import org.endeavourhealth.reportgenerator.model.ExcelExport;
-import org.endeavourhealth.reportgenerator.model.Report;
-import org.endeavourhealth.reportgenerator.model.Table;
+import org.endeavourhealth.reportgenerator.model.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +54,7 @@ public class Exporter {
 
         for (Table table : excelExport.getTables()) {
 
-            Properties properties = getCSVExporterProperties(table);
+            Properties properties = getExporterProperties(table, excelExport);
 
             try (ExcelExporter excelExporter = new ExcelExporter(properties)) {
                 excelExporter.export();
@@ -88,7 +85,7 @@ public class Exporter {
 
         for (Table table : csvExport.getTables()) {
 
-            Properties properties = getCSVExporterProperties(table);
+            Properties properties = getExporterProperties(table, csvExport);
 
             try (CSVExporter csvExporter = new CSVExporter(properties)) {
                 csvExporter.export();
@@ -96,11 +93,11 @@ public class Exporter {
         }
     }
 
-    private Properties getCSVExporterProperties(Table table) {
+    private Properties getExporterProperties(Table table, Export export) {
 
         Properties p = new Properties();
 
-        switch ( csvExport.getDatabase() ) {
+        switch ( export.getDatabase() ) {
             case COMPASS:
                 p.put("url", properties.getProperty("db.compass.url"));
                 p.put("user", properties.getProperty("db.compass.user"));
@@ -118,12 +115,12 @@ public class Exporter {
                 break;
         }
 
-        p.put("outputDirectory", csvExport.getOutputDirectory());
+        p.put("outputDirectory", export.getOutputDirectory());
         p.put("noOfRowsInEachDatabaseFetch", "50000");
 
         p.put("dbTableName", table.getName());
-        p.put("csvFilename", table.getFileName());
-        p.put("noOfRowsInEachOutputFile", csvExport.getMaxNumOfRowsInEachOutputFile().toString());
+        p.put("filename", table.getFileName());
+        p.put("noOfRowsInEachOutputFile", export.getMaxNumOfRowsInEachOutputFile().toString());
 
         return p;
     }

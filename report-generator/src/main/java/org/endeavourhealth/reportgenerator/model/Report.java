@@ -53,7 +53,7 @@ public class Report extends AbstractEntity {
     private List<@Valid Extension> extensions;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private Zipper zipper;
+    private Zipper zipper = new Zipper();
 
     //Delta
     @OneToOne(cascade = CascadeType.ALL)

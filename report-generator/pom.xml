@@ -76,7 +76,7 @@
 
         <dependency>
             <groupId>org.endeavour.tools</groupId>
-            <artifactId>CSVExporter</artifactId>
+            <artifactId>Exporter</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

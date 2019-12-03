@@ -7,9 +7,9 @@ db.compass.user=blah
 db.compass.password=blah
 db.compass.url=jdbc:mysql://localhost:3306/data_extracts
 
-db.sub.user=blah
-db.sub.password=blah
-db.sub.url=jdbc:mysql://localhost:3306/data_extracts
+db.report.user=blah
+db.report.password=blah
+db.report.url=jdbc:mysql://localhost:3306/data_extracts
 
 db.pcr.user=blah
 db.pcr.password=blah

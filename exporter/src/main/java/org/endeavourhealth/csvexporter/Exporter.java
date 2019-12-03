@@ -27,17 +27,17 @@ public abstract class Exporter implements AutoCloseable {
     protected String filename;
 
 
-    protected String buildFilename(String csvFilename) {
+    protected void buildFilename(String filename) {
         if(filename.contains("{today}")) {
 
             LocalDate localDate = LocalDate.now();
 
             String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-            return  filename.replace("{today}", today);
+            filename = filename.replace("{today}", today);
         }
 
-        return filename;
+        this.filename = filename;
     }
 
     @Override
