@@ -7,16 +7,15 @@ import org.apache.commons.csv.QuoteMode;
 import org.endeavourhealth.csvexporter.repository.Repository;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Properties;
 
 @Slf4j
-public class CSVExporter implements AutoCloseable {
+public class CSVExporter extends Exporter {
 
     private final Repository repository;
 
@@ -50,7 +49,7 @@ public class CSVExporter implements AutoCloseable {
 
         outputDirectory = properties.getProperty("outputDirectory");
 
-        csvFilename = buildCsvFilename( properties.getProperty("csvFilename") );
+        csvFilename = buildFilename( properties.getProperty("csvFilename") );
 
         dbTableName = properties.getProperty("dbTableName");
 
@@ -72,20 +71,8 @@ public class CSVExporter implements AutoCloseable {
         log.info("**** CSVExporter successfully booted!!");
     }
 
-    private String buildCsvFilename(String csvFilename) {
-        if(csvFilename.contains("{today}")) {
 
-            LocalDate localDate = LocalDate.now();
-
-            String today = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-            return  csvFilename.replace("{today}", today);
-        }
-
-        return csvFilename;
-    }
-
-    public void exportCSV() throws Exception {
+    public void export() throws Exception {
 
         fileCount = 0;
 
@@ -140,14 +127,10 @@ public class CSVExporter implements AutoCloseable {
         csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader( headers ).withQuoteMode(QuoteMode.ALL_NON_NULL));
     }
 
-
-
     @Override
-    public void close() throws Exception {
+    protected void closeExporter() throws IOException {
         csvPrinter.close( true );
 
         writer.close();
-
-        repository.close();
     }
 }

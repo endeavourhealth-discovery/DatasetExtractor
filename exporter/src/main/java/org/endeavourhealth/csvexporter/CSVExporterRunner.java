@@ -19,7 +19,7 @@ public class CSVExporterRunner {
 
             log.info("Starting csv exporter...");
 
-            csvExporter.exportCSV();
+            csvExporter.export();
 
             log.info("...all done!");
 

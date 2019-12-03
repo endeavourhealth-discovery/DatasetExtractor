@@ -67,6 +67,11 @@ public class Report extends AbstractEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private CSVExport csvExport;
 
+    //CSV
+    @Valid
+    @OneToOne(cascade = CascadeType.ALL)
+    private ExcelExport excelExport;
+
     //SFTP
     @Valid
     @OneToOne(cascade = CascadeType.ALL)

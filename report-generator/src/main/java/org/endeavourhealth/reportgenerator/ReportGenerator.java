@@ -260,7 +260,7 @@ public class ReportGenerator implements AutoCloseable {
             Properties properties = getCSVExporterProperties(report, table);
 
             try (CSVExporter csvExporter = new CSVExporter(properties)) {
-                csvExporter.exportCSV();
+                csvExporter.export();
             }
         }
     }
