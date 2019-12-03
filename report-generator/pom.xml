@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.endeavourhealth.common</groupId>
             <artifactId>security</artifactId>
-            <version>1.55-SNAPSHOT</version>
+            <version>1.58-SNAPSHOT</version>
         </dependency>
 
         <!-- Hibernate Validator -->
