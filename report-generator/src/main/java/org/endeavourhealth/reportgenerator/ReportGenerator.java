@@ -128,7 +128,7 @@ public class ReportGenerator implements AutoCloseable {
 
         callStoredProcedures( report, false );
 
-        exportToCSVFile( report );
+        export( report );
 
         zipAndEncrypt( report );
 
@@ -232,85 +232,14 @@ public class ReportGenerator implements AutoCloseable {
 
     }
 
-    private void exportToCSVFile(Report report) throws Exception {
+    private void export(Report report) throws Exception {
 
-        CSVExport csvExport = report.getCsvExport();
+        Exporter exporter = new Exporter( report, properties );
 
-        if (csvExport == null) {
-            log.info("No configuration for csv export found, nothing to do here");
-            return;
-        }
-
-        if (!csvExport.getSwitchedOn()) {
-            log.info("CSV switched off, nothing to do here");
-            return;
-        }
-
-        if (csvExport.getTables().isEmpty()) {
-            log.info("CSV configuration found, but no csv tables to export, nothing to do here");
-            return;
-        }
-
-        File outputDirectory = new File(csvExport.getOutputDirectory());
-
-        cleanDirectory(outputDirectory);
-
-        for (Table table : csvExport.getTables()) {
-
-            Properties properties = getCSVExporterProperties(report, table);
-
-            try (CSVExporter csvExporter = new CSVExporter(properties)) {
-                csvExporter.export();
-            }
-        }
+        exporter.export();
     }
 
 
-    private void cleanDirectory(File directory) throws IOException {
-      log.info("Deleting all files from directory {}", directory);
-
-        Path pathToBeDeleted = Paths.get(directory.getAbsolutePath());
-
-        Files.walk(pathToBeDeleted)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .filter(f -> !f.getAbsolutePath().equals(directory.getAbsolutePath()))//Don't delete parent
-                .forEach(File::delete);
-    }
-
-    private Properties getCSVExporterProperties(Report report, Table table) {
-
-        Properties p = new Properties();
-
-        switch ( report.getCsvExport().getDatabase() ) {
-            case COMPASS:
-                p.put("url", properties.getProperty("db.compass.url"));
-                p.put("user", properties.getProperty("db.compass.user"));
-                p.put("password", properties.getProperty("db.compass.password"));
-                break;
-            case CORE:
-                p.put("url", properties.getProperty("db.core.url"));
-                p.put("user", properties.getProperty("db.core.user"));
-                p.put("password", properties.getProperty("db.core.password"));
-                break;
-            case PCR:
-                p.put("url", properties.getProperty("db.pcr.url"));
-                p.put("user", properties.getProperty("db.pcr.user"));
-                p.put("password", properties.getProperty("db.pcr.password"));
-                break;
-        }
-
-        CSVExport csvExport = report.getCsvExport();
-
-        p.put("outputDirectory", csvExport.getOutputDirectory());
-        p.put("noOfRowsInEachDatabaseFetch", "50000");
-
-        p.put("dbTableName", table.getName());
-        p.put("csvFilename", table.getFileName());
-        p.put("noOfRowsInEachOutputFile", csvExport.getMaxNumOfRowsInEachOutputFile().toString());
-
-        return p;
-    }
 
     private void callStoredProcedures(Report report, boolean isPre) {
 
