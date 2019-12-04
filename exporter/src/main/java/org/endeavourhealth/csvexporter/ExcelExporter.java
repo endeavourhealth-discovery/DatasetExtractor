@@ -1,6 +1,13 @@
 package org.endeavourhealth.csvexporter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.crypt.EncryptionMode;
+import org.apache.poi.poifs.crypt.Encryptor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -8,8 +15,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.csvexporter.repository.Repository;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +31,8 @@ public class ExcelExporter extends Exporter {
     private Workbook workbook;
 
     private Sheet sheet;
+
+    private final String password;
 
 
     public ExcelExporter(Properties properties) throws Exception {
@@ -48,6 +60,8 @@ public class ExcelExporter extends Exporter {
         } else {
           pageSize = noOfRowsInEachDatabaseFetch;
         }
+
+        password = properties.getProperty("password");
 
         log.info("Exporting db table {} to file {} to directory {}", dbTableName, filename, outputDirectory);
 
@@ -114,7 +128,26 @@ public class ExcelExporter extends Exporter {
         attachHeaderRow( sheet );
     }
 
-    private void saveWorkbookToFile() throws IOException {
+    private void encrypt(String outputFileName) throws IOException, GeneralSecurityException, InvalidFormatException {
+        try (POIFSFileSystem fs = new POIFSFileSystem()) {
+            EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+            // EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile, CipherAlgorithm.aes192, HashAlgorithm.sha384, -1, -1, null);
+            Encryptor enc = info.getEncryptor();
+            enc.confirmPassword("foobaa");
+            // Read in an existing OOXML file and write to encrypted output stream
+            // don't forget to close the output stream otherwise the padding bytes aren't added
+            try (OPCPackage opc = OPCPackage.open(new File(outputFileName), PackageAccess.READ_WRITE);
+                 OutputStream os = enc.getDataStream(fs)) {
+                opc.save(os);
+            }
+            // Write out the encrypted version
+            try (FileOutputStream fos = new FileOutputStream(outputFileName + ".enc")) {
+                fs.writeFilesystem(fos);
+            }
+        }
+    }
+
+    private void saveWorkbookToFile() throws IOException, GeneralSecurityException, InvalidFormatException {
         String outputFileName = fileCount == 0 ?  outputDirectory + filename + ".xlsx" : outputDirectory  + filename + fileCount + ".xlsx";
 
         log.info("Opening file {} for writing.....", outputFileName);
@@ -124,6 +157,8 @@ public class ExcelExporter extends Exporter {
 
         fileOut.close();
         workbook.close();
+
+        if(password != null)  encrypt(outputFileName);
     }
 
     private void attachHeaderRow(Sheet sheet) throws SQLException {
