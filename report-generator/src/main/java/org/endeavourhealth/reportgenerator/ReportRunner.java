@@ -39,7 +39,7 @@ public class ReportRunner {
             log.error("Exception during report generator", e);
         }
 
-        SlackReporter slackReporter = new SlackReporter( properties.getProperty("slack.url"), properties.getProperty("slack.switched.on") );
+        SlackReporter slackReporter = new SlackReporter( properties.getProperty("slack.audit.url"), properties.getProperty("slack.error.url"), properties.getProperty("slack.switched.on") );
 
         slackReporter.report( reports );
     }
