@@ -2,6 +2,7 @@ package org.endeavourhealth.reportgenerator.repository;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.ReportStatus;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 
@@ -37,9 +38,9 @@ public class ReportRepository extends Repository implements AutoCloseable {
 
         entityManager.getTransaction().begin();
 
-        for (Report report : reports) {
-            entityManager.persist(report);
-        }
+        reports.stream()
+                .filter( r -> r.getStatus() != ReportStatus.NOT_SCHEDULED && r.getStatus() != ReportStatus.INACTIVE)
+                .forEach( r -> entityManager.persist(r) );
 
         entityManager.getTransaction().commit();
         entityManager.close();
