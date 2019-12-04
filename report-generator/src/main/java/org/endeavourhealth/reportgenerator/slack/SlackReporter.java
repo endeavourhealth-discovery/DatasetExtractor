@@ -12,15 +12,18 @@ import java.util.List;
 @Slf4j
 public class SlackReporter {
 
-    private final String slackUrl;
+    private final String slackAuditUrl;
+
+    private final String slackErrorUrl;
 
     private boolean switchedOn  = true;
 
     private StringBuilder builder = new StringBuilder();
 
-    public SlackReporter(String slackUrl, String switchedOn) {
+    public SlackReporter(String slackAuditUrl, String slackErrorUrl, String switchedOn) {
         super();
-        this.slackUrl = slackUrl;
+        this.slackAuditUrl = slackAuditUrl;
+        this.slackErrorUrl = slackErrorUrl;
         if (switchedOn != null && switchedOn.equals("false")) this.switchedOn = false;
     }
 
@@ -124,7 +127,7 @@ public class SlackReporter {
         SlackMessage slackMessage = new SlackMessage(message);
 
         try {
-            SlackApi slackApi = new SlackApi(slackUrl);
+            SlackApi slackApi = new SlackApi(slackAuditUrl);
             slackApi.call(slackMessage);
         } catch (Exception e) {
             log.error("Cannot send message to slack", e);
