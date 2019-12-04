@@ -9,4 +9,5 @@ filename=bob
 
 noOfRowsInEachOutputFile=1
 noOfRowsInEachDatabaseFetch=10000
+password=foobaa
 

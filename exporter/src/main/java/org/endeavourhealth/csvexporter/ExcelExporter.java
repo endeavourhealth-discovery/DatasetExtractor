@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -33,7 +35,6 @@ public class ExcelExporter extends Exporter {
     private Sheet sheet;
 
     private final String password;
-
 
     public ExcelExporter(Properties properties) throws Exception {
         this(properties, new Repository(properties));
@@ -90,7 +91,6 @@ public class ExcelExporter extends Exporter {
                 Row row = sheet.createRow( rowCount++ );
 
                 for (int j = 0; j < values.size(); j++) {
-                  log.info("{} at j {}", values.get(j), j);
                     row.createCell(j).setCellValue( values.get( j ) );
                 }
             }
@@ -114,9 +114,9 @@ public class ExcelExporter extends Exporter {
             log.info("No of rows processed {}", offset);
         }
 
-        saveWorkbookToFile();
+//        saveWorkbookToFile();
 
-        log.info("Finished writing csv");
+        log.info("Finished writing excel");
     }
 
     private void bootNewExcelWorkbook() throws SQLException {
@@ -130,6 +130,7 @@ public class ExcelExporter extends Exporter {
 
     private void encrypt(String outputFileName) throws IOException, GeneralSecurityException, InvalidFormatException {
         try (POIFSFileSystem fs = new POIFSFileSystem()) {
+
             EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
             // EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile, CipherAlgorithm.aes192, HashAlgorithm.sha384, -1, -1, null);
             Encryptor enc = info.getEncryptor();
@@ -140,17 +141,30 @@ public class ExcelExporter extends Exporter {
                  OutputStream os = enc.getDataStream(fs)) {
                 opc.save(os);
             }
+
+            outputFileName = outputFileName.replace("unenc", "xlsx");
+
+            log.info("Creating encrypted file {}.....", outputFileName);
+
             // Write out the encrypted version
-            try (FileOutputStream fos = new FileOutputStream(outputFileName + ".enc")) {
+            try (FileOutputStream fos = new FileOutputStream(outputFileName)) {
                 fs.writeFilesystem(fos);
             }
+
+
+
         }
     }
 
     private void saveWorkbookToFile() throws IOException, GeneralSecurityException, InvalidFormatException {
+
         String outputFileName = fileCount == 0 ?  outputDirectory + filename + ".xlsx" : outputDirectory  + filename + fileCount + ".xlsx";
 
-        log.info("Opening file {} for writing.....", outputFileName);
+        if(password != null) {
+            outputFileName = fileCount == 0 ?  outputDirectory + filename + ".unenc" : outputDirectory  + filename + fileCount + ".unenc";
+        }
+
+        log.info("Creating unencrypted file {}.....", outputFileName);
 
         FileOutputStream fileOut = new FileOutputStream( outputFileName );
         workbook.write(fileOut);
@@ -158,7 +172,11 @@ public class ExcelExporter extends Exporter {
         fileOut.close();
         workbook.close();
 
-        if(password != null)  encrypt(outputFileName);
+        if(password != null) {
+            encrypt(outputFileName);
+            //Delete unencrypted file
+            Files.delete(Paths.get( outputFileName) );
+        }
     }
 
     private void attachHeaderRow(Sheet sheet) throws SQLException {
