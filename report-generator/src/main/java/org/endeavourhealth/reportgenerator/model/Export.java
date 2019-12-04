@@ -16,7 +16,7 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@MappedSuperclass
 public class Export extends AbstractEntity {
 
     @NotEmpty(message = "Excel export must have at least one table to export")

@@ -59,8 +59,8 @@ public class Report extends AbstractEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private Delta delta;
 
-    @Transient
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ReportStatus status;
 
     //CSV
     @Valid
@@ -102,24 +102,6 @@ public class Report extends AbstractEntity {
 
     public boolean isValid() {
         return constraintViolations == null || constraintViolations.isEmpty() ? true : false;
-    }
-
-    public String getStatus() {
-        if(status != null) return status;
-
-        if(!active) {
-            return "Inactive";
-        }
-
-        if(errorMessage != null){
-            return "Failure";
-        }
-
-        if(!isValid()) {
-            return "Invalid Configuration";
-        }
-
-        return "Success";
     }
 
     public String getErrors() {
