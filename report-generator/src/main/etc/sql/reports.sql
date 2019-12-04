@@ -29,7 +29,7 @@ CREATE TABLE `CSVExport` (
   `outputDirectory` varchar(255) NOT NULL,
   `switchedOn` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -126,7 +126,7 @@ CREATE TABLE `Extension` (
   PRIMARY KEY (`id`),
   KEY `FKmelwqsbqa36696chag78ft4e1` (`report_id`),
   CONSTRAINT `FKmelwqsbqa36696chag78ft4e1` FOREIGN KEY (`report_id`) REFERENCES `Report` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -167,7 +167,7 @@ CREATE TABLE `Report` (
   CONSTRAINT `FKdgc9lb9jfcka66a4qunvumckf` FOREIGN KEY (`storedProcedureExecutor_id`) REFERENCES `StoredProcedureExecutor` (`id`),
   CONSTRAINT `FKpm6tqr35ty5ry38ky05opwsu8` FOREIGN KEY (`sftpUpload_id`) REFERENCES `SftpUpload` (`id`),
   CONSTRAINT `FKpwuidw95f0o7af89a1pdbob9o` FOREIGN KEY (`zipper_id`) REFERENCES `Zipper` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -183,7 +183,7 @@ CREATE TABLE `Schedule` (
   `dayOfWeek` int(11) DEFAULT NULL,
   `isDaily` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -219,7 +219,7 @@ CREATE TABLE `SftpUpload` (
   `username` varchar(255) NOT NULL,
   `zipFilename` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -234,7 +234,7 @@ CREATE TABLE `StoredProcedureExecutor` (
   `db` varchar(255) DEFAULT NULL,
   `switchedOn` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -282,7 +282,7 @@ CREATE TABLE `Zipper` (
   `zipFilename` varchar(255) DEFAULT NULL,
   `encryptionMethod` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -328,4 +328,4 @@ CREATE TABLE `ExcelExport_db_table` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-12-04 11:51:03
+-- Dump completed on 2019-12-04 12:05:19
