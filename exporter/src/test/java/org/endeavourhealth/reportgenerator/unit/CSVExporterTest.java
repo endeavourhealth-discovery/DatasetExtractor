@@ -59,7 +59,7 @@ public class CSVExporterTest {
 
 
     @Test
-    public void getRecords() throws Exception {
+    public void exportCSV() throws Exception {
 
         csvExporter.export();
 
@@ -67,17 +67,17 @@ public class CSVExporterTest {
         csvExporter.close();
 
         //Test
-        String outputDirectory = properties.getProperty("outputFilepath");
+        String outputDirectory = properties.getProperty("outputDirectory");
+        String filename = properties.getProperty("filename");
+        String output = new String(Files.readAllBytes(Paths.get(outputDirectory + filename + ".csv")));
 
-        String output = new String(Files.readAllBytes(Paths.get(outputDirectory + "0.csv")));
-
-        Assert.assertEquals(output, "1,2,3,4\r\n" +
-                "a,b,c,d\r\n" +
-                "a,b,c,d\r\n" +
-                "a,b,c,d\r\n" +
-                "a,b,c,d\r\n" +
-                "a,b,c,d\r\n" +
-                "a,b,c,d\r\n");
+        Assert.assertEquals("\"1\",\"2\",\"3\",\"4\"\r\n" +
+                "\"a\",\"b\",\"c\",\"d\"\r\n" +
+                "\"a\",\"b\",\"c\",\"d\"\r\n" +
+                "\"a\",\"b\",\"c\",\"d\"\r\n" +
+                "\"a\",\"b\",\"c\",\"d\"\r\n" +
+                "\"a\",\"b\",\"c\",\"d\"\r\n" +
+                "\"a\",\"b\",\"c\",\"d\"\r\n", output);
 
     }
 

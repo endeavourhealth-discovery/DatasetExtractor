@@ -1,15 +1,9 @@
-# Database connection properties
-
-url=jdbc:mysql://localhost:3306/data_extracts
-user=root
-password=1qaz1qaz
-
 #Database table properties
 tablename=test
 orderBy=a
-outputFilepath=d:\\temp\\output\\
+outputDirectory=/tmp/
 dbTableName=test
-csvFilename=bob.csv
+filename=bob
 
 # CSV Output properties
 
