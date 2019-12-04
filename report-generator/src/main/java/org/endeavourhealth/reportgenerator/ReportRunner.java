@@ -9,16 +9,14 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Arrays;
 
 @Slf4j
 public class ReportRunner {
 
-    public static void main(String... args) throws IOException, SQLException {
+    public static void main(String... args) throws IOException {
 
         Properties properties = loadProperties( args );
 

@@ -62,9 +62,11 @@ public class ReportGenerator implements AutoCloseable {
 
             try {
                 executeReport(report);
+                report.setStatus("Success");
             } catch (Exception e) {
                 log.error("Report " + report + " has thrown exception", e);
                 report.setErrorMessage( e.getMessage() );
+                report.setStatus("Failed");
             }
 
             report.setEndTime(LocalDateTime.now());
@@ -97,14 +99,17 @@ public class ReportGenerator implements AutoCloseable {
 
         if (!report.getActive()) {
             log.warn("Report is inactive");
+            report.setStatus("Inactive");
             return false;
         }
         if (!report.isValid()) {
             log.warn("Report is invalid {}", report.getErrors());
+            report.setStatus("Invalid Configuration");
             return false;
         }
         if(!scheduler.isScheduled( report.getSchedule() )) {
             log.info("Report is not scheduled");
+            report.setStatus("Not Scheduled");
             return false;
         }
 
