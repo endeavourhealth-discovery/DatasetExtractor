@@ -1,12 +1,9 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.common.security.datasharingmanagermodel.models.DAL.SecurityProjectDAL;
 import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.ExtractTechnicalDetailsEntity;
 import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.OrganisationEntity;
 import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.ProjectScheduleEntity;
-import org.endeavourhealth.common.security.datasharingmanagermodel.models.enums.MapType;
-import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.beans.DSMConfiguration;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.DSMRepository;
@@ -62,11 +59,11 @@ public class ReportGenerator implements AutoCloseable {
 
             try {
                 executeReport(report);
-                report.setStatus("Success");
+                report.setStatus(ReportStatus.SUCCESS);
             } catch (Exception e) {
                 log.error("Report " + report + " has thrown exception", e);
                 report.setErrorMessage( e.getMessage() );
-                report.setStatus("Failed");
+                report.setStatus(ReportStatus.FAILURE);
             }
 
             report.setEndTime(LocalDateTime.now());
@@ -99,17 +96,17 @@ public class ReportGenerator implements AutoCloseable {
 
         if (!report.getActive()) {
             log.warn("Report is inactive");
-            report.setStatus("Inactive");
+            report.setStatus(ReportStatus.INACTIVE);
             return false;
         }
         if (!report.isValid()) {
             log.warn("Report is invalid {}", report.getErrors());
-            report.setStatus("Invalid Configuration");
+            report.setStatus(ReportStatus.INVALID_CONFIGURATION);
             return false;
         }
         if(!scheduler.isScheduled( report.getSchedule() )) {
             log.info("Report is not scheduled");
-            report.setStatus("Not Scheduled");
+            report.setStatus(ReportStatus.NOT_SCHEDULED);
             return false;
         }
 
