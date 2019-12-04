@@ -30,7 +30,6 @@ public class ReportRunner {
 
             reportGenerator.generate( reports );
 
-            //Now persist
             reportRepository.save( reports );
 
             log.info("Report generation all done!");

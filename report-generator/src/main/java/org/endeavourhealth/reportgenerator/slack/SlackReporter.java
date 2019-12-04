@@ -40,7 +40,7 @@ public class SlackReporter {
 
         appendFullReport(reports);
 
-        sendSlackMessage(builder.toString());
+        sendSlackAuditMessage(builder.toString());
     }
 
     private void appendPartialReport(List<Report> reports) {
@@ -118,9 +118,9 @@ public class SlackReporter {
         append("*Report Scheduler has run at " + today + "*");
     }
 
-    private void sendSlackMessage(String message) {
+    private void sendSlackAuditMessage(String message) {
 
-        log.info("Sending slack builder");
+        log.info("Sending slack audit message");
 
         log.info(message);
 
@@ -128,6 +128,22 @@ public class SlackReporter {
 
         try {
             SlackApi slackApi = new SlackApi(slackAuditUrl);
+            slackApi.call(slackMessage);
+        } catch (Exception e) {
+            log.error("Cannot send message to slack", e);
+        }
+    }
+
+    public void sendSlackErrorMessage(String message) {
+
+        log.info("Sending slack error message");
+
+        log.info(message);
+
+        SlackMessage slackMessage = new SlackMessage(message);
+
+        try {
+            SlackApi slackApi = new SlackApi(slackErrorUrl);
             slackApi.call(slackMessage);
         } catch (Exception e) {
             log.error("Cannot send message to slack", e);
