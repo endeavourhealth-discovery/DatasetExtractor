@@ -113,8 +113,10 @@ public class ExcelExporter extends Exporter {
 
             log.info("No of rows processed {}", offset);
         }
-
-//        saveWorkbookToFile();
+        
+        if(currentFileCount > 0) {
+          saveWorkbookToFile();
+        }
 
         log.info("Finished writing excel");
     }
@@ -150,9 +152,6 @@ public class ExcelExporter extends Exporter {
             try (FileOutputStream fos = new FileOutputStream(outputFileName)) {
                 fs.writeFilesystem(fos);
             }
-
-
-
         }
     }
 
