@@ -39,7 +39,7 @@ public class Exporter {
         }
 
         if (!excelExport.getSwitchedOn()) {
-            log.info("CSV switched off, nothing to do here");
+            log.info("Excel export switched off, nothing to do here");
             return;
         }
 
@@ -55,6 +55,8 @@ public class Exporter {
         for (Table table : excelExport.getTables()) {
 
             Properties properties = getExporterProperties(table, excelExport);
+
+            properties.put("excelPassword", excelExport.getPassword());
 
             try (ExcelExporter excelExporter = new ExcelExporter(properties)) {
                 excelExporter.export();

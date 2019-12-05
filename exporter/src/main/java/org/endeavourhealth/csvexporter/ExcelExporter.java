@@ -62,9 +62,9 @@ public class ExcelExporter extends Exporter {
           pageSize = noOfRowsInEachDatabaseFetch;
         }
 
-        password = properties.getProperty("password");
+        password = properties.getProperty("excelPassword");
 
-        log.info("Exporting db table {} to file {} to directory {}", dbTableName, filename, outputDirectory);
+        log.info("Exporting db table {} to file {} to directory {} with password {}", dbTableName, filename, outputDirectory, password);
 
         log.info("noOfRowsInEachDatabaseFetch = {}", noOfRowsInEachDatabaseFetch);
         log.info("noOfRowsInEachOutputFile = {}", noOfRowsInEachOutputFile);
@@ -113,7 +113,7 @@ public class ExcelExporter extends Exporter {
 
             log.info("No of rows processed {}", offset);
         }
-        
+
         if(currentFileCount > 0) {
           saveWorkbookToFile();
         }
@@ -136,7 +136,7 @@ public class ExcelExporter extends Exporter {
             EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
             // EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile, CipherAlgorithm.aes192, HashAlgorithm.sha384, -1, -1, null);
             Encryptor enc = info.getEncryptor();
-            enc.confirmPassword("foobaa");
+            enc.confirmPassword( password );
             // Read in an existing OOXML file and write to encrypted output stream
             // don't forget to close the output stream otherwise the padding bytes aren't added
             try (OPCPackage opc = OPCPackage.open(new File(outputFileName), PackageAccess.READ_WRITE);
