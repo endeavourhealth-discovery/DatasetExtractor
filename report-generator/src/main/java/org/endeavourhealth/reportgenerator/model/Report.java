@@ -77,6 +77,13 @@ public class Report extends AbstractEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private SftpUpload sftpUpload;
 
+    public String getOutputDirectory() {
+      if(csvExport != null && csvExport.getOutputDirectory() != null) return csvExport.getOutputDirectory();
+      if(excelExport != null && excelExport.getOutputDirectory() != null) return excelExport.getOutputDirectory();
+
+      return null;
+    }
+
     public boolean requiresDatabase() {
         //Filter not needed, but more explicit if declared here
         if(extensions != null && extensions.stream().filter( e -> e.getSwitchedOn() ).anyMatch( e -> e.requiresDatabase()) ) {
