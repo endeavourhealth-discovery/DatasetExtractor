@@ -180,7 +180,7 @@ public class SlackReporter {
     }
 
     private void appendReportSummary(Report report) {
-        append("Report " + report.getName() + " : " + report.getStatus());
+        append("Report " + report.getName() + " : " + report.getStatus().getDisplayName());
     }
 
     private void breakLine() {
