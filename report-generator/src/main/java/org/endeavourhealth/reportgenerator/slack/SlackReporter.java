@@ -69,9 +69,15 @@ public class SlackReporter {
                 append("Sftp switched Off");
             }
 
-
-            for (Table table : report.getCsvExport().getTables()) {
-                builder.append("CSV Table : " + table.getFileName());
+            if(report.getCsvExport() != null) {
+              for (Table table : report.getCsvExport().getTables()) {
+                  builder.append("CSV Table : " + table.getFileName());
+              }
+            }
+            if(report.getExcelExport() != null) {
+              for (Table table : report.getExcelExport().getTables()) {
+                  builder.append("Excel Table : " + table.getFileName());
+              }
             }
             breakLine();
 
