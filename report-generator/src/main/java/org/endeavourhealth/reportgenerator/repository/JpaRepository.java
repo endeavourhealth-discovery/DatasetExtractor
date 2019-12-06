@@ -204,11 +204,11 @@ public class JpaRepository {
         log.debug("Have got {} rows", rows.size());
 
         Query update = entityManagerCompass.createNativeQuery("update " + tableName + " d set " +
-                "d.NHSNumber = ? where d.pseudo_id = ?");
+                "d.nhs_number = ? where d.pseudo_id = ?");
 
         for(Object[] row : rows) {
 
-            update.setParameter(1, row[1])
+            update.setParameter(1, row[1]); //nhs_number
 
             update.setParameter(2, row[0]); //pseudo_id
 

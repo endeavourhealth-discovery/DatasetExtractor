@@ -163,7 +163,7 @@ public class ExcelExporter extends Exporter {
             outputFileName = fileCount == 0 ?  outputDirectory + filename + ".unenc" : outputDirectory  + filename + fileCount + ".unenc";
         }
 
-        log.info("Creating unencrypted file {}.....", outputFileName);
+        log.info("Creating unencrypted file {}", outputFileName);
 
         FileOutputStream fileOut = new FileOutputStream( outputFileName );
         workbook.write(fileOut);
