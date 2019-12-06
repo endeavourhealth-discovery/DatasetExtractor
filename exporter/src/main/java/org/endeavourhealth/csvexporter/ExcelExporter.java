@@ -174,6 +174,7 @@ public class ExcelExporter extends Exporter {
         if(password != null) {
             encrypt(outputFileName);
             //Delete unencrypted file
+            log.debug("Deleting unencrypted file {}", outputFileName);
             Files.delete(Paths.get( outputFileName) );
         }
     }
