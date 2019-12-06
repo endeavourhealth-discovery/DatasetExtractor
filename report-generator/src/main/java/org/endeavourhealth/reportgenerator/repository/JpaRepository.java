@@ -150,6 +150,17 @@ public class JpaRepository {
         return query.getResultList();
     }
 
+    public List<String> getPseudoIds(Integer offset, String tableName) {
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        String sql = "select distinct pseudo_id from "+ tableName + " limit " + offset + ", 3000";
+        Query query = entityManager.createNativeQuery(sql);
+
+        log.debug("Sql {}", sql);
+
+        return query.getResultList();
+    }
+
     public List<String> getPseudoIdsForELGH(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
@@ -170,6 +181,49 @@ public class JpaRepository {
         log.trace("Sql {}", sql);
 
         return query.getResultList();
+    }
+
+    public List<Object[]> deanonymiseFrailty(List<String> pseudoIds, String tableName) {
+
+        EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
+
+        entityManagerCore.getTransaction().begin();
+        entityManagerCompass.getTransaction().begin();
+
+        Query query = entityManagerCore.createNativeQuery("select s.pseudo_id," +
+                "p.nhs_number" +
+                " from eds.patient_search p " +
+                " join subscriber_transform_ceg_enterprise.pseudo_id_map s on p.patient_id = s.patient_id" +
+                " where s.pseudo_id in (:pseudoIds) and p.registered_practice_ods_code is not null and p.nhs_number is not null");
+
+        query.setParameter("pseudoIds", pseudoIds);
+
+        List<Object[]> rows = query.getResultList();
+
+        log.debug("Have got {} rows", rows.size());
+
+        Query update = entityManagerCompass.createNativeQuery("update " + tableName + " d set " +
+                "d.NHSNumber = ? where d.pseudo_id = ?");
+
+        for(Object[] row : rows) {
+
+            update.setParameter(1, row[1])
+
+            update.setParameter(2, row[0]); //pseudo_id
+
+            update.executeUpdate();
+
+            log.trace("Updating {}", row[0]);
+        }
+
+        entityManagerCore.getTransaction().commit();
+        entityManagerCore.close();
+
+        entityManagerCompass.getTransaction().commit();
+        entityManagerCompass.close();
+
+        return rows;
     }
 
     public List<Object[]> deanonymiseEYE(List<String> pseudoIds) {

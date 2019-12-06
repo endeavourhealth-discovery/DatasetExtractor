@@ -40,6 +40,39 @@ public class ExtensionExecutor {
             case DEANONYMISE_EYE:
                 executeDeanonymiseEye(extension);
                 break;
+            case DEANONYMISE_FRAILTY:
+                executeDeanonymiseFrailty(extension);
+                break;
+        }
+    }
+
+    //        - name: "BF_OUT_Royal_London"
+    //        - name: "BF_OUT_Newham"
+    //        - name: "BF_OUT_Whipps_Cross"
+    private void executeDeanonymiseFrailty(Extension extension) {
+        log.info("Running deanonymising of frailty, running...");
+
+        repository.bootEntityManagerFactoryCore();
+
+        deanonymise("BF_OUT_Royal_London");
+        deanonymise("BF_OUT_Newham");
+        deanonymise("BF_OUT_Whipps_Cross");
+
+        log.info("...deanonymising all done");
+    }
+
+    private void deanonymise(String tableName) {
+        Integer offset = 0;
+
+        List<String> pseudoIds = repository.getPseudoIds(offset, tableName );
+
+        while (pseudoIds.size() > 0) {
+
+            repository.deanonymiseFrailty(pseudoIds, tableName);
+
+            offset += 3000;
+
+            pseudoIds = repository.getPseudoIds(offset, tableName );
         }
     }
 
