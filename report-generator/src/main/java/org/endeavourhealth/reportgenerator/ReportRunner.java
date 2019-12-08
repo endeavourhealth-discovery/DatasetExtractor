@@ -2,6 +2,7 @@ package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.ReportStatus;
 import org.endeavourhealth.reportgenerator.repository.ReportRepository;
 import org.endeavourhealth.reportgenerator.slack.SlackReporter;
 import org.endeavourhealth.reportgenerator.validator.ReportValidator;
@@ -22,6 +23,8 @@ public class ReportRunner {
 
         List<Report> reports = loadReports( properties );
 
+        SlackReporter slackReporter = new SlackReporter( properties);
+
         ReportRepository reportRepository = new ReportRepository( properties );
 
         try (  ReportGenerator reportGenerator = new ReportGenerator( properties ) ) {
@@ -34,11 +37,14 @@ public class ReportRunner {
 
         } catch (Exception e) {
             log.error("Exception during report generator", e);
+            slackReporter.sendSlackErrorMessage("There has been an unexpected error in the report generator, please see logs for further details " + e.getMessage());
         }
 
-        SlackReporter slackReporter = new SlackReporter( properties.getProperty("slack.audit.url"), properties.getProperty("slack.error.url"), properties.getProperty("slack.switched.on") );
-
         slackReporter.report( reports );
+
+        if(reports.stream().anyMatch(r -> r.getStatus() == ReportStatus.FAILURE) == true) {
+            slackReporter.sendSlackErrorMessage("There has been a report failure, please see aws-extract-reports channel for further details");
+        };
     }
 
     private static Properties loadProperties(String[] args) throws IOException {
