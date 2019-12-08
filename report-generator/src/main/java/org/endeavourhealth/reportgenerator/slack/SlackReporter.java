@@ -8,6 +8,7 @@ import org.endeavourhealth.reportgenerator.model.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Properties;
 
 @Slf4j
 public class SlackReporter {
@@ -20,13 +21,13 @@ public class SlackReporter {
 
     private StringBuilder builder = new StringBuilder();
 
-    public SlackReporter(String slackAuditUrl, String slackErrorUrl, String switchedOn) {
+    public SlackReporter(Properties properties) {
         super();
-        this.slackAuditUrl = slackAuditUrl;
-        this.slackErrorUrl = slackErrorUrl;
+        this.slackAuditUrl = properties.getProperty("slack.audit.url");
+        this.slackErrorUrl = properties.getProperty("slack.error.url");
+        String switchedOn = properties.getProperty("slack.switched.on");
         if (switchedOn != null && switchedOn.equals("false")) this.switchedOn = false;
     }
-
 
     public void report(List<Report> reports) {
 
@@ -76,7 +77,7 @@ public class SlackReporter {
             }
             if(report.getExcelExport() != null) {
               for (Table table : report.getExcelExport().getTables()) {
-                  builder.append("Excel Table : " + table.getFileName());
+                  builder.append("Excel Table : ").append(table.getFileName());
               }
             }
             breakLine();
