@@ -146,7 +146,7 @@ public class ExcelExporter extends Exporter {
 
             outputFileName = outputFileName.replace("unenc", "xlsx");
 
-            log.info("Creating encrypted file {}.....", outputFileName);
+            log.info("Creating encrypted file {}", outputFileName);
 
             // Write out the encrypted version
             try (FileOutputStream fos = new FileOutputStream(outputFileName)) {
