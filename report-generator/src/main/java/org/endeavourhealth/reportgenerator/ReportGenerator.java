@@ -1,12 +1,9 @@
 package org.endeavourhealth.reportgenerator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.common.security.datasharingmanagermodel.models.DAL.SecurityProjectDAL;
 import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.ExtractTechnicalDetailsEntity;
 import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.OrganisationEntity;
 import org.endeavourhealth.common.security.datasharingmanagermodel.models.database.ProjectScheduleEntity;
-import org.endeavourhealth.common.security.datasharingmanagermodel.models.enums.MapType;
-import org.endeavourhealth.csvexporter.CSVExporter;
 import org.endeavourhealth.reportgenerator.beans.DSMConfiguration;
 import org.endeavourhealth.reportgenerator.model.*;
 import org.endeavourhealth.reportgenerator.repository.DSMRepository;
@@ -62,9 +59,11 @@ public class ReportGenerator implements AutoCloseable {
 
             try {
                 executeReport(report);
+                report.setStatus(ReportStatus.SUCCESS);
             } catch (Exception e) {
                 log.error("Report " + report + " has thrown exception", e);
                 report.setErrorMessage( e.getMessage() );
+                report.setStatus(ReportStatus.FAILURE);
             }
 
             report.setEndTime(LocalDateTime.now());
@@ -97,14 +96,17 @@ public class ReportGenerator implements AutoCloseable {
 
         if (!report.getActive()) {
             log.warn("Report is inactive");
+            report.setStatus(ReportStatus.INACTIVE);
             return false;
         }
         if (!report.isValid()) {
             log.warn("Report is invalid {}", report.getErrors());
+            report.setStatus(ReportStatus.INVALID_CONFIGURATION);
             return false;
         }
         if(!scheduler.isScheduled( report.getSchedule() )) {
             log.info("Report is not scheduled");
+            report.setStatus(ReportStatus.NOT_SCHEDULED);
             return false;
         }
 
@@ -128,7 +130,7 @@ public class ReportGenerator implements AutoCloseable {
 
         callStoredProcedures( report, false );
 
-        exportToCSVFile( report );
+        export( report );
 
         zipAndEncrypt( report );
 
@@ -232,84 +234,11 @@ public class ReportGenerator implements AutoCloseable {
 
     }
 
-    private void exportToCSVFile(Report report) throws Exception {
+    private void export(Report report) throws Exception {
 
-        CSVExport csvExport = report.getCsvExport();
+        Exporter exporter = new Exporter( report, properties );
 
-        if (csvExport == null) {
-            log.info("No configuration for csv export found, nothing to do here");
-            return;
-        }
-
-        if (!csvExport.getSwitchedOn()) {
-            log.info("CSV switched off, nothing to do here");
-            return;
-        }
-
-        if (csvExport.getTables().isEmpty()) {
-            log.info("CSV configuration found, but no csv tables to export, nothing to do here");
-            return;
-        }
-
-        File outputDirectory = new File(csvExport.getOutputDirectory());
-
-        cleanDirectory(outputDirectory);
-
-        for (Table table : csvExport.getTables()) {
-
-            Properties properties = getCSVExporterProperties(report, table);
-
-            try (CSVExporter csvExporter = new CSVExporter(properties)) {
-                csvExporter.exportCSV();
-            }
-        }
-    }
-
-
-    private void cleanDirectory(File directory) throws IOException {
-      log.info("Deleting all files from directory {}", directory);
-
-        Path pathToBeDeleted = Paths.get(directory.getAbsolutePath());
-
-        Files.walk(pathToBeDeleted)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .filter(f -> !f.getAbsolutePath().equals(directory.getAbsolutePath()))//Don't delete parent
-                .forEach(File::delete);
-    }
-
-    private Properties getCSVExporterProperties(Report report, Table table) {
-
-        Properties p = new Properties();
-
-        switch ( report.getCsvExport().getDatabase() ) {
-            case COMPASS:
-                p.put("url", properties.getProperty("db.compass.url"));
-                p.put("user", properties.getProperty("db.compass.user"));
-                p.put("password", properties.getProperty("db.compass.password"));
-                break;
-            case CORE:
-                p.put("url", properties.getProperty("db.core.url"));
-                p.put("user", properties.getProperty("db.core.user"));
-                p.put("password", properties.getProperty("db.core.password"));
-                break;
-            case PCR:
-                p.put("url", properties.getProperty("db.pcr.url"));
-                p.put("user", properties.getProperty("db.pcr.user"));
-                p.put("password", properties.getProperty("db.pcr.password"));
-                break;
-        }
-
-        CSVExport csvExport = report.getCsvExport();
-
-        p.put("outputDirectory", csvExport.getOutputDirectory());
-        p.put("noOfRowsInEachDatabaseFetch", "50000");
-
-        p.put("dbTableName", table.getName());
-        p.put("csvFilename", table.getFileName());
-        p.put("noOfRowsInEachOutputFile", csvExport.getMaxNumOfRowsInEachOutputFile().toString());
-
-        return p;
+        exporter.export();
     }
 
     private void callStoredProcedures(Report report, boolean isPre) {
@@ -347,6 +276,18 @@ public class ReportGenerator implements AutoCloseable {
 
         log.info("Stored procedures all called");
     }
+
+    private void cleanDirectory(File directory) throws IOException {
+        log.info("Deleting all files from directory {}", directory);
+
+        Path pathToBeDeleted = Paths.get(directory.getAbsolutePath());
+
+        Files.walk(pathToBeDeleted)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .filter(f -> !f.getAbsolutePath().equals(directory.getAbsolutePath()))//Don't delete parent
+                .forEach(File::delete);
+    }    
 
     @Override
     public void close() throws Exception {

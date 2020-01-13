@@ -10,10 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>csv-exporter</module>
+        <module>exporter</module>
         <module>report-generator</module>
-        <module>fihr-exporter</module>
-        <module>mysql-exporter</module>
         <module>observation-batcher</module>
     </modules>
 

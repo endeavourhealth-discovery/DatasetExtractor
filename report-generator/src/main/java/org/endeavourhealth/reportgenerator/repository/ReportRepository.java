@@ -2,6 +2,7 @@ package org.endeavourhealth.reportgenerator.repository;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.endeavourhealth.reportgenerator.model.Report;
+import org.endeavourhealth.reportgenerator.model.ReportStatus;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 
@@ -31,26 +32,15 @@ public class ReportRepository extends Repository implements AutoCloseable {
         entityManagerFactory = Persistence.createEntityManagerFactory("reportDatabase", properties);
     }
 
-
-//    public ReportRepository(Properties properties) {
-//        this();
-//
-//        properties.put("javax.persistence.jdbc.password", properties.get("db.report.password"));
-//        properties.put("javax.persistence.jdbc.user", properties.getProperty("db.report.user"));
-//        properties.put("javax.persistence.jdbc.url", properties.getProperty("db.report.url"));
-//
-//        entityManagerFactory = getEntityManagerFactory( getClass().getSimpleName(), null, properties);
-//    }
-
     public void save(List<Report> reports) {
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         entityManager.getTransaction().begin();
 
-        for (Report report : reports) {
-            entityManager.persist(report);
-        }
+        reports.stream()
+                .filter( r -> r.getStatus() != ReportStatus.NOT_SCHEDULED && r.getStatus() != ReportStatus.INACTIVE)
+                .forEach( r -> entityManager.persist(r) );
 
         entityManager.getTransaction().commit();
         entityManager.close();
@@ -60,6 +50,5 @@ public class ReportRepository extends Repository implements AutoCloseable {
     public void close() throws Exception {
 
         entityManagerFactory.close();
-
     }
 }

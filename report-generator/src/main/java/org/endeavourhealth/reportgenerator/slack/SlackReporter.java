@@ -8,22 +8,26 @@ import org.endeavourhealth.reportgenerator.model.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Properties;
 
 @Slf4j
 public class SlackReporter {
 
-    private final String slackUrl;
+    private final String slackAuditUrl;
+
+    private final String slackErrorUrl;
 
     private boolean switchedOn  = true;
 
     private StringBuilder builder = new StringBuilder();
 
-    public SlackReporter(String slackUrl, String switchedOn) {
+    public SlackReporter(Properties properties) {
         super();
-        this.slackUrl = slackUrl;
+        this.slackAuditUrl = properties.getProperty("slack.audit.url");
+        this.slackErrorUrl = properties.getProperty("slack.error.url");
+        String switchedOn = properties.getProperty("slack.switched.on");
         if (switchedOn != null && switchedOn.equals("false")) this.switchedOn = false;
     }
-
 
     public void report(List<Report> reports) {
 
@@ -37,7 +41,7 @@ public class SlackReporter {
 
         appendFullReport(reports);
 
-        sendSlackMessage(builder.toString());
+        sendSlackAuditMessage(builder.toString());
     }
 
     private void appendPartialReport(List<Report> reports) {
@@ -66,9 +70,15 @@ public class SlackReporter {
                 append("Sftp switched Off");
             }
 
-
-            for (Table table : report.getCsvExport().getTables()) {
-                builder.append("CSV Table : " + table.getFileName());
+            if(report.getCsvExport() != null) {
+              for (Table table : report.getCsvExport().getTables()) {
+                  builder.append("CSV Table : " + table.getFileName());
+              }
+            }
+            if(report.getExcelExport() != null) {
+              for (Table table : report.getExcelExport().getTables()) {
+                  builder.append("Excel Table : ").append(table.getFileName());
+              }
             }
             breakLine();
 
@@ -115,16 +125,32 @@ public class SlackReporter {
         append("*Report Scheduler has run at " + today + "*");
     }
 
-    private void sendSlackMessage(String message) {
+    private void sendSlackAuditMessage(String message) {
 
-        log.info("Sending slack builder");
+        log.info("Sending slack audit message");
 
         log.info(message);
 
         SlackMessage slackMessage = new SlackMessage(message);
 
         try {
-            SlackApi slackApi = new SlackApi(slackUrl);
+            SlackApi slackApi = new SlackApi(slackAuditUrl);
+            slackApi.call(slackMessage);
+        } catch (Exception e) {
+            log.error("Cannot send message to slack", e);
+        }
+    }
+
+    public void sendSlackErrorMessage(String message) {
+
+        log.info("Sending slack error message");
+
+        log.info(message);
+
+        SlackMessage slackMessage = new SlackMessage(message);
+
+        try {
+            SlackApi slackApi = new SlackApi(slackErrorUrl);
             slackApi.call(slackMessage);
         } catch (Exception e) {
             log.error("Cannot send message to slack", e);
@@ -161,7 +187,7 @@ public class SlackReporter {
     }
 
     private void appendReportSummary(Report report) {
-        append("Report " + report.getName() + " : " + report.getStatus());
+        append("Report " + report.getName() + " : " + report.getStatus().getDisplayName());
     }
 
     private void breakLine() {

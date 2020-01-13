@@ -47,12 +47,11 @@ public class FileZipper {
 
     private File getSource(Report report) {
         Zipper zipper = report.getZipper();
-        CSVExport csvExport = report.getCsvExport();
 
         String source = null;
 
-        if(csvExport != null && report.getCsvExport().getOutputDirectory() != null) {
-             source = report.getCsvExport().getOutputDirectory();
+        if(report.getOutputDirectory() != null) {
+          source = report.getOutputDirectory();
         }
 
         if(zipper != null && zipper.getSourceDirectory() != null) {

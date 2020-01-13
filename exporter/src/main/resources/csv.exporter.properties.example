@@ -1,0 +1,13 @@
+#Database table properties
+tablename=test
+orderBy=a
+outputDirectory=/tmp/
+dbTableName=test
+filename=bob
+
+# CSV Output properties
+
+noOfRowsInEachOutputFile=1
+noOfRowsInEachDatabaseFetch=10000
+password=foobaa
+

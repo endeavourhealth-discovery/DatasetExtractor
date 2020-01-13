@@ -53,24 +53,36 @@ public class Report extends AbstractEntity {
     private List<@Valid Extension> extensions;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private Zipper zipper;
+    private Zipper zipper = new Zipper();
 
     //Delta
     @OneToOne(cascade = CascadeType.ALL)
     private Delta delta;
 
-    @Transient
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ReportStatus status;
 
     //CSV
     @Valid
     @OneToOne(cascade = CascadeType.ALL)
     private CSVExport csvExport;
 
+    //CSV
+    @Valid
+    @OneToOne(cascade = CascadeType.ALL)
+    private ExcelExport excelExport;
+
     //SFTP
     @Valid
     @OneToOne(cascade = CascadeType.ALL)
     private SftpUpload sftpUpload;
+
+    public String getOutputDirectory() {
+      if(csvExport != null && csvExport.getOutputDirectory() != null) return csvExport.getOutputDirectory();
+      if(excelExport != null && excelExport.getOutputDirectory() != null) return excelExport.getOutputDirectory();
+
+      return null;
+    }
 
     public boolean requiresDatabase() {
         //Filter not needed, but more explicit if declared here
@@ -97,24 +109,6 @@ public class Report extends AbstractEntity {
 
     public boolean isValid() {
         return constraintViolations == null || constraintViolations.isEmpty() ? true : false;
-    }
-
-    public String getStatus() {
-        if(status != null) return status;
-
-        if(!active) {
-            return "Inactive";
-        }
-
-        if(errorMessage != null){
-            return "Failure";
-        }
-
-        if(!isValid()) {
-            return "Invalid Configuration";
-        }
-
-        return "Success";
     }
 
     public String getErrors() {

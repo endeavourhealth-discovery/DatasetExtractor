@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.27, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.28, for Linux (x86_64)
 --
 -- Host: localhost    Database: data_extracts
 -- ------------------------------------------------------
--- Server version	5.7.27-0ubuntu0.16.04.1
+-- Server version	5.7.28-0ubuntu0.16.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,10 +14,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-use data_extracts;
+
 --
 -- Table structure for table `CSVExport`
 --
+
+use data_extracts;
 
 DROP TABLE IF EXISTS `CSVExport`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -29,7 +31,7 @@ CREATE TABLE `CSVExport` (
   `outputDirectory` varchar(255) NOT NULL,
   `switchedOn` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,7 +45,7 @@ CREATE TABLE `CSVExport_Table` (
   `CSVExport_id` bigint(20) NOT NULL,
   `tables_id` bigint(20) NOT NULL,
   UNIQUE KEY `UK_l9bdt1lif1xvrjn5oynhhd8xq` (`tables_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -60,7 +62,7 @@ CREATE TABLE `CSVExport_db_table` (
   KEY `FKbppx3p6icv7vgdhyppkgcckv1` (`CSVExport_id`),
   CONSTRAINT `FKbppx3p6icv7vgdhyppkgcckv1` FOREIGN KEY (`CSVExport_id`) REFERENCES `CSVExport` (`id`),
   CONSTRAINT `FKhuolt5tum2xx8h96g3nuijxab` FOREIGN KEY (`tables_id`) REFERENCES `db_table` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +76,7 @@ CREATE TABLE `Delta` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `switchedOn` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -91,7 +93,7 @@ CREATE TABLE `DeltaTable` (
   `name` varchar(255) NOT NULL,
   `uniqueIdentifier` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -108,7 +110,7 @@ CREATE TABLE `Delta_DeltaTable` (
   KEY `FK4u0wtwke71o21q1fgs47pnqma` (`Delta_id`),
   CONSTRAINT `FK36a8liptthovgc571nf26bbpd` FOREIGN KEY (`tables_id`) REFERENCES `DeltaTable` (`id`),
   CONSTRAINT `FK4u0wtwke71o21q1fgs47pnqma` FOREIGN KEY (`Delta_id`) REFERENCES `Delta` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -126,7 +128,7 @@ CREATE TABLE `Extension` (
   PRIMARY KEY (`id`),
   KEY `FKmelwqsbqa36696chag78ft4e1` (`report_id`),
   CONSTRAINT `FKmelwqsbqa36696chag78ft4e1` FOREIGN KEY (`report_id`) REFERENCES `Report` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -149,7 +151,9 @@ CREATE TABLE `Report` (
   `storedProcedureExecutor_id` bigint(20) DEFAULT NULL,
   `sftpUpload_id` bigint(20) DEFAULT NULL,
   `zipper_id` bigint(20) DEFAULT NULL,
-  `dsmProjectId` varchar(100) DEFAULT NULL,
+  `dsmProjectId` varchar(255) DEFAULT NULL,
+  `excelExport_id` bigint(20) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK99y4jwbn4nrju2gdwp3x0awi` (`delta_id`),
   KEY `FKbrpd196inl0nrqhmvr3akb704` (`schedule_id`),
@@ -157,13 +161,15 @@ CREATE TABLE `Report` (
   KEY `FK3uup6b7ll03yjk15c31j2um6` (`csvExport_id`),
   KEY `FKpm6tqr35ty5ry38ky05opwsu8` (`sftpUpload_id`),
   KEY `FKpwuidw95f0o7af89a1pdbob9o` (`zipper_id`),
+  KEY `FKc9o5gghmcvcogxg0tww3hqkhs` (`excelExport_id`),
   CONSTRAINT `FK3uup6b7ll03yjk15c31j2um6` FOREIGN KEY (`csvExport_id`) REFERENCES `CSVExport` (`id`),
   CONSTRAINT `FK99y4jwbn4nrju2gdwp3x0awi` FOREIGN KEY (`delta_id`) REFERENCES `Delta` (`id`),
   CONSTRAINT `FKbrpd196inl0nrqhmvr3akb704` FOREIGN KEY (`schedule_id`) REFERENCES `Schedule` (`id`),
+  CONSTRAINT `FKc9o5gghmcvcogxg0tww3hqkhs` FOREIGN KEY (`excelExport_id`) REFERENCES `ExcelExport` (`id`),
   CONSTRAINT `FKdgc9lb9jfcka66a4qunvumckf` FOREIGN KEY (`storedProcedureExecutor_id`) REFERENCES `StoredProcedureExecutor` (`id`),
   CONSTRAINT `FKpm6tqr35ty5ry38ky05opwsu8` FOREIGN KEY (`sftpUpload_id`) REFERENCES `SftpUpload` (`id`),
   CONSTRAINT `FKpwuidw95f0o7af89a1pdbob9o` FOREIGN KEY (`zipper_id`) REFERENCES `Zipper` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -179,7 +185,7 @@ CREATE TABLE `Schedule` (
   `dayOfWeek` int(11) DEFAULT NULL,
   `isDaily` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -194,7 +200,7 @@ CREATE TABLE `Schedule_skipDays` (
   `skipDays` int(11) DEFAULT NULL,
   KEY `FK3rpos1hboj7bqt8w4fpugwckh` (`Schedule_id`),
   CONSTRAINT `FK3rpos1hboj7bqt8w4fpugwckh` FOREIGN KEY (`Schedule_id`) REFERENCES `Schedule` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -215,7 +221,7 @@ CREATE TABLE `SftpUpload` (
   `username` varchar(255) NOT NULL,
   `zipFilename` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -230,7 +236,7 @@ CREATE TABLE `StoredProcedureExecutor` (
   `db` varchar(255) DEFAULT NULL,
   `switchedOn` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -245,7 +251,7 @@ CREATE TABLE `StoredProcedureExecutor_postStoredProcedures` (
   `postStoredProcedures` varchar(255) DEFAULT NULL,
   KEY `FKgxi6glvbdu7d4c0hyuo03k74l` (`StoredProcedureExecutor_id`),
   CONSTRAINT `FKgxi6glvbdu7d4c0hyuo03k74l` FOREIGN KEY (`StoredProcedureExecutor_id`) REFERENCES `StoredProcedureExecutor` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -260,7 +266,7 @@ CREATE TABLE `StoredProcedureExecutor_preStoredProcedures` (
   `preStoredProcedures` varchar(255) DEFAULT NULL,
   KEY `FKxuqoe6uc5m1gh64eaqnoxedk` (`StoredProcedureExecutor_id`),
   CONSTRAINT `FKxuqoe6uc5m1gh64eaqnoxedk` FOREIGN KEY (`StoredProcedureExecutor_id`) REFERENCES `StoredProcedureExecutor` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -274,11 +280,45 @@ CREATE TABLE `Zipper` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `sourceDirectory` varchar(255) DEFAULT NULL,
   `splitFiles` bit(1) DEFAULT NULL,
-  `encryptionMethod` varchar(20) DEFAULT NULL,
   `switchedOn` bit(1) DEFAULT NULL,
   `zipFilename` varchar(255) DEFAULT NULL,
+  `encryptionMethod` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ExcelExport`
+--
+
+DROP TABLE IF EXISTS `ExcelExport`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ExcelExport` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `db` varchar(255) DEFAULT NULL,
+  `maxNumOfRowsInEachOutputFile` int(11) DEFAULT NULL,
+  `outputDirectory` varchar(255) NOT NULL,
+  `switchedOn` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ExcelExport_db_table`
+--
+
+DROP TABLE IF EXISTS `ExcelExport_db_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ExcelExport_db_table` (
+  `ExcelExport_id` bigint(20) NOT NULL,
+  `tables_id` bigint(20) NOT NULL,
+  UNIQUE KEY `UK_a3m90qee3hhi8ru4m2bjilfq8` (`tables_id`),
+  KEY `FK7jmn1mjbwvoyodkkxgogia3ui` (`ExcelExport_id`),
+  CONSTRAINT `FK7jmn1mjbwvoyodkkxgogia3ui` FOREIGN KEY (`ExcelExport_id`) REFERENCES `ExcelExport` (`id`),
+  CONSTRAINT `FKj04uo0j060vv8gu8d4lecolu` FOREIGN KEY (`tables_id`) REFERENCES `db_table` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -290,4 +330,4 @@ CREATE TABLE `Zipper` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-18  9:43:19
+-- Dump completed on 2019-12-04 12:05:19
