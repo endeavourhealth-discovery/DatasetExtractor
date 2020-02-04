@@ -438,6 +438,7 @@ public class JpaRepository {
         return rows;
     }
 
+
     public List<Object[]> deanonymiseWFDiabetes(List<String> pseudoIds) {
 
         EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
