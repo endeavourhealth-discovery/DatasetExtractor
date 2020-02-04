@@ -183,6 +183,28 @@ public class JpaRepository {
         return query.getResultList();
     }
 
+    public List<String> getPseudoIdsForWFDiabetes(Integer offset) {
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        String sql = "select distinct patient_id from el_dm_dataset limit " + offset + ", 3000";
+        Query query = entityManager.createNativeQuery(sql);
+
+        log.trace("Sql {}", sql);
+
+        return query.getResultList();
+    }
+
+    public List<String> getPseudoIdsForBHRDiabetes(Integer offset) {
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        String sql = "select distinct patient_id from bhr_dm_dataset limit " + offset + ", 3000";
+        Query query = entityManager.createNativeQuery(sql);
+
+        log.trace("Sql {}", sql);
+
+        return query.getResultList();
+    }
+
     public List<Object[]> deanonymiseFrailty(List<String> pseudoIds, String tableName) {
 
         EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
@@ -386,6 +408,78 @@ public class JpaRepository {
                 "d.FirstName = ?," +
                 "d.LastName = ?," +
                 "d.BirthDate = ? where d.patient_id = ?");
+
+        for(Object[] row : rows) {
+
+            update.setParameter(1, row[1]);
+            update.setParameter(2, row[2]);
+            update.setParameter(3, row[3]);
+            update.setParameter(4, row[4]);
+            update.setParameter(5, row[5]);
+            update.setParameter(6, row[6]);
+            update.setParameter(7, row[7]);
+            update.setParameter(8, row[8]);
+            update.setParameter(9, row[9]);
+            update.setParameter(10, row[10]);
+
+            update.setParameter(11, row[0]); //pseudo_id
+
+            update.executeUpdate();
+
+            log.trace("Updating {}", row[0]);
+        }
+
+        entityManagerCore.getTransaction().commit();
+        entityManagerCore.close();
+
+        entityManagerCompass.getTransaction().commit();
+        entityManagerCompass.close();
+
+        return rows;
+    }
+
+    public List<Object[]> deanonymiseWFDiabetes(List<String> pseudoIds) {
+
+        EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
+
+        entityManagerCore.getTransaction().begin();
+        entityManagerCompass.getTransaction().begin();
+
+        Query query = entityManagerCore.createNativeQuery(
+                "SELECT s.enterprise_id," +
+                        "p.nhs_number," +
+                        "p.address_line_1," +
+                        "p.address_line_2," +
+                        "p.address_line_3," +
+                        "p.city," +
+                        "p.postcode," +
+                        "p.gender," +
+                        "p.forenames," +
+                        "p.surname," +
+                        "p.date_of_birth" +
+                        " FROM eds.patient_search p " +
+                        " JOIN subscriber_transform_ceg_enterprise.enterprise_id_map s on p.patient_id = s.resource_id" +
+                        " WHERE s.enterprise_id in (:pseudoIds)");
+
+        query.setParameter("pseudoIds", pseudoIds);
+
+        List<Object[]> rows = query.getResultList();
+
+        log.debug("Have got {} rows", rows.size());
+
+        Query update = entityManagerCompass.createNativeQuery(
+                "update el_dm_dataset d set " +
+                        "d.NHS_NO = ?," +
+                        "d.ADDR_1 = ?," +
+                        "d.ADDR_2 = ?," +
+                        "d.ADDR_3 = ?," +
+                        "d.ADDR_4 = ?," +
+                        "d.POST_CODE = ?," +
+                        "d.GENDER = ?," +
+                        "d.FIRSTNAME = ?," +
+                        "d.LASTNAME = ?," +
+                        "d.BIRTH_DATE = ? where d.patient_id = ?");
 
         for(Object[] row : rows) {
 
