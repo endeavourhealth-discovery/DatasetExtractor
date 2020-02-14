@@ -49,6 +49,8 @@ public class ExtensionExecutor {
             case DEANONYMISE_BHR_DIABETES:
                 executeDeanonymiseBHRDiabetes(extension);
                 break;
+            case DEANONYMISE_ELGH_PHASE_TWO:
+                executeDeanonymiseELGHPhaseTwo(extension);
         }
     }
 
@@ -173,8 +175,8 @@ public class ExtensionExecutor {
     }
 
     private void executeDeanonymiseBHRDiabetes(Extension extension) {
-
-        /*log.info("Report required deanonymising of BHR Diabetes, running...");
+        //TODO Method only needed if project goes ahead
+        log.info("Report required deanonymising of BHR Diabetes, running...");
 
         repository.bootEntityManagerFactoryCore();
 
@@ -191,7 +193,29 @@ public class ExtensionExecutor {
             pseudoIds = repository.getPseudoIdsForBHRDiabetes(offset);
         }
 
-        log.info("...deanonymising all done");*/
+        log.info("...deanonymising all done");
+    }
+
+    private void executeDeanonymiseELGHPhaseTwo(Extension extension) {
+
+        log.info("Report required deanonymising of East London Genes & Health Phase Two, running...");
+
+        repository.bootEntityManagerFactoryCore();
+
+        Integer offset = 0;
+
+        List<String> pseudoIds = repository.getPseudoIdsForELGHPhaseTwo(offset);
+
+        while (pseudoIds.size() > 0) {
+
+            repository.deanonymiseELGHPhaseTwo(pseudoIds);
+
+            offset += 3000;
+
+            pseudoIds = repository.getPseudoIdsForELGHPhaseTwo(offset);
+        }
+
+        log.info("...deanonymising all done");
     }
 
     private void executeDelta(Extension extension) {

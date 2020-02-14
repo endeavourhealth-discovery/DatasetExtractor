@@ -10,7 +10,8 @@ public enum ExtensionType {
     DEANONYMISE_FRAILTY("Deanonymise Frailty"),
     DEANONYMISE_ELGH("Deanonymise East London Genes & Health"),
     DEANONYMISE_WF_DIABETES("Deanonymise Waltham Forest Diabetes"),
-    DEANONYMISE_BHR_DIABETES("Deanonymise BHR Diabetes");
+    DEANONYMISE_BHR_DIABETES("Deanonymise BHR Diabetes"),
+    DEANONYMISE_ELGH_PHASE_TWO("Deanonymise East London Genes & Health Phase Two");
 
     @Getter
     String displayName;
