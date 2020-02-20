@@ -209,7 +209,7 @@ public class JpaRepository {
     public List<String> getPseudoIdsForELGHPhaseTwo(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
-        String sql = "select distinct Pseudo_id from gh2dataset1 limit " + offset + ", 3000";
+        String sql = "select distinct Pseudo_id from gh2_demographicsDataset limit " + offset + ", 3000";
         Query query = entityManager.createNativeQuery(sql);
 
         log.trace("Sql {}", sql);
@@ -553,7 +553,7 @@ public class JpaRepository {
         log.debug("Have got {} rows", rows.size());
 
         Query update = entityManagerCompass.createNativeQuery(
-                "UPDATE gh2dataset1 d SET " +
+                "UPDATE gh2_demographicsDataset d SET " +
                 "d.DateOfBirth = ?," +
                 "d.Gender = ?," +
                 "d.YearOfDeath = ?" +
