@@ -23,8 +23,8 @@ public class ExtensionExecutor {
         log.info("Executing extension {}", extension);
 
         if(!extension.getSwitchedOn()) {
-          log.info("Extension is switched off, nothing to do");
-          return;
+            log.info("Extension is switched off, nothing to do");
+            return;
         }
 
         switch (type) {
@@ -45,9 +45,6 @@ public class ExtensionExecutor {
                 break;
             case DEANONYMISE_WF_DIABETES:
                 executeDeanonymiseWFDiabetes(extension);
-                break;
-            case DEANONYMISE_BHR_DIABETES:
-                executeDeanonymiseBHRDiabetes(extension);
                 break;
             case DEANONYMISE_ELGH_PHASE_TWO:
                 executeDeanonymiseELGHPhaseTwo(extension);
@@ -91,6 +88,8 @@ public class ExtensionExecutor {
         log.info("Running deanonymising of Diabetes eye, running...");
 
         repository.bootEntityManagerFactoryCore();
+
+        repository.bootEntityManagerFactoryTransform();
 
         Integer offset = 0;
 
@@ -136,6 +135,8 @@ public class ExtensionExecutor {
 
         repository.bootEntityManagerFactoryCore();
 
+        repository.bootEntityManagerFactoryTransform();
+
         Integer offset = 0;
 
         List<String> pseudoIds = repository.getPseudoIdsForWF(offset);
@@ -158,6 +159,8 @@ public class ExtensionExecutor {
 
         repository.bootEntityManagerFactoryCore();
 
+        repository.bootEntityManagerFactoryTransform();
+
         Integer offset = 0;
 
         List<String> pseudoIds = repository.getPseudoIdsForWFDiabetes(offset);
@@ -174,33 +177,13 @@ public class ExtensionExecutor {
         log.info("...deanonymising all done");
     }
 
-    private void executeDeanonymiseBHRDiabetes(Extension extension) {
-        //TODO Method only needed if project goes ahead
-        log.info("Report required deanonymising of BHR Diabetes, running...");
-
-        repository.bootEntityManagerFactoryCore();
-
-        Integer offset = 0;
-
-        List<String> pseudoIds = repository.getPseudoIdsForBHRDiabetes(offset);
-
-        while (pseudoIds.size() > 0) {
-
-            repository.deanonymiseBHRDiabetes(pseudoIds);
-
-            offset += 3000;
-
-            pseudoIds = repository.getPseudoIdsForBHRDiabetes(offset);
-        }
-
-        log.info("...deanonymising all done");
-    }
-
     private void executeDeanonymiseELGHPhaseTwo(Extension extension) {
 
         log.info("Report required deanonymising of East London Genes & Health Phase Two, running...");
 
         repository.bootEntityManagerFactoryCore();
+
+        repository.bootEntityManagerFactoryTransform();
 
         Integer offset = 0;
 

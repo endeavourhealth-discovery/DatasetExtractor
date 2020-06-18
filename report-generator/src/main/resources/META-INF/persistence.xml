@@ -17,6 +17,15 @@
             <property name="hibernate.hbm2ddl.auto" value="none" />
         </properties>
     </persistence-unit>
+    <persistence-unit name="transformDatabase" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="hbm2ddl.auto" value="none" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+            <property name="hibernate.hbm2ddl.auto" value="none" />
+        </properties>
+    </persistence-unit>
     <persistence-unit name="reportDatabase" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
