@@ -202,7 +202,7 @@ public class JpaRepository {
     public List<String> getPseudoIdsForWF(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
-        String sql = "select distinct patient_id from dataset_wf limit " + offset + ", 3000";
+        String sql = "select distinct pseudo_id from dataset_wf limit " + offset + ", 3000";
         Query query = entityManager.createNativeQuery(sql);
 
         log.trace("Sql {}", sql);
@@ -427,19 +427,19 @@ public class JpaRepository {
         entityManagerCompass.getTransaction().begin();
 
         Query query1 = entityManagerTransform.createNativeQuery("select " +
-                "eim.enterprise_id, " +
-                "eim.resource_id" +
-                " from subscriber_transform_ceg_enterprise.enterprise_id_map eim" +
-                " where eim.enterprise_id in (:pseudoIds)");
+                "pim.pseudo_id, " +
+                "pim.patient_id" +
+                " from subscriber_transform_ceg_enterprise.pseudo_id_map pim" +
+                " where pim.pseudo_id in (:pseudoIds)");
 
         query1.setParameter("pseudoIds", pseudoIds);
 
-        List<Object[]> enterpriseAndResourceIds = query1.getResultList();
+        List<Object[]> pseudoAndPatientIds = query1.getResultList();
 
-        for (Object[] entry : enterpriseAndResourceIds) {
+        for (Object[] entry : pseudoAndPatientIds) {
 
             Query query2 = entityManagerCore.createNativeQuery("select " +
-                    "(:enterpriseId), " +
+                    "(:pseudoId), " +
                     "p.nhs_number," +
                     "p.address_line_1," +
                     "p.address_line_2," +
@@ -451,10 +451,12 @@ public class JpaRepository {
                     "p.surname," +
                     "p.date_of_birth" +
                     " from eds.patient_search p " +
-                    " where p.patient_id = (:resourceId)");
+                    " where p.patient_id = (:patientId)" +
+                    " and p.registered_practice_ods_code is not null" +
+                    " and p.nhs_number is not null");
 
-            query2.setParameter("enterpriseId", entry[0]);
-            query2.setParameter("resourceId", entry[1]);
+            query2.setParameter("pseudoId", entry[0]);
+            query2.setParameter("patientId", entry[1]);
 
             List<Object[]> rows = query2.getResultList();
 
@@ -470,7 +472,7 @@ public class JpaRepository {
                     "d.Gender = ?," +
                     "d.FirstName = ?," +
                     "d.LastName = ?," +
-                    "d.BirthDate = ? where d.patient_id = ?");
+                    "d.BirthDate = ? where d.pseudo_id = ?");
 
             for (Object[] row : rows) {
 
