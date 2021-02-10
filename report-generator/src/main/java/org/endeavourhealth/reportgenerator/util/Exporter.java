@@ -115,6 +115,11 @@ public class Exporter {
                 p.put("user", properties.getProperty("db.pcr.user"));
                 p.put("password", properties.getProperty("db.pcr.password"));
                 break;
+            case SEL:
+                p.put("url", properties.getProperty("db.sel.url"));
+                p.put("user", properties.getProperty("db.sel.user"));
+                p.put("password", properties.getProperty("db.sel.password"));
+                break;
         }
 
         p.put("outputDirectory", export.getOutputDirectory());

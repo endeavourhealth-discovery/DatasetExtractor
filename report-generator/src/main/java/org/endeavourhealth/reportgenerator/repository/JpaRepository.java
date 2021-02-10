@@ -46,6 +46,11 @@ public class JpaRepository {
                 properties.put("javax.persistence.jdbc.user", properties.getProperty("db.transform.user"));
                 properties.put("javax.persistence.jdbc.url", properties.getProperty("db.transform.url"));
                 break;
+            case SEL:
+                properties.put("javax.persistence.jdbc.password", properties.get("db.sel.password"));
+                properties.put("javax.persistence.jdbc.user", properties.getProperty("db.sel.user"));
+                properties.put("javax.persistence.jdbc.url", properties.getProperty("db.sel.url"));
+                break;
         }
 
         this.properties = properties;
