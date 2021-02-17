@@ -215,6 +215,17 @@ public class JpaRepository {
         return query.getResultList();
     }
 
+    public List<String> getPseudoIdsForINELImms(Integer offset) {
+        EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
+
+        String sql = "select distinct pseudo_id from dataset_iel limit " + offset + ", 3000";
+        Query query = entityManager.createNativeQuery(sql);
+
+        log.trace("Sql {}", sql);
+
+        return query.getResultList();
+    }
+
     public List<String> getPseudoIdsForWFDiabetes(Integer offset) {
         EntityManager entityManager = entityManagerFactoryPrimary.createEntityManager();
 
@@ -468,6 +479,98 @@ public class JpaRepository {
             // log.debug("Have got {} rows", rows.size());
 
             Query update = entityManagerCompass.createNativeQuery("update dataset_wf d set " +
+                    "d.NHSNumber = ?," +
+                    "d.AddressLine1 = ?," +
+                    "d.AddressLine2 = ?," +
+                    "d.AddressLine3 = ?," +
+                    "d.City = ?," +
+                    "d.Postcode = ?," +
+                    "d.Gender = ?," +
+                    "d.FirstName = ?," +
+                    "d.LastName = ?," +
+                    "d.BirthDate = ? where d.pseudo_id = ?");
+
+            for (Object[] row : rows) {
+
+                update.setParameter(1, row[1]);
+                update.setParameter(2, row[2]);
+                update.setParameter(3, row[3]);
+                update.setParameter(4, row[4]);
+                update.setParameter(5, row[5]);
+                update.setParameter(6, row[6]);
+                update.setParameter(7, row[7]);
+                update.setParameter(8, row[8]);
+                update.setParameter(9, row[9]);
+                update.setParameter(10, row[10]);
+
+                update.setParameter(11, row[0]); //pseudo_id
+
+                update.executeUpdate();
+
+                log.trace("Updating {}", row[0]);
+            }
+
+        }
+
+        entityManagerTransform.getTransaction().commit();
+        entityManagerTransform.close();
+
+        entityManagerCore.close();
+        entityManagerCore.getTransaction().commit();
+
+        entityManagerCompass.close();
+        entityManagerCompass.getTransaction().commit();
+
+        // return rows;
+    }
+
+    public void deanonymiseINELImms(List<String> pseudoIds) {
+
+        EntityManager entityManagerTransform = entityManagerFactoryTertiary.createEntityManager();
+        EntityManager entityManagerCore = entityManagerFactorySecondary.createEntityManager();
+        EntityManager entityManagerCompass = entityManagerFactoryPrimary.createEntityManager();
+
+        entityManagerTransform.getTransaction().begin();
+        entityManagerCore.getTransaction().begin();
+        entityManagerCompass.getTransaction().begin();
+
+        Query query1 = entityManagerTransform.createNativeQuery("select " +
+                "pim.pseudo_id, " +
+                "pim.patient_id" +
+                " from subscriber_transform_ceg_enterprise.pseudo_id_map pim" +
+                " where pim.pseudo_id in (:pseudoIds)");
+
+        query1.setParameter("pseudoIds", pseudoIds);
+
+        List<Object[]> pseudoAndPatientIds = query1.getResultList();
+
+        for (Object[] entry : pseudoAndPatientIds) {
+
+            Query query2 = entityManagerCore.createNativeQuery("select " +
+                    "(:pseudoId), " +
+                    "p.nhs_number," +
+                    "p.address_line_1," +
+                    "p.address_line_2," +
+                    "p.address_line_3," +
+                    "p.city," +
+                    "p.postcode," +
+                    "p.gender," +
+                    "p.forenames," +
+                    "p.surname," +
+                    "p.date_of_birth" +
+                    " from eds.patient_search p " +
+                    " where p.patient_id = (:patientId)" +
+                    " and p.registered_practice_ods_code is not null" +
+                    " and p.nhs_number is not null");
+
+            query2.setParameter("pseudoId", entry[0]);
+            query2.setParameter("patientId", entry[1]);
+
+            List<Object[]> rows = query2.getResultList();
+
+            // log.debug("Have got {} rows", rows.size());
+
+            Query update = entityManagerCompass.createNativeQuery("update dataset_iel d set " +
                     "d.NHSNumber = ?," +
                     "d.AddressLine1 = ?," +
                     "d.AddressLine2 = ?," +

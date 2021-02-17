@@ -34,6 +34,9 @@ public class ExtensionExecutor {
             case DEANONYMISE_WF:
                 executeDeanonymiseWF(extension);
                 break;
+            case DEANONYMISE_INEL_IMMS:
+                executeDeanonymiseINELImms(extension);
+                break;
             case DEANONYMISE_ELGH:
                 executeDeanonymiseELGH(extension);
                 break;
@@ -54,6 +57,7 @@ public class ExtensionExecutor {
     //        - name: "BF_OUT_Royal_London"
     //        - name: "BF_OUT_Newham"
     //        - name: "BF_OUT_Whipps_Cross"
+
     private void executeDeanonymiseFrailty(Extension extension) {
 
         log.info("Running deanonymising of frailty, running...");
@@ -148,6 +152,30 @@ public class ExtensionExecutor {
             offset += 3000;
 
             pseudoIds = repository.getPseudoIdsForWF(offset);
+        }
+
+        log.info("...deanonymising all done");
+    }
+
+    private void executeDeanonymiseINELImms(Extension extension) {
+
+        log.info("Report required deanonymising of INEL Imms, running...");
+
+        repository.bootEntityManagerFactoryCore();
+
+        repository.bootEntityManagerFactoryTransform();
+
+        Integer offset = 0;
+
+        List<String> pseudoIds = repository.getPseudoIdsForINELImms(offset);
+
+        while (pseudoIds.size() > 0) {
+
+            repository.deanonymiseINELImms(pseudoIds);
+
+            offset += 3000;
+
+            pseudoIds = repository.getPseudoIdsForINELImms(offset);
         }
 
         log.info("...deanonymising all done");
