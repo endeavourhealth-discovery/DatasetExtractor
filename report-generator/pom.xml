@@ -17,7 +17,7 @@
 
     <properties>
         <bouncycastle.version>1.60</bouncycastle.version>
-        <lingala.zip4j.version>2.2.6</lingala.zip4j.version>
+        <lingala.zip4j.version>2.9.1</lingala.zip4j.version>
         <jsch.version>0.1.55</jsch.version>
     </properties>
 
